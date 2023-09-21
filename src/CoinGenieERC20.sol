@@ -21,6 +21,8 @@ import { SafeTransfer } from "./lib/SafeTransfer.sol";
  * @title CoinGenieERC20
  * @author @neuro_0x
  * @notice A robust and secure ERC20 token for the Coin Genie ecosystem
+ *
+ * @notice THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
  */
 contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -38,7 +40,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
 
     /// @dev The amount of $GENIE a person has to hold to get the discount
-    uint256 public discountFeeRequiredAmount = 50_000 ether;
+    uint256 public discountFeeRequiredAmount = 1_000_000 ether;
 
     /// @dev The address of the genie token
     address public genieToken;
@@ -97,6 +99,8 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
 
     /// @dev Are we currently swapping tokens for ETH?
     bool private _inSwap;
+
+    mapping(address feePayer => bool isWhitelisted) private _feeWhitelist;
 
     /// @dev Modifier to prevent swapping tokens for ETH recursively
     modifier lockTheSwap() {
@@ -224,6 +228,10 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         if (initialSupplyToSet != 0) {
             _mint(tokenOwner, initialSupplyToSet);
         }
+
+        _feeWhitelist[address(this)] = true;
+        _feeWhitelist[tokenOwner] = true;
+        _feeWhitelist[feeRecipient] = true;
     }
 
     /**
@@ -257,6 +265,13 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      */
     function isBurnable() public view returns (bool) {
         return tokenConfig.isBurnable;
+    }
+
+    /**
+     * @return true if the feePayer is whitelisted
+     */
+    function isWhitelisted(address feePayer) public view returns (bool) {
+        return _feeWhitelist[feePayer];
     }
 
     /**
@@ -375,46 +390,14 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      */
     function transfer(address to, uint256 amount) public virtual override whenNotPaused returns (bool) {
         address from = msg.sender;
-        uint256 amountToTransfer = amount;
-        uint256 royaltyAmount = _calculateRoyaltyAmount(from, amount);
-        uint256 taxAmount = _calculateTaxAmount(from, amount);
-        uint256 deflationAmount = _calculateBurnAmount(amount);
-        bool excludedFromFee = from == address(this) || from == owner() || to == address(this) || to == owner();
 
-        if (!excludedFromFee) {
-            if (balanceOf(to) + amountToTransfer > maxTokenAmountPerAddress) {
-                revert DestBalanceExceedsMaxAllowed(to);
-            }
+        if (isSwapEnabled && !_feeWhitelist[from] && !_feeWhitelist[to]) {
+            uint256 amountToTransfer = _takeFees(from, to, amount);
 
-            if (isSwapEnabled) {
-                if (royaltyAmount != 0) {
-                    _transfer(from, coinGenieTreasury, royaltyAmount);
-                    amountToTransfer = amountToTransfer - royaltyAmount;
-                }
-
-                if (taxAmount != 0) {
-                    _transfer(from, feeRecipient, taxAmount);
-                    amountToTransfer = amountToTransfer - taxAmount;
-                }
-
-                if (deflationAmount != 0) {
-                    _burn(from, deflationAmount);
-                    amountToTransfer = amountToTransfer - deflationAmount;
-                }
-            }
+            return super.transfer(to, amountToTransfer);
         }
 
-        uint256 contractTokenBalance = balanceOf(address(this));
-        if (isSwapEnabled && !_inSwap && to == uniswapV2Pair && contractTokenBalance > maxTaxSwap) {
-            _swapTokensForEth(_min(amountToTransfer, _min(maxTaxSwap, contractTokenBalance)));
-
-            uint256 contractEthBalance = address(this).balance;
-            if (contractEthBalance > autoWithdrawThreshold) {
-                payable(feeRecipient).transfer(contractEthBalance);
-            }
-        }
-
-        return super.transfer(to, amountToTransfer);
+        return super.transfer(to, amount);
     }
 
     /**
@@ -442,46 +425,13 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         whenNotPaused
         returns (bool)
     {
-        uint256 amountToTransfer = amount;
-        uint256 royaltyAmount = _calculateRoyaltyAmount(from, amount);
-        uint256 taxAmount = _calculateTaxAmount(from, amount);
-        uint256 deflationAmount = _calculateBurnAmount(amount);
-        bool excludedFromFee = from == address(this) || from == owner() || to == address(this) || to == owner();
+        if (isSwapEnabled && !_feeWhitelist[from] && !_feeWhitelist[to]) {
+            uint256 amountToTransfer = _takeFees(from, to, amount);
 
-        if (!excludedFromFee) {
-            if (balanceOf(to) + amountToTransfer > maxTokenAmountPerAddress) {
-                revert DestBalanceExceedsMaxAllowed(to);
-            }
+            return super.transferFrom(from, to, amountToTransfer);
         }
 
-        if (!excludedFromFee) {
-            if (royaltyAmount != 0) {
-                _transfer(from, coinGenieTreasury, royaltyAmount);
-                amountToTransfer = amountToTransfer - royaltyAmount;
-            }
-
-            if (taxAmount != 0) {
-                _transfer(from, feeRecipient, taxAmount);
-                amountToTransfer = amountToTransfer - taxAmount;
-            }
-
-            if (deflationAmount != 0) {
-                _burn(from, deflationAmount);
-                amountToTransfer = amountToTransfer - deflationAmount;
-            }
-        }
-
-        uint256 contractTokenBalance = balanceOf(address(this));
-        if (isSwapEnabled && !_inSwap && to == uniswapV2Pair && contractTokenBalance > maxTaxSwap) {
-            _swapTokensForEth(_min(amountToTransfer, _min(maxTaxSwap, contractTokenBalance)));
-
-            uint256 contractEthBalance = address(this).balance;
-            if (contractEthBalance > autoWithdrawThreshold) {
-                payable(feeRecipient).transfer(contractEthBalance);
-            }
-        }
-
-        return super.transferFrom(from, to, amountToTransfer);
+        return super.transferFrom(from, to, amount);
     }
 
     /**
@@ -576,12 +526,13 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         // Get the ETH amount to LP and the ETH amount to treasury
         uint256 genieBalance = IERC20(genieToken).balanceOf(address(this));
         uint256 ethAmountToTreasury = value.mul(lpEthFeePercentage).div(_MAX_BPS);
-        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
 
         // If the genie balance is greater than the required amount, the fee is free
         if (genieBalance > discountFeeRequiredAmount) {
             ethAmountToTreasury = 0;
         }
+
+        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
 
         // Approve the router to spend the tokens
         _approve(address(this), address(UNISWAP_V2_ROUTER), totalSupply());
@@ -624,14 +575,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     }
 
     /**
-     * @dev Sets the amount of tokens needed to get the discount
-     * @param amount - the amount of tokens required to hold to get the discount
-     */
-    function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
-        discountFeeRequiredAmount = amount;
-    }
-
-    /**
      * @dev Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
      * the ETH to the tax wallet.
      */
@@ -648,74 +591,66 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         }
     }
 
-    /**
-     * @dev Gets the amount of tokens to be taxed during a transfer
-     * @param sender - the address of the originating account
-     * @param amount - the total amount of tokens sent in the transfer
-     * @return taxAmount - the amount of tax to send to the tax walelt
-     *
-     * @notice if the tax address is the same as the originating account performing the transfer, no tax is applied
-     */
-    function _calculateTaxAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount) {
-        taxAmount = 0;
+    function _takeFees(address from, address to, uint256 amount) private returns (uint256 amountToTransfer) {
+        (uint256 treasuryAmount, uint256 taxAmount, uint256 affiliateAmount, uint256 deflationAmount) =
+            _getTransferAmounts(amount);
 
-        if (feeRecipient == address(0)) {
-            return taxAmount;
+        amountToTransfer = amount - treasuryAmount - taxAmount - affiliateAmount - deflationAmount;
+
+        if (
+            from == uniswapV2Pair && to != address(UNISWAP_V2_ROUTER)
+                && balanceOf(to) + amountToTransfer > maxTokenAmountPerAddress
+        ) {
+            revert DestBalanceExceedsMaxAllowed(to);
         }
 
-        if (feePercentage != 0 && sender != feeRecipient) {
-            taxAmount = (amount * feePercentage) / _MAX_BPS;
-        }
-    }
-
-    /**
-     * @dev Gets the amount of tokens to be taxed during a transfer for the affiliate address
-     * @param sender - the address of the originating account
-     * @param amount - the total amount of tokens sent in the transfer
-     * @return taxAmount - the amount of tax to send to the affilate walelt
-     *
-     * @notice if the tax address is the same as the originating account performing the transfer, no tax is applied
-     */
-    function _calculateAffiliateAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount) {
-        taxAmount = 0;
-
-        if (affiliateFeeRecipient == address(0)) {
-            return taxAmount;
+        if (treasuryAmount != 0) {
+            _transfer(from, coinGenieTreasury, treasuryAmount);
         }
 
-        if (affiliateFeePercentage != 0 && sender != affiliateFeeRecipient) {
-            taxAmount = (amount * affiliateFeePercentage) / _MAX_BPS;
-        }
-    }
-
-    /**
-     * @dev Gets the amount of tokens to be taxed during a transfer for the royalty address
-     * @param sender - the address of the originating account
-     * @param amount - the total amount of tokens sent in the transfer
-     * @return taxAmount - the amount of tax to send to the royalty walelt
-     *
-     * @notice if the tax address is the same as the originating account performing the transfer, no tax is applied
-     */
-    function _calculateRoyaltyAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount) {
-        taxAmount = 0;
-
-        if (coinGenieTreasury == address(0)) {
-            return taxAmount;
+        if (affiliateAmount != 0) {
+            _transfer(from, affiliateFeeRecipient, affiliateAmount);
         }
 
-        if (treasuryFeePercentage != 0 && sender != coinGenieTreasury) {
-            taxAmount = (amount * treasuryFeePercentage) / _MAX_BPS;
+        if (taxAmount != 0) {
+            _transfer(from, feeRecipient, taxAmount);
+        }
+
+        if (deflationAmount != 0) {
+            _burn(from, deflationAmount);
+        }
+
+        uint256 contractTokenBalance = balanceOf(address(this));
+        // if not in a swap, the receiver is the LP token and the contract token balance is greater than the max tax
+        // swap, swap tokens for ETH
+        if (!_inSwap && to == uniswapV2Pair && contractTokenBalance > maxTaxSwap) {
+            _swapTokensForEth(_min(amountToTransfer, _min(maxTaxSwap, contractTokenBalance)));
+
+            // if the contract ETH balance is greater than the auto withdraw threshold, withdraw the ETH to the
+            // feeRecipient
+            uint256 contractEthBalance = address(this).balance;
+            if (contractEthBalance > autoWithdrawThreshold) {
+                payable(feeRecipient).transfer(contractEthBalance);
+            }
+
+            return amountToTransfer;
         }
     }
 
     /**
-     * @dev method which returns the amount of tokens to be burned during a transfer
-     * @param amount - the total amount of tokens sent in the transfer
-     * @return deflationAmount - the amount of tokens to be burned for deflation
+     * @dev Gets the amount of tokens to transfer and the amount of tax to capture
+     * @param amount The amount of tokens to transfer
      */
-    function _calculateBurnAmount(uint256 amount) internal view returns (uint256 deflationAmount) {
-        deflationAmount = 0;
-        if (burnPercentage != 0) {
+    function _getTransferAmounts(uint256 amount)
+        private
+        view
+        returns (uint256 treasuryAmount, uint256 taxAmount, uint256 affiliateAmount, uint256 deflationAmount)
+    {
+        treasuryAmount = (amount * treasuryFeePercentage) / _MAX_BPS;
+        taxAmount = (amount * feePercentage) / _MAX_BPS;
+        affiliateAmount = (amount * affiliateFeePercentage) / _MAX_BPS;
+
+        if (isDeflationary()) {
             deflationAmount = (amount * burnPercentage) / _MAX_BPS;
         }
     }

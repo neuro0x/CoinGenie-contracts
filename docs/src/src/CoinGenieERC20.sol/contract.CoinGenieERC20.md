@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/coingenie/blob/5a9c73251afb49b9883b803681df93aa311504f5/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0ff0bc3fd275beec72c45dbd48acbf4c3729be77/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -8,6 +8,8 @@ ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
 @neuro_0x
 
 A robust and secure ERC20 token for the Coin Genie ecosystem
+
+THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
 
 
 ## State Variables
@@ -52,7 +54,7 @@ uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
 
 
 ```solidity
-uint256 public discountFeeRequiredAmount = 50_000 ether;
+uint256 public discountFeeRequiredAmount = 1_000_000 ether;
 ```
 
 
@@ -227,6 +229,13 @@ bool private _inSwap;
 ```
 
 
+### _feeWhitelist
+
+```solidity
+mapping(address feePayer => bool isWhitelisted) private _feeWhitelist;
+```
+
+
 ## Functions
 ### lockTheSwap
 
@@ -326,6 +335,19 @@ function isBurnable() public view returns (bool);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`bool`|true if the token is burnable|
+
+
+### isWhitelisted
+
+
+```solidity
+function isWhitelisted(address feePayer) public view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if the feePayer is whitelisted|
 
 
 ### decimals
@@ -631,21 +653,6 @@ function setGenie(address genie) external onlyOwner;
 |`genie`|`address`|- the address of the genie token|
 
 
-### setDiscountFeeRequiredAmount
-
-*Sets the amount of tokens needed to get the discount*
-
-
-```solidity
-function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`amount`|`uint256`|- the amount of tokens required to hold to get the discount|
-
-
 ### manualSwap
 
 *Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
@@ -656,97 +663,29 @@ the ETH to the tax wallet.*
 function manualSwap() external nonReentrant;
 ```
 
-### _calculateTaxAmount
-
-if the tax address is the same as the originating account performing the transfer, no tax is applied
-
-*Gets the amount of tokens to be taxed during a transfer*
+### _takeFees
 
 
 ```solidity
-function _calculateTaxAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount);
+function _takeFees(address from, address to, uint256 amount) private returns (uint256 amountToTransfer);
+```
+
+### _getTransferAmounts
+
+*Gets the amount of tokens to transfer and the amount of tax to capture*
+
+
+```solidity
+function _getTransferAmounts(uint256 amount)
+    private
+    view
+    returns (uint256 treasuryAmount, uint256 taxAmount, uint256 affiliateAmount, uint256 deflationAmount);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`sender`|`address`|- the address of the originating account|
-|`amount`|`uint256`|- the total amount of tokens sent in the transfer|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`taxAmount`|`uint256`|- the amount of tax to send to the tax walelt|
-
-
-### _calculateAffiliateAmount
-
-if the tax address is the same as the originating account performing the transfer, no tax is applied
-
-*Gets the amount of tokens to be taxed during a transfer for the affiliate address*
-
-
-```solidity
-function _calculateAffiliateAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`sender`|`address`|- the address of the originating account|
-|`amount`|`uint256`|- the total amount of tokens sent in the transfer|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`taxAmount`|`uint256`|- the amount of tax to send to the affilate walelt|
-
-
-### _calculateRoyaltyAmount
-
-if the tax address is the same as the originating account performing the transfer, no tax is applied
-
-*Gets the amount of tokens to be taxed during a transfer for the royalty address*
-
-
-```solidity
-function _calculateRoyaltyAmount(address sender, uint256 amount) internal view returns (uint256 taxAmount);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`sender`|`address`|- the address of the originating account|
-|`amount`|`uint256`|- the total amount of tokens sent in the transfer|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`taxAmount`|`uint256`|- the amount of tax to send to the royalty walelt|
-
-
-### _calculateBurnAmount
-
-*method which returns the amount of tokens to be burned during a transfer*
-
-
-```solidity
-function _calculateBurnAmount(uint256 amount) internal view returns (uint256 deflationAmount);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`amount`|`uint256`|- the total amount of tokens sent in the transfer|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`deflationAmount`|`uint256`|- the amount of tokens to be burned for deflation|
+|`amount`|`uint256`|The amount of tokens to transfer|
 
 
 ### _swapTokensForEth

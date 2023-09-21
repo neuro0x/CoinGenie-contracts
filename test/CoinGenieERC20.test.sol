@@ -200,8 +200,7 @@ contract CoinGenieERC20Test is Test {
 
     function testFuzz_burn(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
-        vm.assume(amount <= balance / 2);
-        vm.assume(amount > 10_000);
+        vm.assume(amount <= balance);
 
         coinGenieERC20.burn(amount);
 
@@ -209,19 +208,19 @@ contract CoinGenieERC20Test is Test {
         assertEq(coinGenieERC20.totalSupply(), balance - amount);
     }
 
-    function testFuzz_burnFrom() public {
+    function testFuzz_burnFrom(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
-        vm.assume(balance > 10_000);
+        vm.assume(amount <= balance);
+        uint256 totalSupplyBefore = coinGenieERC20.totalSupply();
 
         address to1 = address(0x1);
-        coinGenieERC20.transfer(to1, balance / 2);
+        coinGenieERC20.transfer(to1, amount);
         vm.prank(to1);
-        coinGenieERC20.approve(address(this), type(uint256).max);
+        coinGenieERC20.approve(address(this), amount);
 
-        coinGenieERC20.burnFrom(to1, balance / 2);
+        coinGenieERC20.burnFrom(to1, amount);
 
-        assertEq(coinGenieERC20.balanceOf(address(this)), balance / 2);
-        assertEq(coinGenieERC20.totalSupply(), balance / 2);
+        assertEq(coinGenieERC20.totalSupply(), totalSupplyBefore - amount);
     }
 
     function test_pause() public {
