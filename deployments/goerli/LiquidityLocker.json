@@ -1,0 +1,1033 @@
+{
+  "address": "0x496642216b28B729159dB2174F6D25ec188383dF",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "BeforeUnlockDate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidLockDate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LockMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MigratorNotSet",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "lpToken",
+          "type": "address"
+        }
+      ],
+      "name": "NotUniPair",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OwnerAlreadySet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferFailed",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "lpToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockDate",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "unlockDate",
+          "type": "uint256"
+        }
+      ],
+      "name": "OnDeposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "lpToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "OnWithdraw",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getLockedTokenAtIndex",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getNumLockedTokens",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_lpToken",
+          "type": "address"
+        }
+      ],
+      "name": "getNumLocksForToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserLockForTokenAtIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserLockedTokenAtIndex",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserNumLockedTokens",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_lpToken",
+          "type": "address"
+        }
+      ],
+      "name": "getUserNumLocksForToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "incrementLock",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "lockDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "unlockDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockID",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct LiquidityLocker.TokenLock",
+          "name": "_userLock",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountOfLPToLock",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "unlockDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "withdrawer",
+          "type": "address"
+        }
+      ],
+      "name": "lockLPToken",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "lockDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "unlockDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockID",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct LiquidityLocker.TokenLock",
+          "name": "tokenLock",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "migrate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "migrator",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Migrator",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_unlockDate",
+          "type": "uint256"
+        }
+      ],
+      "name": "relock",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IUniswapV2Migrator",
+          "name": "_migrator",
+          "type": "address"
+        }
+      ],
+      "name": "setMigrator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "pair",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenLocks",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initialAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "unlockDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferLockOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "_lpToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lockID",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xb6f9114ae2943f677ecbb863c11e6afa36f0260232497ecd5a2ad164a141d66c",
+  "receipt": {
+    "to": null,
+    "from": "0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5",
+    "contractAddress": "0x496642216b28B729159dB2174F6D25ec188383dF",
+    "transactionIndex": 12,
+    "gasUsed": "1791889",
+    "logsBloom": "0x00000000002000000000000000000000000000000000000000800000200000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000002000000000001000000000000000000000000000000000000020000000000000000000800000000000000000000100000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x4fbe2743616706b595b20e3df0779bc6b3f99752fd3f49fd49ad0ae1dfd10394",
+    "transactionHash": "0xb6f9114ae2943f677ecbb863c11e6afa36f0260232497ecd5a2ad164a141d66c",
+    "logs": [
+      {
+        "transactionIndex": 12,
+        "blockNumber": 9730934,
+        "transactionHash": "0xb6f9114ae2943f677ecbb863c11e6afa36f0260232497ecd5a2ad164a141d66c",
+        "address": "0x496642216b28B729159dB2174F6D25ec188383dF",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000633bf832dc39c0025a7aeaa165ec91acf02063d5"
+        ],
+        "data": "0x",
+        "logIndex": 22,
+        "blockHash": "0x4fbe2743616706b595b20e3df0779bc6b3f99752fd3f49fd49ad0ae1dfd10394"
+      }
+    ],
+    "blockNumber": 9730934,
+    "cumulativeGasUsed": "2938184",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "fbc719e26a9813c58006ed2d4aa8b390",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"BeforeUnlockDate\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidAmount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidLockDate\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LockMismatch\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MigratorNotSet\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"lpToken\",\"type\":\"address\"}],\"name\":\"NotUniPair\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OwnerAlreadySet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TransferFailed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"lpToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"lockDate\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"unlockDate\",\"type\":\"uint256\"}],\"name\":\"OnDeposit\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"lpToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"OnWithdraw\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"getLockedTokenAtIndex\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getNumLockedTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_lpToken\",\"type\":\"address\"}],\"name\":\"getNumLocksForToken\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"getUserLockForTokenAtIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"}],\"name\":\"getUserLockedTokenAtIndex\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"getUserNumLockedTokens\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_lpToken\",\"type\":\"address\"}],\"name\":\"getUserNumLocksForToken\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lockID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"incrementLock\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"lockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"initialAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unlockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lockID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"internalType\":\"struct LiquidityLocker.TokenLock\",\"name\":\"_userLock\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amountOfLPToLock\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unlockDate\",\"type\":\"uint256\"},{\"internalType\":\"address payable\",\"name\":\"withdrawer\",\"type\":\"address\"}],\"name\":\"lockLPToken\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"lockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"initialAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unlockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lockID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"internalType\":\"struct LiquidityLocker.TokenLock\",\"name\":\"tokenLock\",\"type\":\"tuple\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lockID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"migrate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"migrator\",\"outputs\":[{\"internalType\":\"contract IUniswapV2Migrator\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lockID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_unlockDate\",\"type\":\"uint256\"}],\"name\":\"relock\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IUniswapV2Migrator\",\"name\":\"_migrator\",\"type\":\"address\"}],\"name\":\"setMigrator\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"pair\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"tokenLocks\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"lockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"initialAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"unlockDate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lockID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lockID\",\"type\":\"uint256\"},{\"internalType\":\"address payable\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferLockOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"_lpToken\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_index\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_lockID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"@neuro_0x\",\"details\":\"A contract for locking Uniswap V2 liquidity pool tokens for specified periods.\",\"kind\":\"dev\",\"methods\":{\"getLockedTokenAtIndex(uint256)\":{\"details\":\"Get the address of a locked token at an index.\",\"params\":{\"_index\":\"The index of the token.\"}},\"getNumLockedTokens()\":{\"details\":\"Get the total number of locked tokens\"},\"getNumLocksForToken(address)\":{\"details\":\"Get the number of locks for a specific token.\",\"params\":{\"_lpToken\":\"The address of the LP token.\"}},\"getUserLockForTokenAtIndex(address,address,uint256)\":{\"details\":\"Get the lock for a specific user and token at an index.\",\"params\":{\"_index\":\"The index of the lock.\",\"_lpToken\":\"The address of the LP token.\",\"_user\":\"The address of the user.\"},\"returns\":{\"_0\":\"The lock date.\",\"_1\":\"Amount of tokens locked.\",\"_2\":\"Initial amount of tokens locked.\",\"_3\":\"Unlock date of the lock.\",\"_4\":\"Lock ID of the lock.\",\"_5\":\"Owner of the lock.\"}},\"getUserLockedTokenAtIndex(address,uint256)\":{\"details\":\"Get the token address a user has locked at an index.\",\"params\":{\"_index\":\"The index of the token.\",\"_user\":\"The address of the user.\"}},\"getUserNumLockedTokens(address)\":{\"details\":\"Get the number of tokens a user has locked.\",\"params\":{\"_user\":\"The address of the user.\"}},\"getUserNumLocksForToken(address,address)\":{\"details\":\"Get the number of locks for a specific user and token.\",\"params\":{\"_lpToken\":\"The address of the LP token.\",\"_user\":\"The address of the user.\"}},\"incrementLock(address,uint256,uint256,uint256)\":{\"details\":\"increase the amount of tokens per a specific lock, this is preferable to creating a new lock, less fees, and faster loading on our live block explorer\"},\"lockLPToken(address,uint256,uint256,address)\":{\"details\":\"Creates a new lock\",\"params\":{\"amountOfLPToLock\":\"amount of LP tokens to lock\",\"lpToken\":\"the univ2 token address\",\"unlockDate\":\"the unix timestamp (in seconds) until unlock\",\"withdrawer\":\"the user who can withdraw liquidity once the lock expires\"}},\"migrate(address,uint256,uint256,uint256)\":{\"details\":\"migrates liquidity to uniswap v3\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"relock(address,uint256,uint256,uint256)\":{\"details\":\"extend a lock with a new unlock date, _index and _lockID ensure the correct lock is changed this prevents errors when a user performs multiple tx per block possibly with varying gas prices\",\"params\":{\"_index\":\"the index of the lock for the token\",\"_lockID\":\"the lockID of the lock for the token\",\"_lpToken\":\"the univ2 token address\",\"_unlockDate\":\"the new unix timestamp (in seconds) until unlock\"}},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"setMigrator(address)\":{\"details\":\"Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3\",\"params\":{\"_migrator\":\"The address of the migrator contract\"}},\"transferLockOwnership(address,uint256,uint256,address)\":{\"details\":\"transfer a lock to a new owner, e.g. presale project -> project owner\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"withdraw(address,uint256,uint256,uint256)\":{\"details\":\"withdraw a specified amount from a lock. _index and _lockID ensure the correct lock is changed this prevents errors when a user performs multiple tx per block possibly with varying gas prices\"}},\"title\":\"LiquidityLocker\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/LiquidityLocker.sol\":\"LiquidityLocker\"},\"evmVersion\":\"paris\",\"libraries\":{\":__CACHE_BREAKER__\":\"0x0000000000000031363935323536343135363937\"},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"details\":{\"constantOptimizer\":true,\"cse\":true,\"deduplicate\":true,\"inliner\":true,\"jumpdestRemover\":true,\"orderLiterals\":true,\"peephole\":true,\"yul\":true,\"yulDetails\":{\"optimizerSteps\":\"dhfoDgvulfnTUtnIf:fDnTOc\",\"stackAllocation\":true}},\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        _transferOwnership(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xba43b97fba0d32eb4254f6a5a297b39a19a247082a02d6e69349e071e2946218\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (security/ReentrancyGuard.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Contract module that helps prevent reentrant calls to a function.\\n *\\n * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier\\n * available, which can be applied to functions to make sure there are no nested\\n * (reentrant) calls to them.\\n *\\n * Note that because there is a single `nonReentrant` guard, functions marked as\\n * `nonReentrant` may not call one another. This can be worked around by making\\n * those functions `private`, and then adding `external` `nonReentrant` entry\\n * points to them.\\n *\\n * TIP: If you would like to learn more about reentrancy and alternative ways\\n * to protect against it, check out our blog post\\n * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].\\n */\\nabstract contract ReentrancyGuard {\\n    // Booleans are more expensive than uint256 or any type that takes up a full\\n    // word because each write operation emits an extra SLOAD to first read the\\n    // slot's contents, replace the bits taken up by the boolean, and then write\\n    // back. This is the compiler's defense against contract upgrades and\\n    // pointer aliasing, and it cannot be disabled.\\n\\n    // The values being non-zero value makes deployment a bit more expensive,\\n    // but in exchange the refund on every call to nonReentrant will be lower in\\n    // amount. Since refunds are capped to a percentage of the total\\n    // transaction's gas, it is best to keep them low in cases like this one, to\\n    // increase the likelihood of the full refund coming into effect.\\n    uint256 private constant _NOT_ENTERED = 1;\\n    uint256 private constant _ENTERED = 2;\\n\\n    uint256 private _status;\\n\\n    constructor() {\\n        _status = _NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Prevents a contract from calling itself, directly or indirectly.\\n     * Calling a `nonReentrant` function from another `nonReentrant`\\n     * function is not supported. It is possible to prevent this from happening\\n     * by making the `nonReentrant` function external, and making it call a\\n     * `private` function that does the actual work.\\n     */\\n    modifier nonReentrant() {\\n        _nonReentrantBefore();\\n        _;\\n        _nonReentrantAfter();\\n    }\\n\\n    function _nonReentrantBefore() private {\\n        // On the first call to nonReentrant, _status will be _NOT_ENTERED\\n        require(_status != _ENTERED, \\\"ReentrancyGuard: reentrant call\\\");\\n\\n        // Any calls to nonReentrant after this point will fail\\n        _status = _ENTERED;\\n    }\\n\\n    function _nonReentrantAfter() private {\\n        // By storing the original value once again, a refund is triggered (see\\n        // https://eips.ethereum.org/EIPS/eip-2200)\\n        _status = _NOT_ENTERED;\\n    }\\n\\n    /**\\n     * @dev Returns true if the reentrancy guard is currently set to \\\"entered\\\", which indicates there is a\\n     * `nonReentrant` function in the call stack.\\n     */\\n    function _reentrancyGuardEntered() internal view returns (bool) {\\n        return _status == _ENTERED;\\n    }\\n}\\n\",\"keccak256\":\"0xa535a5df777d44e945dd24aa43a11e44b024140fc340ad0dfe42acf4002aade1\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 amount) external returns (bool);\\n}\\n\",\"keccak256\":\"0x287b55befed2961a7eabd7d7b1b2839cbca8a5b80ef8dcbb25ed3d4c2002c305\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/SafeMath.sol)\\n\\npragma solidity ^0.8.0;\\n\\n// CAUTION\\n// This version of SafeMath should only be used with Solidity 0.8 or later,\\n// because it relies on the compiler's built in overflow checks.\\n\\n/**\\n * @dev Wrappers over Solidity's arithmetic operations.\\n *\\n * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler\\n * now has built in overflow checking.\\n */\\nlibrary SafeMath {\\n    /**\\n     * @dev Returns the addition of two unsigned integers, with an overflow flag.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            uint256 c = a + b;\\n            if (c < a) return (false, 0);\\n            return (true, c);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b > a) return (false, 0);\\n            return (true, a - b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the\\n            // benefit is lost if 'b' is also tested.\\n            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522\\n            if (a == 0) return (true, 0);\\n            uint256 c = a * b;\\n            if (c / a != b) return (false, 0);\\n            return (true, c);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the division of two unsigned integers, with a division by zero flag.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b == 0) return (false, 0);\\n            return (true, a / b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {\\n        unchecked {\\n            if (b == 0) return (false, 0);\\n            return (true, a % b);\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the addition of two unsigned integers, reverting on\\n     * overflow.\\n     *\\n     * Counterpart to Solidity's `+` operator.\\n     *\\n     * Requirements:\\n     *\\n     * - Addition cannot overflow.\\n     */\\n    function add(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a + b;\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting on\\n     * overflow (when the result is negative).\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     *\\n     * - Subtraction cannot overflow.\\n     */\\n    function sub(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a - b;\\n    }\\n\\n    /**\\n     * @dev Returns the multiplication of two unsigned integers, reverting on\\n     * overflow.\\n     *\\n     * Counterpart to Solidity's `*` operator.\\n     *\\n     * Requirements:\\n     *\\n     * - Multiplication cannot overflow.\\n     */\\n    function mul(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a * b;\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers, reverting on\\n     * division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator.\\n     *\\n     * Requirements:\\n     *\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a / b;\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * reverting when dividing by zero.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     *\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b) internal pure returns (uint256) {\\n        return a % b;\\n    }\\n\\n    /**\\n     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on\\n     * overflow (when the result is negative).\\n     *\\n     * CAUTION: This function is deprecated because it requires allocating memory for the error\\n     * message unnecessarily. For custom revert reasons use {trySub}.\\n     *\\n     * Counterpart to Solidity's `-` operator.\\n     *\\n     * Requirements:\\n     *\\n     * - Subtraction cannot overflow.\\n     */\\n    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        unchecked {\\n            require(b <= a, errorMessage);\\n            return a - b;\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the integer division of two unsigned integers, reverting with custom message on\\n     * division by zero. The result is rounded towards zero.\\n     *\\n     * Counterpart to Solidity's `/` operator. Note: this function uses a\\n     * `revert` opcode (which leaves remaining gas untouched) while Solidity\\n     * uses an invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     *\\n     * - The divisor cannot be zero.\\n     */\\n    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        unchecked {\\n            require(b > 0, errorMessage);\\n            return a / b;\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),\\n     * reverting with custom message when dividing by zero.\\n     *\\n     * CAUTION: This function is deprecated because it requires allocating memory for the error\\n     * message unnecessarily. For custom revert reasons use {tryMod}.\\n     *\\n     * Counterpart to Solidity's `%` operator. This function uses a `revert`\\n     * opcode (which leaves remaining gas untouched) while Solidity uses an\\n     * invalid opcode to revert (consuming all remaining gas).\\n     *\\n     * Requirements:\\n     *\\n     * - The divisor cannot be zero.\\n     */\\n    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {\\n        unchecked {\\n            require(b > 0, errorMessage);\\n            return a % b;\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x58b21219689909c4f8339af00813760337f7e2e7f169a97fe49e2896dcfb3b9a\",\"license\":\"MIT\"},\"lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/EnumerableSet.sol)\\n// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Library for managing\\n * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive\\n * types.\\n *\\n * Sets have the following properties:\\n *\\n * - Elements are added, removed, and checked for existence in constant time\\n * (O(1)).\\n * - Elements are enumerated in O(n). No guarantees are made on the ordering.\\n *\\n * ```solidity\\n * contract Example {\\n *     // Add the library methods\\n *     using EnumerableSet for EnumerableSet.AddressSet;\\n *\\n *     // Declare a set state variable\\n *     EnumerableSet.AddressSet private mySet;\\n * }\\n * ```\\n *\\n * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)\\n * and `uint256` (`UintSet`) are supported.\\n *\\n * [WARNING]\\n * ====\\n * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure\\n * unusable.\\n * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.\\n *\\n * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an\\n * array of EnumerableSet.\\n * ====\\n */\\nlibrary EnumerableSet {\\n    // To implement this library for multiple types with as little code\\n    // repetition as possible, we write it in terms of a generic Set type with\\n    // bytes32 values.\\n    // The Set implementation uses private functions, and user-facing\\n    // implementations (such as AddressSet) are just wrappers around the\\n    // underlying Set.\\n    // This means that we can only create new EnumerableSets for types that fit\\n    // in bytes32.\\n\\n    struct Set {\\n        // Storage of set values\\n        bytes32[] _values;\\n        // Position of the value in the `values` array, plus 1 because index 0\\n        // means a value is not in the set.\\n        mapping(bytes32 => uint256) _indexes;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function _add(Set storage set, bytes32 value) private returns (bool) {\\n        if (!_contains(set, value)) {\\n            set._values.push(value);\\n            // The value is stored at length-1, but we add 1 to all indexes\\n            // and use 0 as a sentinel value\\n            set._indexes[value] = set._values.length;\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function _remove(Set storage set, bytes32 value) private returns (bool) {\\n        // We read and store the value's index to prevent multiple reads from the same storage slot\\n        uint256 valueIndex = set._indexes[value];\\n\\n        if (valueIndex != 0) {\\n            // Equivalent to contains(set, value)\\n            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in\\n            // the array, and then remove the last element (sometimes called as 'swap and pop').\\n            // This modifies the order of the array, as noted in {at}.\\n\\n            uint256 toDeleteIndex = valueIndex - 1;\\n            uint256 lastIndex = set._values.length - 1;\\n\\n            if (lastIndex != toDeleteIndex) {\\n                bytes32 lastValue = set._values[lastIndex];\\n\\n                // Move the last value to the index where the value to delete is\\n                set._values[toDeleteIndex] = lastValue;\\n                // Update the index for the moved value\\n                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex\\n            }\\n\\n            // Delete the slot where the moved value was stored\\n            set._values.pop();\\n\\n            // Delete the index for the deleted slot\\n            delete set._indexes[value];\\n\\n            return true;\\n        } else {\\n            return false;\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function _contains(Set storage set, bytes32 value) private view returns (bool) {\\n        return set._indexes[value] != 0;\\n    }\\n\\n    /**\\n     * @dev Returns the number of values on the set. O(1).\\n     */\\n    function _length(Set storage set) private view returns (uint256) {\\n        return set._values.length;\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function _at(Set storage set, uint256 index) private view returns (bytes32) {\\n        return set._values[index];\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function _values(Set storage set) private view returns (bytes32[] memory) {\\n        return set._values;\\n    }\\n\\n    // Bytes32Set\\n\\n    struct Bytes32Set {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _add(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {\\n        return _remove(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {\\n        return _contains(set._inner, value);\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(Bytes32Set storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {\\n        return _at(set._inner, index);\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        bytes32[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // AddressSet\\n\\n    struct AddressSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(AddressSet storage set, address value) internal returns (bool) {\\n        return _add(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(AddressSet storage set, address value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(AddressSet storage set, address value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(uint256(uint160(value))));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(AddressSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(AddressSet storage set, uint256 index) internal view returns (address) {\\n        return address(uint160(uint256(_at(set._inner, index))));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(AddressSet storage set) internal view returns (address[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        address[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n\\n    // UintSet\\n\\n    struct UintSet {\\n        Set _inner;\\n    }\\n\\n    /**\\n     * @dev Add a value to a set. O(1).\\n     *\\n     * Returns true if the value was added to the set, that is if it was not\\n     * already present.\\n     */\\n    function add(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _add(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Removes a value from a set. O(1).\\n     *\\n     * Returns true if the value was removed from the set, that is if it was\\n     * present.\\n     */\\n    function remove(UintSet storage set, uint256 value) internal returns (bool) {\\n        return _remove(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns true if the value is in the set. O(1).\\n     */\\n    function contains(UintSet storage set, uint256 value) internal view returns (bool) {\\n        return _contains(set._inner, bytes32(value));\\n    }\\n\\n    /**\\n     * @dev Returns the number of values in the set. O(1).\\n     */\\n    function length(UintSet storage set) internal view returns (uint256) {\\n        return _length(set._inner);\\n    }\\n\\n    /**\\n     * @dev Returns the value stored at position `index` in the set. O(1).\\n     *\\n     * Note that there are no guarantees on the ordering of values inside the\\n     * array, and it may change when more values are added or removed.\\n     *\\n     * Requirements:\\n     *\\n     * - `index` must be strictly less than {length}.\\n     */\\n    function at(UintSet storage set, uint256 index) internal view returns (uint256) {\\n        return uint256(_at(set._inner, index));\\n    }\\n\\n    /**\\n     * @dev Return the entire set in an array\\n     *\\n     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed\\n     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that\\n     * this function has an unbounded cost, and using it as part of a state-changing function may render the function\\n     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.\\n     */\\n    function values(UintSet storage set) internal view returns (uint256[] memory) {\\n        bytes32[] memory store = _values(set._inner);\\n        uint256[] memory result;\\n\\n        /// @solidity memory-safe-assembly\\n        assembly {\\n            result := store\\n        }\\n\\n        return result;\\n    }\\n}\\n\",\"keccak256\":\"0x9f4357008a8f7d8c8bf5d48902e789637538d8c016be5766610901b4bba81514\",\"license\":\"MIT\"},\"lib/v2-core/contracts/interfaces/IUniswapV2Factory.sol\":{\"content\":\"pragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Factory {\\n    event PairCreated(address indexed token0, address indexed token1, address pair, uint);\\n\\n    function feeTo() external view returns (address);\\n    function feeToSetter() external view returns (address);\\n\\n    function getPair(address tokenA, address tokenB) external view returns (address pair);\\n    function allPairs(uint) external view returns (address pair);\\n    function allPairsLength() external view returns (uint);\\n\\n    function createPair(address tokenA, address tokenB) external returns (address pair);\\n\\n    function setFeeTo(address) external;\\n    function setFeeToSetter(address) external;\\n}\\n\",\"keccak256\":\"0xe5905c0989cf5a865ed9bb7b9252536ca011c5b744017a82a7d4443b9c00a891\"},\"lib/v2-core/contracts/interfaces/IUniswapV2Pair.sol\":{\"content\":\"pragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Pair {\\n    event Approval(address indexed owner, address indexed spender, uint value);\\n    event Transfer(address indexed from, address indexed to, uint value);\\n\\n    function name() external pure returns (string memory);\\n    function symbol() external pure returns (string memory);\\n    function decimals() external pure returns (uint8);\\n    function totalSupply() external view returns (uint);\\n    function balanceOf(address owner) external view returns (uint);\\n    function allowance(address owner, address spender) external view returns (uint);\\n\\n    function approve(address spender, uint value) external returns (bool);\\n    function transfer(address to, uint value) external returns (bool);\\n    function transferFrom(address from, address to, uint value) external returns (bool);\\n\\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\\n    function nonces(address owner) external view returns (uint);\\n\\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\\n\\n    event Mint(address indexed sender, uint amount0, uint amount1);\\n    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);\\n    event Swap(\\n        address indexed sender,\\n        uint amount0In,\\n        uint amount1In,\\n        uint amount0Out,\\n        uint amount1Out,\\n        address indexed to\\n    );\\n    event Sync(uint112 reserve0, uint112 reserve1);\\n\\n    function MINIMUM_LIQUIDITY() external pure returns (uint);\\n    function factory() external view returns (address);\\n    function token0() external view returns (address);\\n    function token1() external view returns (address);\\n    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\\n    function price0CumulativeLast() external view returns (uint);\\n    function price1CumulativeLast() external view returns (uint);\\n    function kLast() external view returns (uint);\\n\\n    function mint(address to) external returns (uint liquidity);\\n    function burn(address to) external returns (uint amount0, uint amount1);\\n    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;\\n    function skim(address to) external;\\n    function sync() external;\\n\\n    function initialize(address, address) external;\\n}\\n\",\"keccak256\":\"0x7c9bc70e5996c763e02ff38905282bc24fb242b0ef2519a003b36824fc524a4b\"},\"lib/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol\":{\"content\":\"pragma solidity >=0.5.0;\\n\\ninterface IUniswapV2Migrator {\\n    function migrate(address token, uint amountTokenMin, uint amountETHMin, address to, uint deadline) external;\\n}\\n\",\"keccak256\":\"0xa83ac0f597c04134b3ea423fd55d3077e952197c1991e23c4e304bfb35a90124\"},\"src/LiquidityLocker.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.20;\\n\\nimport { EnumerableSet } from \\\"lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol\\\";\\nimport { IERC20 } from \\\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\\\";\\nimport { SafeMath } from \\\"lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol\\\";\\nimport { Ownable } from \\\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\\\";\\nimport { ReentrancyGuard } from \\\"lib/openzeppelin-contracts/contracts/security/ReentrancyGuard.sol\\\";\\n\\nimport { IUniswapV2Factory } from \\\"lib/v2-core/contracts/interfaces/IUniswapV2Factory.sol\\\";\\nimport { IUniswapV2Pair } from \\\"lib/v2-core/contracts/interfaces/IUniswapV2Pair.sol\\\";\\nimport { IUniswapV2Migrator } from \\\"lib/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol\\\";\\n\\nimport { SafeTransfer } from \\\"./lib/SafeTransfer.sol\\\";\\n\\n/**\\n * @title LiquidityLocker\\n * @author @neuro_0x\\n * @dev A contract for locking Uniswap V2 liquidity pool tokens for specified periods.\\n */\\ncontract LiquidityLocker is Ownable, ReentrancyGuard {\\n    using SafeMath for uint256;\\n    using EnumerableSet for EnumerableSet.AddressSet;\\n\\n    error InvalidAmount();\\n    error InvalidLockDate();\\n    error LockMismatch();\\n    error BeforeUnlockDate();\\n    error OwnerAlreadySet();\\n    error MigratorNotSet();\\n    error NotUniPair(address lpToken);\\n\\n    IUniswapV2Factory private constant UNISWAP_V2_FACTORY =\\n        IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);\\n\\n    struct User {\\n        EnumerableSet.AddressSet lockedTokens; // records all tokens the user has locked\\n        mapping(address => uint256[]) locksForToken; // map erc20 address to lock id for that token\\n    }\\n\\n    struct TokenLock {\\n        uint256 lockDate; // the date the token was locked\\n        uint256 amount; // the amount of tokens still locked (initialAmount minus withdrawls)\\n        uint256 initialAmount; // the initial lock amount\\n        uint256 unlockDate; // the date the token can be withdrawn\\n        uint256 lockID; // lockID nonce per uni pair\\n        address owner;\\n    }\\n\\n    mapping(address userAddress => User user) private _users;\\n\\n    EnumerableSet.AddressSet private _lockedTokens;\\n    mapping(address pair => TokenLock[] locks) public tokenLocks; // map univ2 pair to all its locks\\n\\n    IUniswapV2Migrator public migrator;\\n\\n    event OnWithdraw(address lpToken, uint256 amount);\\n    event OnDeposit(address lpToken, address user, uint256 amount, uint256 lockDate, uint256 unlockDate);\\n\\n    /**\\n     * @dev Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3\\n     * @param _migrator The address of the migrator contract\\n     */\\n    function setMigrator(IUniswapV2Migrator _migrator) public onlyOwner {\\n        migrator = _migrator;\\n    }\\n\\n    /**\\n     * @dev Creates a new lock\\n     * @param lpToken the univ2 token address\\n     * @param amountOfLPToLock amount of LP tokens to lock\\n     * @param unlockDate the unix timestamp (in seconds) until unlock\\n     * @param withdrawer the user who can withdraw liquidity once the lock expires\\n     */\\n    function lockLPToken(\\n        IERC20 lpToken,\\n        uint256 amountOfLPToLock,\\n        uint256 unlockDate,\\n        address payable withdrawer\\n    )\\n        external\\n        payable\\n        nonReentrant\\n        returns (TokenLock memory tokenLock)\\n    {\\n        if (amountOfLPToLock == 0) {\\n            revert InvalidAmount();\\n        }\\n\\n        if (unlockDate > 10_000_000_000) {\\n            revert InvalidLockDate();\\n        }\\n\\n        // ensure this pair is a univ2 pair by querying the factory\\n        IUniswapV2Pair lpair = IUniswapV2Pair(address(lpToken));\\n        address factoryPairAddress = UNISWAP_V2_FACTORY.getPair(lpair.token0(), lpair.token1());\\n\\n        if (factoryPairAddress != address(lpToken)) {\\n            revert NotUniPair(address(lpToken));\\n        }\\n\\n        SafeTransfer.safeTransferFrom(address(lpToken), _msgSender(), address(this), amountOfLPToLock);\\n\\n        tokenLock.lockDate = block.timestamp;\\n        tokenLock.amount = amountOfLPToLock;\\n        tokenLock.initialAmount = amountOfLPToLock;\\n        tokenLock.unlockDate = unlockDate;\\n        tokenLock.lockID = tokenLocks[address(lpToken)].length;\\n        tokenLock.owner = withdrawer;\\n\\n        // record the lock for the univ2pair\\n        tokenLocks[address(lpToken)].push(tokenLock);\\n        _lockedTokens.add(address(lpToken));\\n\\n        // record the lock for the user\\n        User storage user = _users[withdrawer];\\n        user.lockedTokens.add(address(lpToken));\\n        uint256[] storage userLocks = user.locksForToken[address(lpToken)];\\n        userLocks.push(tokenLock.lockID);\\n\\n        emit OnDeposit(address(lpToken), _msgSender(), tokenLock.amount, tokenLock.lockDate, tokenLock.unlockDate);\\n    }\\n\\n    /**\\n     * @dev extend a lock with a new unlock date, _index and _lockID ensure the correct lock is changed\\n     * this prevents errors when a user performs multiple tx per block possibly with varying gas prices\\n     * @param _lpToken the univ2 token address\\n     * @param _index the index of the lock for the token\\n     * @param _lockID the lockID of the lock for the token\\n     * @param _unlockDate the new unix timestamp (in seconds) until unlock\\n     */\\n    function relock(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _unlockDate) external nonReentrant {\\n        if (_unlockDate > 10_000_000_000) {\\n            revert InvalidLockDate();\\n        }\\n\\n        // timestamp entered in seconds\\n        uint256 lockID = _users[_msgSender()].locksForToken[address(_lpToken)][_index];\\n        TokenLock storage userLock = tokenLocks[address(_lpToken)][lockID];\\n\\n        if (lockID != _lockID || userLock.owner != _msgSender()) {\\n            revert LockMismatch();\\n        }\\n\\n        if (userLock.unlockDate > _unlockDate) {\\n            revert BeforeUnlockDate();\\n        }\\n\\n        userLock.unlockDate = _unlockDate;\\n    }\\n\\n    /**\\n     * @dev withdraw a specified amount from a lock. _index and _lockID ensure the correct lock is changed\\n     * this prevents errors when a user performs multiple tx per block possibly with varying gas prices\\n     */\\n    function withdraw(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _amount) external nonReentrant {\\n        if (_amount == 0) {\\n            revert InvalidAmount();\\n        }\\n\\n        uint256 lockID = _users[_msgSender()].locksForToken[address(_lpToken)][_index];\\n        TokenLock storage userLock = tokenLocks[address(_lpToken)][lockID];\\n\\n        if (lockID != _lockID || userLock.owner != _msgSender()) {\\n            revert LockMismatch();\\n        }\\n\\n        if (userLock.unlockDate > block.timestamp) {\\n            revert BeforeUnlockDate();\\n        }\\n\\n        userLock.amount = userLock.amount - _amount;\\n\\n        // clean user storage\\n        if (userLock.amount == 0) {\\n            uint256[] storage userLocks = _users[_msgSender()].locksForToken[address(_lpToken)];\\n            userLocks[_index] = userLocks[userLocks.length - 1];\\n            userLocks.pop();\\n            if (userLocks.length == 0) {\\n                _users[_msgSender()].lockedTokens.remove(address(_lpToken));\\n            }\\n        }\\n\\n        SafeTransfer.safeTransfer(address(_lpToken), _msgSender(), _amount);\\n        emit OnWithdraw(address(_lpToken), _amount);\\n    }\\n\\n    /**\\n     * @dev increase the amount of tokens per a specific lock, this is preferable to creating a new lock, less fees,\\n     * and faster loading on our live block explorer\\n     */\\n    function incrementLock(\\n        IERC20 _lpToken,\\n        uint256 _index,\\n        uint256 _lockID,\\n        uint256 _amount\\n    )\\n        external\\n        nonReentrant\\n        returns (TokenLock memory _userLock)\\n    {\\n        if (_amount == 0) {\\n            revert InvalidAmount();\\n        }\\n\\n        uint256 lockID = _users[_msgSender()].locksForToken[address(_lpToken)][_index];\\n        TokenLock storage userLock = tokenLocks[address(_lpToken)][lockID];\\n\\n        if (lockID != _lockID || userLock.owner != _msgSender()) {\\n            revert LockMismatch();\\n        }\\n\\n        SafeTransfer.safeTransferFrom(address(_lpToken), address(_msgSender()), address(this), _amount);\\n\\n        userLock.amount = userLock.amount + _amount;\\n\\n        emit OnDeposit(address(_lpToken), _msgSender(), userLock.amount, userLock.lockDate, userLock.unlockDate);\\n\\n        return userLock;\\n    }\\n\\n    /**\\n     * @dev transfer a lock to a new owner, e.g. presale project -> project owner\\n     */\\n    function transferLockOwnership(\\n        address _lpToken,\\n        uint256 _index,\\n        uint256 _lockID,\\n        address payable _newOwner\\n    )\\n        external\\n    {\\n        if (_newOwner == owner()) {\\n            revert OwnerAlreadySet();\\n        }\\n\\n        uint256 lockID = _users[_msgSender()].locksForToken[_lpToken][_index];\\n        TokenLock storage transferredLock = tokenLocks[_lpToken][lockID];\\n\\n        if (lockID != _lockID || transferredLock.owner != _msgSender()) {\\n            revert LockMismatch();\\n        }\\n\\n        // record the lock for the new Owner\\n        User storage user = _users[_newOwner];\\n        user.lockedTokens.add(_lpToken);\\n\\n        uint256[] storage userLocks = user.locksForToken[_lpToken];\\n        userLocks.push(transferredLock.lockID);\\n\\n        // remove the lock from the old owner\\n        uint256[] storage userLocks2 = _users[_msgSender()].locksForToken[_lpToken];\\n        userLocks2[_index] = userLocks2[userLocks2.length - 1];\\n        userLocks2.pop();\\n\\n        if (userLocks2.length == 0) {\\n            _users[_msgSender()].lockedTokens.remove(_lpToken);\\n        }\\n\\n        transferredLock.owner = _newOwner;\\n    }\\n\\n    /**\\n     * @dev migrates liquidity to uniswap v3\\n     */\\n    function migrate(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _amount) external nonReentrant {\\n        if (address(migrator) == address(0)) {\\n            revert MigratorNotSet();\\n        }\\n\\n        if (_amount == 0) {\\n            revert InvalidAmount();\\n        }\\n\\n        uint256 lockID = _users[_msgSender()].locksForToken[address(_lpToken)][_index];\\n        TokenLock storage userLock = tokenLocks[address(_lpToken)][lockID];\\n\\n        if (lockID != _lockID || userLock.owner != _msgSender()) {\\n            revert LockMismatch();\\n        }\\n\\n        userLock.amount = userLock.amount - _amount;\\n\\n        // clean user storage\\n        if (userLock.amount == 0) {\\n            uint256[] storage userLocks = _users[_msgSender()].locksForToken[address(_lpToken)];\\n            userLocks[_index] = userLocks[userLocks.length - 1];\\n            userLocks.pop();\\n            if (userLocks.length == 0) {\\n                _users[_msgSender()].lockedTokens.remove(address(_lpToken));\\n            }\\n        }\\n\\n        IERC20(_lpToken).approve(address(migrator), _amount);\\n        migrator.migrate(address(_lpToken), _amount, userLock.unlockDate, _msgSender(), block.timestamp + 1 days);\\n    }\\n\\n    /**\\n     * @dev Get the number of locks for a specific token.\\n     * @param _lpToken The address of the LP token.\\n     */\\n    function getNumLocksForToken(address _lpToken) external view returns (uint256) {\\n        return tokenLocks[_lpToken].length;\\n    }\\n\\n    /**\\n     * @dev Get the total number of locked tokens\\n     */\\n    function getNumLockedTokens() external view returns (uint256) {\\n        return _lockedTokens.length();\\n    }\\n\\n    /**\\n     * @dev Get the address of a locked token at an index.\\n     * @param _index The index of the token.\\n     */\\n    function getLockedTokenAtIndex(uint256 _index) external view returns (address) {\\n        return _lockedTokens.at(_index);\\n    }\\n\\n    /**\\n     * @dev Get the number of tokens a user has locked.\\n     * @param _user The address of the user.\\n     */\\n    function getUserNumLockedTokens(address _user) external view returns (uint256) {\\n        User storage user = _users[_user];\\n        return user.lockedTokens.length();\\n    }\\n\\n    /**\\n     * @dev Get the token address a user has locked at an index.\\n     * @param _user The address of the user.\\n     * @param _index The index of the token.\\n     */\\n    function getUserLockedTokenAtIndex(address _user, uint256 _index) external view returns (address) {\\n        User storage user = _users[_user];\\n        return user.lockedTokens.at(_index);\\n    }\\n\\n    /**\\n     * @dev Get the number of locks for a specific user and token.\\n     * @param _user The address of the user.\\n     * @param _lpToken The address of the LP token.\\n     */\\n    function getUserNumLocksForToken(address _user, address _lpToken) external view returns (uint256) {\\n        User storage user = _users[_user];\\n        return user.locksForToken[_lpToken].length;\\n    }\\n\\n    /**\\n     * @dev Get the lock for a specific user and token at an index.\\n     * @param _user The address of the user.\\n     * @param _lpToken The address of the LP token.\\n     * @param _index The index of the lock.\\n     * @return The lock date.\\n     * @return Amount of tokens locked.\\n     * @return Initial amount of tokens locked.\\n     * @return Unlock date of the lock.\\n     * @return Lock ID of the lock.\\n     * @return Owner of the lock.\\n     */\\n    function getUserLockForTokenAtIndex(\\n        address _user,\\n        address _lpToken,\\n        uint256 _index\\n    )\\n        external\\n        view\\n        returns (uint256, uint256, uint256, uint256, uint256, address)\\n    {\\n        uint256 lockID = _users[_user].locksForToken[_lpToken][_index];\\n        TokenLock storage tokenLock = tokenLocks[_lpToken][lockID];\\n        return (\\n            tokenLock.lockDate,\\n            tokenLock.amount,\\n            tokenLock.initialAmount,\\n            tokenLock.unlockDate,\\n            tokenLock.lockID,\\n            tokenLock.owner\\n        );\\n    }\\n}\\n\",\"keccak256\":\"0x4617110dd0675f80fb03bc39aae497e2c0cb834181f06309af767a4f50c7cd29\",\"license\":\"GPL-3.0\"},\"src/lib/SafeTransfer.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.20;\\n\\nlibrary SafeTransfer {\\n    error TransferFailed();\\n\\n    /**\\n     * @dev Sends `amount` (in wei) ETH to `to`.\\n     * @param to The address to send the ETH to.\\n     * @param amount The amount of ETH to send.\\n     */\\n    function safeTransferETH(address to, uint256 amount) internal {\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            // Transfer the ETH and check if it succeeded or not.\\n            if iszero(call(gas(), to, amount, 0, 0, 0, 0)) {\\n                // Store the function selector of `ETHTransferFailed()`.\\n                // bytes4(keccak256(bytes(\\\"ETHTransferFailed()\\\"))) = 0xb12d13eb\\n                mstore(0x00, 0xb12d13eb)\\n                // Revert with (offset, size).\\n                revert(0x1c, 0x04)\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Validates that the address is not the zero address using assembly.\\n     * @dev Reverts if the address is the zero address.\\n     * @param addr The address to validate.\\n     */\\n    function validateAddress(address addr) internal pure {\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            if iszero(shl(96, addr)) {\\n                // Store the function selector of `ZeroAddress()`.\\n                // bytes4(keccak256(bytes(\\\"ZeroAddress()\\\"))) = 0xd92e233d\\n                mstore(0x00, 0xd92e233d)\\n                // Revert with (offset, size).\\n                revert(0x1c, 0x04)\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @notice Helper function to transfer ERC20 tokens without the need for SafeERC20.\\n     * @dev Reverts if the ERC20 transfer fails.\\n     * @param tokenAddress The address of the ERC20 token.\\n     * @param from The address to transfer the tokens from.\\n     * @param to The address to transfer the tokens to.\\n     * @param amount The amount of tokens to transfer.\\n     */\\n    function safeTransferFrom(address tokenAddress, address from, address to, uint256 amount) internal returns (bool) {\\n        (bool success, bytes memory data) =\\n        // solhint-disable-next-line avoid-low-level-calls\\n         tokenAddress.call(abi.encodeWithSignature(\\\"transferFrom(address,address,uint256)\\\", from, to, amount));\\n        if (!success) {\\n            if (data.length != 0) {\\n                // bubble up error\\n                // solhint-disable-next-line no-inline-assembly\\n                assembly {\\n                    let returndata_size := mload(data)\\n                    revert(add(32, data), returndata_size)\\n                }\\n            } else {\\n                revert TransferFailed();\\n            }\\n        }\\n\\n        return true;\\n    }\\n\\n    /// @notice Helper function to transfer ERC20 tokens without the need for SafeERC20.\\n    /// @dev Reverts if the ERC20 transfer fails.\\n    /// @param tokenAddress The address of the ERC20 token.\\n    /// @param to The address to transfer the tokens to.\\n    /// @param amount The amount of tokens to transfer.\\n    function safeTransfer(address tokenAddress, address to, uint256 amount) internal returns (bool) {\\n        (bool success, bytes memory data) =\\n        // solhint-disable-next-line avoid-low-level-calls\\n         tokenAddress.call(abi.encodeWithSignature(\\\"transfer(address,uint256)\\\", to, amount));\\n        if (!success) {\\n            if (data.length != 0) {\\n                // bubble up error\\n                // solhint-disable-next-line no-inline-assembly\\n                assembly {\\n                    let returndata_size := mload(data)\\n                    revert(add(32, data), returndata_size)\\n                }\\n            } else {\\n                revert TransferFailed();\\n            }\\n        }\\n\\n        return true;\\n    }\\n}\\n\",\"keccak256\":\"0xcd0139a88ea2bcaa2dc562192f25f6fe7e18dc526081b42f9c1f8ef47a6aefa9\",\"license\":\"GPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x6080604052346200002657620000146200002b565b604051611e7c6200018a8239611e7c90f35b600080fd5b6200003562000086565b565b6200004762000047620000479290565b90565b62000047600162000037565b90600019905b9181191691161790565b906200007a62000047620000829262000037565b825462000056565b9055565b62000090620000a6565b620000356200009e6200004a565b600162000066565b620000353362000127565b62000047905b6001600160a01b031690565b620000479054620000b1565b906001600160a01b03906200005c565b6200004790620000b7906001600160a01b031682565b6200004790620000df565b6200004790620000f5565b906200011f62000047620000829262000100565b8254620000cf565b620001336000620000c3565b90620001418160006200010b565b62000178620001717f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09362000100565b9162000100565b916200018360405190565b600090a356fe6080604052600436101561001257600080fd5b60003560e01c806314dd79a3146101425780631f2a1d2f1461013d57806323cf3118146101385780634532d7761461013357806360491d241461012e578063715018a614610129578063783451e8146101245780637cd07e471461011f5780638da5cb5b1461011a578063903df80614610115578063a396981514610110578063a69d9c4f1461010b578063a9b07cea14610106578063bef497fd14610101578063ccebfa3f146100fc578063d4ff493f146100f7578063df41bc5f146100f2578063ee424278146100ed5763f2fde38b0361014757610716565b6106fa565b6106e0565b6106c4565b61065f565b61050e565b6104a7565b610421565b6103e3565b6103c7565b61037f565b610358565b6102d3565b6102bb565b610294565b610278565b61021f565b6101f4565b61018b565b600080fd5b805b0361014757565b905035906101628261014c565b565b906020828203126101475761017891610155565b90565b6001600160a01b031690565b9052565b34610147576101c06101a66101a1366004610164565b611bcb565b604051918291826001600160a01b03909116815260200190565b0390f35b6001600160a01b03811661014e565b90503590610162826101c4565b9060208282031261014757610178916101d3565b34610147576101c061020f61020a3660046101e0565b611b84565b6040519182918290815260200190565b34610147576102376102323660046101e0565b610936565b604051005b6080818303126101475761025082826101d3565b926101786102618460208501610155565b9361026f8160408601610155565b93606001610155565b346101475761023761028b36600461023c565b9291909161143d565b34610147576102376102a736600461023c565b929190916111d5565b600091031261014757565b34610147576102cb3660046102b0565b610237610766565b34610147576102e33660046102b0565b6101c061020f611b9b565b610178916008021c6001600160a01b031690565b9061017891546102ee565b61017860006006610302565b6101789061017b906001600160a01b031682565b61017890610319565b6101789061032d565b61018790610336565b602081019291610162919061033f565b34610147576103683660046102b0565b6101c061037361030d565b60405191829182610348565b346101475761038f3660046102b0565b6101c06101a66000546001600160a01b031690565b919060408382031261014757610178906103be81856101d3565b93602001610155565b34610147576101c06101a66103dd3660046103a4565b90611c4b565b34610147576101c061020f6103f93660046101e0565b611c2c565b9190604083820312610147576101789061041881856101d3565b936020016101d3565b34610147576101c061020f6104373660046103fe565b90611c63565b80518252610162919060a090819061045a60208201516020860152565b61046960408201516040860152565b61047860608201516060860152565b61048760808201516080860152565b01516001600160a01b0316910152565b60c081019291610162919061043d565b34610147576101c06104c66104bd36600461023c565b9291909161172f565b60405191829182610497565b608081830312610147576104e682826101d3565b926101786104f78460208501610155565b936105058160408601610155565b936060016101d3565b34610147576102376105213660046104d2565b92919091611743565b9061053490610336565b600052602052604060002090565b634e487b7160e01b600052603260045260246000fd5b805482101561057b57610572600691600052602060002090565b91020190600090565b610542565b6101789081565b6101789054610580565b91906105a160059360009461052a565b8054821015610608576105b5929350610558565b50906105c082610587565b916105cd60018201610587565b916105da60028301610587565b916105e760038201610587565b9161017860056105f960048501610587565b9301546001600160a01b031690565b8380fd5b91946106496106509298979561064260a09661063b6101629a61063460c08a019e60008b0152565b6020890152565b6040870152565b6060850152565b6080830152565b01906001600160a01b03169052565b34610147576101c061067b6106753660046103a4565b90610591565b9261068b96949692919260405190565b9687968761060c565b9091606082840312610147576101786106ad84846101d3565b936106bb81602086016101d3565b93604001610155565b34610147576101c061067b6106da366004610694565b91611c7a565b6101c06104c66106f13660046104d2565b92919091610eff565b346101475761023761070d36600461023c565b92919091611b78565b34610147576102376107293660046101e0565b61088b565b6107366107c6565b610162610754565b61017b6101786101789290565b6101789061073e565b610162610761600061074b565b6108c4565b61016261072e565b0190565b1561077957565b60405162461bcd60e51b8152806107c2600482016020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604082015260600190565b0390fd5b6101626107db6000546001600160a01b031690565b6107f46107e73361017b565b916001600160a01b031690565b14610772565b610162906108066107c6565b610866565b1561081257565b60405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608490fd5b6101629061076161087a61017b600061074b565b6001600160a01b038316141561080b565b610162906107fa565b906001600160a01b03905b9181191691161790565b906108b96101786108c092610336565b8254610894565b9055565b6000546001600160a01b0316906108dc8160006108a9565b61090f6109097f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e093610336565b91610336565b9161091960405190565b600090a3565b6101629061092b6107c6565b6101629060066108a9565b6101629061091f565b634e487b7160e01b600052604160045260246000fd5b90601f01601f1916810190811067ffffffffffffffff82111761097757604052565b61093f565b9061016261098960405190565b9283610955565b61017860c061097c565b6109a2610990565b906000825260208080808080870160008152016000815201600081520160008152016000905250565b61017861099a565b906109e8949392916109e3610f69565b610c1b565b90610162610fa5565b6101786101786101789290565b610178735c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f610336565b90505190610162826101c4565b906020828203126101475761017891610a1b565b6040513d6000823e3d90fd5b6001600160a01b03909116815260408101929161016291602090610650565b634e487b7160e01b600052600060045260246000fd5b906000199061089f565b90610a976101786108c0926109f1565b8254610a7d565b6101629190610b179060a090600590610abf81610ab9875190565b90610a87565b610ad160018201610ab9602088015190565b610ae360028201610ab9604088015190565b610af560038201610ab9606088015190565b610b0760048201610ab9608088015190565b019201516001600160a01b031690565b906108a9565b9190610b2c5761016291610a9e565b610a67565b90815491600160401b8310156109775782610b5491600161016295018155610558565b90610b1d565b805482101561057b57610572600191600052602060002090565b9160001960089290920291821b911b61089f565b9190610b996101786108c0936109f1565b908354610b74565b90815491600160401b8310156109775782610bc491600161016295018155610b5a565b90610b88565b9095949261016294610c10610c1792610c09608096610bf960a088019c60008901906001600160a01b03169052565b6001600160a01b03166020870152565b6040850152565b6060830152565b0152565b94939091948095600093610c2e856109f1565b8214610eed57610c426402540be4006109f1565b8611610edb57610c5190610336565b91610c5b83610336565b610c6b610c666109fe565b610336565b610c7963e6a4390592610336565b630dfe168191610c92610c8b60405190565b9360e01b90565b8352602083600481855afa918215610e9057610cc4938a93610eb9575b5060405193602091859163d21220a760e01b90565b825260049082905afa928315610e90578993610e95575b50610cfc60209394610d07610cef60405190565b9687958694859460e01b90565b845260048401610a48565b03915afa908115610e90578691610e62575b50610d2c6001600160a01b0385166107e7565b03610e315782339483610d3e30610336565b90610d4a918885611d7c565b5082870196610d57428952565b6020840194610d64818752565b604085015260608401988952600593610d7d848661052a565b54608082019081529484610d9085610336565b6001600160a01b031660a0840152610da79161052a565b90610db191610b31565b610dbc836003610fc2565b5082600292610dcb908461052a565b91820190610dd891610fc2565b500190610de49161052a565b9051610def91610ba1565b51925193517fb173d70d03f0b8aa29e0087d55b3549db8a6343c5208ce69af3c0de4c0836fe794610e1f60405190565b948594610e2c9486610bca565b0390a1565b6107c283610e3e60405190565b630a3f6ee160e21b8152918291600483016001600160a01b03909116815260200190565b610e83915060203d8111610e89575b610e7b8183610955565b810190610a28565b38610d19565b503d610e71565b610a3c565b60209350610eb2610cfc91853d8111610e8957610e7b8183610955565b9350610cdb565b6020919350610ed490823d8111610e8957610e7b8183610955565b9290610caf565b604051637b663c4960e01b8152600490fd5b60405163162908e360e11b8152600490fd5b90610178939291610f0e6109cb565b6109d3565b61017860026109f1565b15610f2457565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b610162610f766001610587565b610f94610f81610f13565b918290610f8d565b9190565b1415610f1d565b6001610a87565b61017860016109f1565b610162610f94610f9b565b6101789081906001600160a01b031681565b90610fef610f89610fea610fe5600061017896610fdd600090565b50019461032d565b610fb0565b6109f1565b611032565b9190610b996101786108c09390565b90815491600160401b831015610977578261102691600161016295018155610b5a565b90610ff4565b90610534565b61104361103f838361107c565b1590565b15611075576110709161106b906001611064846110608482611003565b5490565b930161102c565b610a87565b600190565b5050600090565b61109a9160016110959261108e600090565b500161102c565b610587565b6110a7610f8960006109f1565b141590565b906110c09392916110bb610f69565b6110de565b610162610fa5565b610178916008021c81565b9061017891546110c8565b906110ed6402540be4006109f1565b8411610edb5761112d61112760029261112261111b6111093390565b95611114878261052a565b0196610336565b809661052a565b610b5a565b906110d3565b611153610f8961114f61114b846111466005988961052a565b610558565b5090565b9590565b14159182156111a3575b5050611191576003019061117082610587565b811061117f5761016291610a87565b60405163b9f317a560e01b8152600490fd5b60405163459808cf60e01b8152600490fd5b6111cc9192506111bf6107e7918501546001600160a01b031690565b926001600160a01b031690565b1415388061115d565b906101629392916110ac565b906110c09392916111f0610f69565b611284565b634e487b7160e01b600052601160045260246000fd5b9190820391821161121857565b6111f5565b634e487b7160e01b600052603160045260246000fd5b61016291600091610b88565b8054801561126257600019019061125f6112598383610b5a565b90611233565b55565b61121d565b6001600160a01b0390911681526040810192916101629160200152565b92919092600090611294826109f1565b8414610eed576111229460029033926112c8611127836112bf866112b8898261052a565b0194610336565b9a8b809561052a565b6112e5610f896112e161114b846111466005978861052a565b9890565b1415908115611415575b506111915761130060038601610587565b421061117f578286948892611330600161134c990161109561132a8a61132584610587565b61120b565b82610a87565b61133c610f89846109f1565b14611384575b5050509050611e10565b507fbace9fd79d5ea02ed8b43fa96af07e4e8f859a2f71ff878c748f5c22c578028491610e2c61137b60405190565b92839283611267565b6113de906113d56113a3610178878961139d898261052a565b0161052a565b91610bc46113ce6111276113c86113b8875490565b6113c260016109f1565b9061120b565b86610b5a565b9184610b5a565b6110608161123f565b6113ea610f89836109f1565b146113f6575b80611342565b61076e6114069261140b9561052a565b611449565b50388582826113f0565b8601546001600160a01b031690506114356001600160a01b0385166107e7565b1415386112ef565b906101629392916111e1565b90611464610f89610fea610fe5600061017896610fdd600090565b611495565b61016291600091610ff4565b8054801561126257600019019061125f61148f8383610b5a565b90611469565b906114a6611095826001850161102c565b6000926114b2846109f1565b82146114ff576101789261150594926115109261150a60019788936114df6114d9866109f1565b8261120b565b888501916114f76114ee845490565b6113c2896109f1565b828103611515575b50505090565b611475565b0161102c565b611233565b6110266115386115409461152f61112761106b9589610b5a565b92839188610b5a565b88880161102c565b3880806114ff565b906109e894939291611558610f69565b61160b565b9190820180921161121857565b906101626115f2600561157b610990565b9461158c61158882610587565b8752565b6115a261159b60018301610587565b6020880152565b6115b86115b160028301610587565b6040880152565b6115ce6115c760038301610587565b6060880152565b6115e46115dd60048301610587565b6080880152565b01546001600160a01b031690565b6001600160a01b031660a0840152565b6101789061156a565b5060009190611619836109f1565b8514610eed5761164e6111276002936111226116476116353390565b96611640888261052a565b0195610336565b809561052a565b60059061166c610f8961166861114b84611146888861052a565b9790565b1415908115611707575b50611191576116ff6116be6116b68761169c6101789961169530610336565b8888611d7c565b5061109561132a60018a01926116b184610587565b61155d565b948601610587565b6116ca60038701610587565b907fb173d70d03f0b8aa29e0087d55b3549db8a6343c5208ce69af3c0de4c0836fe7956116f660405190565b95869586610bca565b0390a1611602565b8501546001600160a01b031690506117276001600160a01b0384166107e7565b141538611676565b9061017893929161173e6109cb565b611548565b9061175961017b6000546001600160a01b031690565b61176285610336565b1461186a573393600261178161112784611122878561139d8c8261052a565b9360059461179c610f896112e161114b84611146878c61052a565b14158015611843575b6111915761016296611804611822956117ef6117dd61017886886117cc6101788c8361052a565b6117d68382610fc2565b500161052a565b6117e960048c01610587565b90610ba1565b6113d56113a3610178868861139d888261052a565b600090611813610f89836109f1565b14611829575b50505050610336565b91016108a9565b61076e611406926118399561052a565b5038808080611819565b50858501546001600160a01b03166118636001600160a01b0389166107e7565b14156117a5565b60405163cf04b1bb60e01b8152600490fd5b906110c093929161188b610f69565b6118ff565b80151561014e565b9050519061016282611890565b906020828203126101475761017891611898565b90959492610162946118ef610c1792610c096080966118e860a088019c60008901906001600160a01b03169052565b6020870152565b6001600160a01b03166060830152565b929192611917610c666006546001600160a01b031690565b9360009461192a6107e761017b8861074b565b14611b6657611938856109f1565b8414610eed5760023393611968611127826111226119618661195a8b8261052a565b0198610336565b809861052a565b600590611986610f8961198261114b846111468b8861052a565b9690565b1415908115611b3e575b5061119157848785926119b06001870161109561132a8c61132584610587565b6119bc610f89846109f1565b14611af3575b505050505063095ea7b360206119ff6119e6610c666006546001600160a01b031690565b92611a0a886119f460405190565b958694859460e01b90565b845260048401611267565b038189875af18015610e9057611ac7575b50611a31610c666006546001600160a01b031690565b90611a43600363b7df1d259201610587565b93611a5a42611a54620151806109f1565b9061155d565b91833b1561014757611a8f611a84938997938894611a7760405190565b9a8b998a98899760e01b90565b8752600487016118b9565b03925af18015610e9057611aa1575050565b8161016292903d10611ac0575b611ab88183610955565b8101906102b0565b503d611aae565b611ae79060203d8111611aec575b611adf8183610955565b8101906118a5565b611a1b565b503d611ad5565b611b0c906113d56113a3610178878961139d898261052a565b611b18610f89836109f1565b14611b24575b836119c2565b61076e61140692611b349561052a565b5038828487611b1e565b8401546001600160a01b03169050611b5e6001600160a01b0387166107e7565b141538611990565b604051632ed9bf5360e21b8152600490fd5b9061016293929161187c565b61106061017891611b93600090565b50600561052a565b61017860035b611bb7600061017892611bb2600090565b500190565b600061017891611bc5600090565b50015490565b610178906003611be4565b611be4565b610178906109f1565b611c09611c0461017893611bff6000611c0e95611bb2600090565b611c13565b611bdb565b61073e565b61032d565b61017891600061112792611c25600090565b5001610b5a565b611ba1600061076e61017861017894611c43600090565b50600261052a565b90611bd6600061076e61017861017895611c43600090565b610178916110609161139d6101786002928361052a565b61114b611ca461112761139d969561112286611cb096611c98600090565b5060029a8b918261052a565b6111466005948561052a565b611cb981610587565b611cd0611cc860018401610587565b958301610587565b93611cfc611ce060038501610587565b94611ced60048601610587565b9401546001600160a01b031690565b91959493929190565b6001600160a01b039182168152911660208201526060810192916101629160400152565b67ffffffffffffffff811161097757602090601f01601f19160190565b90611d58611d5383611d29565b61097c565b918252565b3d15611d7757611d6c3d611d46565b903d6000602084013e565b606090565b9091611dbe60009493611daf8695611d92600090565b506040516323b872dd60e01b602082015294859360248501611d05565b60208201810382520382610955565b82602082019151925af1611dd8611dd3611d5d565b911590565b611de25750600190565b8051611df1610f8960006109f1565b14611dfe57805190602001fd5b6040516312171d8360e31b8152600490fd5b600092611dbe8493611e20600090565b50611daf611e2d60405190565b63a9059cbb60e01b60208201529384926024840161126756fea2646970667358221220d4cdf03e7cfbfe9d66ebebbfa6e6ac352b77f68725ef7bb697fce5f5e4e6904464736f6c63430008140033",
+  "deployedBytecode": "0x6080604052600436101561001257600080fd5b60003560e01c806314dd79a3146101425780631f2a1d2f1461013d57806323cf3118146101385780634532d7761461013357806360491d241461012e578063715018a614610129578063783451e8146101245780637cd07e471461011f5780638da5cb5b1461011a578063903df80614610115578063a396981514610110578063a69d9c4f1461010b578063a9b07cea14610106578063bef497fd14610101578063ccebfa3f146100fc578063d4ff493f146100f7578063df41bc5f146100f2578063ee424278146100ed5763f2fde38b0361014757610716565b6106fa565b6106e0565b6106c4565b61065f565b61050e565b6104a7565b610421565b6103e3565b6103c7565b61037f565b610358565b6102d3565b6102bb565b610294565b610278565b61021f565b6101f4565b61018b565b600080fd5b805b0361014757565b905035906101628261014c565b565b906020828203126101475761017891610155565b90565b6001600160a01b031690565b9052565b34610147576101c06101a66101a1366004610164565b611bcb565b604051918291826001600160a01b03909116815260200190565b0390f35b6001600160a01b03811661014e565b90503590610162826101c4565b9060208282031261014757610178916101d3565b34610147576101c061020f61020a3660046101e0565b611b84565b6040519182918290815260200190565b34610147576102376102323660046101e0565b610936565b604051005b6080818303126101475761025082826101d3565b926101786102618460208501610155565b9361026f8160408601610155565b93606001610155565b346101475761023761028b36600461023c565b9291909161143d565b34610147576102376102a736600461023c565b929190916111d5565b600091031261014757565b34610147576102cb3660046102b0565b610237610766565b34610147576102e33660046102b0565b6101c061020f611b9b565b610178916008021c6001600160a01b031690565b9061017891546102ee565b61017860006006610302565b6101789061017b906001600160a01b031682565b61017890610319565b6101789061032d565b61018790610336565b602081019291610162919061033f565b34610147576103683660046102b0565b6101c061037361030d565b60405191829182610348565b346101475761038f3660046102b0565b6101c06101a66000546001600160a01b031690565b919060408382031261014757610178906103be81856101d3565b93602001610155565b34610147576101c06101a66103dd3660046103a4565b90611c4b565b34610147576101c061020f6103f93660046101e0565b611c2c565b9190604083820312610147576101789061041881856101d3565b936020016101d3565b34610147576101c061020f6104373660046103fe565b90611c63565b80518252610162919060a090819061045a60208201516020860152565b61046960408201516040860152565b61047860608201516060860152565b61048760808201516080860152565b01516001600160a01b0316910152565b60c081019291610162919061043d565b34610147576101c06104c66104bd36600461023c565b9291909161172f565b60405191829182610497565b608081830312610147576104e682826101d3565b926101786104f78460208501610155565b936105058160408601610155565b936060016101d3565b34610147576102376105213660046104d2565b92919091611743565b9061053490610336565b600052602052604060002090565b634e487b7160e01b600052603260045260246000fd5b805482101561057b57610572600691600052602060002090565b91020190600090565b610542565b6101789081565b6101789054610580565b91906105a160059360009461052a565b8054821015610608576105b5929350610558565b50906105c082610587565b916105cd60018201610587565b916105da60028301610587565b916105e760038201610587565b9161017860056105f960048501610587565b9301546001600160a01b031690565b8380fd5b91946106496106509298979561064260a09661063b6101629a61063460c08a019e60008b0152565b6020890152565b6040870152565b6060850152565b6080830152565b01906001600160a01b03169052565b34610147576101c061067b6106753660046103a4565b90610591565b9261068b96949692919260405190565b9687968761060c565b9091606082840312610147576101786106ad84846101d3565b936106bb81602086016101d3565b93604001610155565b34610147576101c061067b6106da366004610694565b91611c7a565b6101c06104c66106f13660046104d2565b92919091610eff565b346101475761023761070d36600461023c565b92919091611b78565b34610147576102376107293660046101e0565b61088b565b6107366107c6565b610162610754565b61017b6101786101789290565b6101789061073e565b610162610761600061074b565b6108c4565b61016261072e565b0190565b1561077957565b60405162461bcd60e51b8152806107c2600482016020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604082015260600190565b0390fd5b6101626107db6000546001600160a01b031690565b6107f46107e73361017b565b916001600160a01b031690565b14610772565b610162906108066107c6565b610866565b1561081257565b60405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608490fd5b6101629061076161087a61017b600061074b565b6001600160a01b038316141561080b565b610162906107fa565b906001600160a01b03905b9181191691161790565b906108b96101786108c092610336565b8254610894565b9055565b6000546001600160a01b0316906108dc8160006108a9565b61090f6109097f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e093610336565b91610336565b9161091960405190565b600090a3565b6101629061092b6107c6565b6101629060066108a9565b6101629061091f565b634e487b7160e01b600052604160045260246000fd5b90601f01601f1916810190811067ffffffffffffffff82111761097757604052565b61093f565b9061016261098960405190565b9283610955565b61017860c061097c565b6109a2610990565b906000825260208080808080870160008152016000815201600081520160008152016000905250565b61017861099a565b906109e8949392916109e3610f69565b610c1b565b90610162610fa5565b6101786101786101789290565b610178735c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f610336565b90505190610162826101c4565b906020828203126101475761017891610a1b565b6040513d6000823e3d90fd5b6001600160a01b03909116815260408101929161016291602090610650565b634e487b7160e01b600052600060045260246000fd5b906000199061089f565b90610a976101786108c0926109f1565b8254610a7d565b6101629190610b179060a090600590610abf81610ab9875190565b90610a87565b610ad160018201610ab9602088015190565b610ae360028201610ab9604088015190565b610af560038201610ab9606088015190565b610b0760048201610ab9608088015190565b019201516001600160a01b031690565b906108a9565b9190610b2c5761016291610a9e565b610a67565b90815491600160401b8310156109775782610b5491600161016295018155610558565b90610b1d565b805482101561057b57610572600191600052602060002090565b9160001960089290920291821b911b61089f565b9190610b996101786108c0936109f1565b908354610b74565b90815491600160401b8310156109775782610bc491600161016295018155610b5a565b90610b88565b9095949261016294610c10610c1792610c09608096610bf960a088019c60008901906001600160a01b03169052565b6001600160a01b03166020870152565b6040850152565b6060830152565b0152565b94939091948095600093610c2e856109f1565b8214610eed57610c426402540be4006109f1565b8611610edb57610c5190610336565b91610c5b83610336565b610c6b610c666109fe565b610336565b610c7963e6a4390592610336565b630dfe168191610c92610c8b60405190565b9360e01b90565b8352602083600481855afa918215610e9057610cc4938a93610eb9575b5060405193602091859163d21220a760e01b90565b825260049082905afa928315610e90578993610e95575b50610cfc60209394610d07610cef60405190565b9687958694859460e01b90565b845260048401610a48565b03915afa908115610e90578691610e62575b50610d2c6001600160a01b0385166107e7565b03610e315782339483610d3e30610336565b90610d4a918885611d7c565b5082870196610d57428952565b6020840194610d64818752565b604085015260608401988952600593610d7d848661052a565b54608082019081529484610d9085610336565b6001600160a01b031660a0840152610da79161052a565b90610db191610b31565b610dbc836003610fc2565b5082600292610dcb908461052a565b91820190610dd891610fc2565b500190610de49161052a565b9051610def91610ba1565b51925193517fb173d70d03f0b8aa29e0087d55b3549db8a6343c5208ce69af3c0de4c0836fe794610e1f60405190565b948594610e2c9486610bca565b0390a1565b6107c283610e3e60405190565b630a3f6ee160e21b8152918291600483016001600160a01b03909116815260200190565b610e83915060203d8111610e89575b610e7b8183610955565b810190610a28565b38610d19565b503d610e71565b610a3c565b60209350610eb2610cfc91853d8111610e8957610e7b8183610955565b9350610cdb565b6020919350610ed490823d8111610e8957610e7b8183610955565b9290610caf565b604051637b663c4960e01b8152600490fd5b60405163162908e360e11b8152600490fd5b90610178939291610f0e6109cb565b6109d3565b61017860026109f1565b15610f2457565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b610162610f766001610587565b610f94610f81610f13565b918290610f8d565b9190565b1415610f1d565b6001610a87565b61017860016109f1565b610162610f94610f9b565b6101789081906001600160a01b031681565b90610fef610f89610fea610fe5600061017896610fdd600090565b50019461032d565b610fb0565b6109f1565b611032565b9190610b996101786108c09390565b90815491600160401b831015610977578261102691600161016295018155610b5a565b90610ff4565b90610534565b61104361103f838361107c565b1590565b15611075576110709161106b906001611064846110608482611003565b5490565b930161102c565b610a87565b600190565b5050600090565b61109a9160016110959261108e600090565b500161102c565b610587565b6110a7610f8960006109f1565b141590565b906110c09392916110bb610f69565b6110de565b610162610fa5565b610178916008021c81565b9061017891546110c8565b906110ed6402540be4006109f1565b8411610edb5761112d61112760029261112261111b6111093390565b95611114878261052a565b0196610336565b809661052a565b610b5a565b906110d3565b611153610f8961114f61114b846111466005988961052a565b610558565b5090565b9590565b14159182156111a3575b5050611191576003019061117082610587565b811061117f5761016291610a87565b60405163b9f317a560e01b8152600490fd5b60405163459808cf60e01b8152600490fd5b6111cc9192506111bf6107e7918501546001600160a01b031690565b926001600160a01b031690565b1415388061115d565b906101629392916110ac565b906110c09392916111f0610f69565b611284565b634e487b7160e01b600052601160045260246000fd5b9190820391821161121857565b6111f5565b634e487b7160e01b600052603160045260246000fd5b61016291600091610b88565b8054801561126257600019019061125f6112598383610b5a565b90611233565b55565b61121d565b6001600160a01b0390911681526040810192916101629160200152565b92919092600090611294826109f1565b8414610eed576111229460029033926112c8611127836112bf866112b8898261052a565b0194610336565b9a8b809561052a565b6112e5610f896112e161114b846111466005978861052a565b9890565b1415908115611415575b506111915761130060038601610587565b421061117f578286948892611330600161134c990161109561132a8a61132584610587565b61120b565b82610a87565b61133c610f89846109f1565b14611384575b5050509050611e10565b507fbace9fd79d5ea02ed8b43fa96af07e4e8f859a2f71ff878c748f5c22c578028491610e2c61137b60405190565b92839283611267565b6113de906113d56113a3610178878961139d898261052a565b0161052a565b91610bc46113ce6111276113c86113b8875490565b6113c260016109f1565b9061120b565b86610b5a565b9184610b5a565b6110608161123f565b6113ea610f89836109f1565b146113f6575b80611342565b61076e6114069261140b9561052a565b611449565b50388582826113f0565b8601546001600160a01b031690506114356001600160a01b0385166107e7565b1415386112ef565b906101629392916111e1565b90611464610f89610fea610fe5600061017896610fdd600090565b611495565b61016291600091610ff4565b8054801561126257600019019061125f61148f8383610b5a565b90611469565b906114a6611095826001850161102c565b6000926114b2846109f1565b82146114ff576101789261150594926115109261150a60019788936114df6114d9866109f1565b8261120b565b888501916114f76114ee845490565b6113c2896109f1565b828103611515575b50505090565b611475565b0161102c565b611233565b6110266115386115409461152f61112761106b9589610b5a565b92839188610b5a565b88880161102c565b3880806114ff565b906109e894939291611558610f69565b61160b565b9190820180921161121857565b906101626115f2600561157b610990565b9461158c61158882610587565b8752565b6115a261159b60018301610587565b6020880152565b6115b86115b160028301610587565b6040880152565b6115ce6115c760038301610587565b6060880152565b6115e46115dd60048301610587565b6080880152565b01546001600160a01b031690565b6001600160a01b031660a0840152565b6101789061156a565b5060009190611619836109f1565b8514610eed5761164e6111276002936111226116476116353390565b96611640888261052a565b0195610336565b809561052a565b60059061166c610f8961166861114b84611146888861052a565b9790565b1415908115611707575b50611191576116ff6116be6116b68761169c6101789961169530610336565b8888611d7c565b5061109561132a60018a01926116b184610587565b61155d565b948601610587565b6116ca60038701610587565b907fb173d70d03f0b8aa29e0087d55b3549db8a6343c5208ce69af3c0de4c0836fe7956116f660405190565b95869586610bca565b0390a1611602565b8501546001600160a01b031690506117276001600160a01b0384166107e7565b141538611676565b9061017893929161173e6109cb565b611548565b9061175961017b6000546001600160a01b031690565b61176285610336565b1461186a573393600261178161112784611122878561139d8c8261052a565b9360059461179c610f896112e161114b84611146878c61052a565b14158015611843575b6111915761016296611804611822956117ef6117dd61017886886117cc6101788c8361052a565b6117d68382610fc2565b500161052a565b6117e960048c01610587565b90610ba1565b6113d56113a3610178868861139d888261052a565b600090611813610f89836109f1565b14611829575b50505050610336565b91016108a9565b61076e611406926118399561052a565b5038808080611819565b50858501546001600160a01b03166118636001600160a01b0389166107e7565b14156117a5565b60405163cf04b1bb60e01b8152600490fd5b906110c093929161188b610f69565b6118ff565b80151561014e565b9050519061016282611890565b906020828203126101475761017891611898565b90959492610162946118ef610c1792610c096080966118e860a088019c60008901906001600160a01b03169052565b6020870152565b6001600160a01b03166060830152565b929192611917610c666006546001600160a01b031690565b9360009461192a6107e761017b8861074b565b14611b6657611938856109f1565b8414610eed5760023393611968611127826111226119618661195a8b8261052a565b0198610336565b809861052a565b600590611986610f8961198261114b846111468b8861052a565b9690565b1415908115611b3e575b5061119157848785926119b06001870161109561132a8c61132584610587565b6119bc610f89846109f1565b14611af3575b505050505063095ea7b360206119ff6119e6610c666006546001600160a01b031690565b92611a0a886119f460405190565b958694859460e01b90565b845260048401611267565b038189875af18015610e9057611ac7575b50611a31610c666006546001600160a01b031690565b90611a43600363b7df1d259201610587565b93611a5a42611a54620151806109f1565b9061155d565b91833b1561014757611a8f611a84938997938894611a7760405190565b9a8b998a98899760e01b90565b8752600487016118b9565b03925af18015610e9057611aa1575050565b8161016292903d10611ac0575b611ab88183610955565b8101906102b0565b503d611aae565b611ae79060203d8111611aec575b611adf8183610955565b8101906118a5565b611a1b565b503d611ad5565b611b0c906113d56113a3610178878961139d898261052a565b611b18610f89836109f1565b14611b24575b836119c2565b61076e61140692611b349561052a565b5038828487611b1e565b8401546001600160a01b03169050611b5e6001600160a01b0387166107e7565b141538611990565b604051632ed9bf5360e21b8152600490fd5b9061016293929161187c565b61106061017891611b93600090565b50600561052a565b61017860035b611bb7600061017892611bb2600090565b500190565b600061017891611bc5600090565b50015490565b610178906003611be4565b611be4565b610178906109f1565b611c09611c0461017893611bff6000611c0e95611bb2600090565b611c13565b611bdb565b61073e565b61032d565b61017891600061112792611c25600090565b5001610b5a565b611ba1600061076e61017861017894611c43600090565b50600261052a565b90611bd6600061076e61017861017895611c43600090565b610178916110609161139d6101786002928361052a565b61114b611ca461112761139d969561112286611cb096611c98600090565b5060029a8b918261052a565b6111466005948561052a565b611cb981610587565b611cd0611cc860018401610587565b958301610587565b93611cfc611ce060038501610587565b94611ced60048601610587565b9401546001600160a01b031690565b91959493929190565b6001600160a01b039182168152911660208201526060810192916101629160400152565b67ffffffffffffffff811161097757602090601f01601f19160190565b90611d58611d5383611d29565b61097c565b918252565b3d15611d7757611d6c3d611d46565b903d6000602084013e565b606090565b9091611dbe60009493611daf8695611d92600090565b506040516323b872dd60e01b602082015294859360248501611d05565b60208201810382520382610955565b82602082019151925af1611dd8611dd3611d5d565b911590565b611de25750600190565b8051611df1610f8960006109f1565b14611dfe57805190602001fd5b6040516312171d8360e31b8152600490fd5b600092611dbe8493611e20600090565b50611daf611e2d60405190565b63a9059cbb60e01b60208201529384926024840161126756fea2646970667358221220d4cdf03e7cfbfe9d66ebebbfa6e6ac352b77f68725ef7bb697fce5f5e4e6904464736f6c63430008140033",
+  "devdoc": {
+    "author": "@neuro_0x",
+    "details": "A contract for locking Uniswap V2 liquidity pool tokens for specified periods.",
+    "kind": "dev",
+    "methods": {
+      "getLockedTokenAtIndex(uint256)": {
+        "details": "Get the address of a locked token at an index.",
+        "params": {
+          "_index": "The index of the token."
+        }
+      },
+      "getNumLockedTokens()": {
+        "details": "Get the total number of locked tokens"
+      },
+      "getNumLocksForToken(address)": {
+        "details": "Get the number of locks for a specific token.",
+        "params": {
+          "_lpToken": "The address of the LP token."
+        }
+      },
+      "getUserLockForTokenAtIndex(address,address,uint256)": {
+        "details": "Get the lock for a specific user and token at an index.",
+        "params": {
+          "_index": "The index of the lock.",
+          "_lpToken": "The address of the LP token.",
+          "_user": "The address of the user."
+        },
+        "returns": {
+          "_0": "The lock date.",
+          "_1": "Amount of tokens locked.",
+          "_2": "Initial amount of tokens locked.",
+          "_3": "Unlock date of the lock.",
+          "_4": "Lock ID of the lock.",
+          "_5": "Owner of the lock."
+        }
+      },
+      "getUserLockedTokenAtIndex(address,uint256)": {
+        "details": "Get the token address a user has locked at an index.",
+        "params": {
+          "_index": "The index of the token.",
+          "_user": "The address of the user."
+        }
+      },
+      "getUserNumLockedTokens(address)": {
+        "details": "Get the number of tokens a user has locked.",
+        "params": {
+          "_user": "The address of the user."
+        }
+      },
+      "getUserNumLocksForToken(address,address)": {
+        "details": "Get the number of locks for a specific user and token.",
+        "params": {
+          "_lpToken": "The address of the LP token.",
+          "_user": "The address of the user."
+        }
+      },
+      "incrementLock(address,uint256,uint256,uint256)": {
+        "details": "increase the amount of tokens per a specific lock, this is preferable to creating a new lock, less fees, and faster loading on our live block explorer"
+      },
+      "lockLPToken(address,uint256,uint256,address)": {
+        "details": "Creates a new lock",
+        "params": {
+          "amountOfLPToLock": "amount of LP tokens to lock",
+          "lpToken": "the univ2 token address",
+          "unlockDate": "the unix timestamp (in seconds) until unlock",
+          "withdrawer": "the user who can withdraw liquidity once the lock expires"
+        }
+      },
+      "migrate(address,uint256,uint256,uint256)": {
+        "details": "migrates liquidity to uniswap v3"
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "relock(address,uint256,uint256,uint256)": {
+        "details": "extend a lock with a new unlock date, _index and _lockID ensure the correct lock is changed this prevents errors when a user performs multiple tx per block possibly with varying gas prices",
+        "params": {
+          "_index": "the index of the lock for the token",
+          "_lockID": "the lockID of the lock for the token",
+          "_lpToken": "the univ2 token address",
+          "_unlockDate": "the new unix timestamp (in seconds) until unlock"
+        }
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "setMigrator(address)": {
+        "details": "Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3",
+        "params": {
+          "_migrator": "The address of the migrator contract"
+        }
+      },
+      "transferLockOwnership(address,uint256,uint256,address)": {
+        "details": "transfer a lock to a new owner, e.g. presale project -> project owner"
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "withdraw(address,uint256,uint256,uint256)": {
+        "details": "withdraw a specified amount from a lock. _index and _lockID ensure the correct lock is changed this prevents errors when a user performs multiple tx per block possibly with varying gas prices"
+      }
+    },
+    "title": "LiquidityLocker",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 7,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 231,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "_status",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 6405,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "_users",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_struct(User)6387_storage)"
+      },
+      {
+        "astId": 6408,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "_lockedTokens",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_struct(AddressSet)2244_storage"
+      },
+      {
+        "astId": 6414,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "tokenLocks",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_array(t_struct(TokenLock)6400_storage)dyn_storage)"
+      },
+      {
+        "astId": 6417,
+        "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+        "label": "migrator",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_contract(IUniswapV2Migrator)2852"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_struct(TokenLock)6400_storage)dyn_storage": {
+        "base": "t_struct(TokenLock)6400_storage",
+        "encoding": "dynamic_array",
+        "label": "struct LiquidityLocker.TokenLock[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IUniswapV2Migrator)2852": {
+        "encoding": "inplace",
+        "label": "contract IUniswapV2Migrator",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_array(t_struct(TokenLock)6400_storage)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LiquidityLocker.TokenLock[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_struct(TokenLock)6400_storage)dyn_storage"
+      },
+      "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_uint256)dyn_storage"
+      },
+      "t_mapping(t_address,t_struct(User)6387_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct LiquidityLocker.User)",
+        "numberOfBytes": "32",
+        "value": "t_struct(User)6387_storage"
+      },
+      "t_mapping(t_bytes32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(AddressSet)2244_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.AddressSet",
+        "members": [
+          {
+            "astId": 2243,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "_inner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(Set)1929_storage"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(Set)1929_storage": {
+        "encoding": "inplace",
+        "label": "struct EnumerableSet.Set",
+        "members": [
+          {
+            "astId": 1924,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "_values",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_bytes32)dyn_storage"
+          },
+          {
+            "astId": 1928,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "_indexes",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_struct(TokenLock)6400_storage": {
+        "encoding": "inplace",
+        "label": "struct LiquidityLocker.TokenLock",
+        "members": [
+          {
+            "astId": 6389,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "lockDate",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6391,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "amount",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6393,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "initialAmount",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6395,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "unlockDate",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6397,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "lockID",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6399,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "owner",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_address"
+          }
+        ],
+        "numberOfBytes": "192"
+      },
+      "t_struct(User)6387_storage": {
+        "encoding": "inplace",
+        "label": "struct LiquidityLocker.User",
+        "members": [
+          {
+            "astId": 6381,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "lockedTokens",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(AddressSet)2244_storage"
+          },
+          {
+            "astId": 6386,
+            "contract": "src/LiquidityLocker.sol:LiquidityLocker",
+            "label": "locksForToken",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
