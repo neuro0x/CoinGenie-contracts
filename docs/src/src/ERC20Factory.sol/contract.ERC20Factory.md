@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1be8602db6e4423afff57d4f4bbe0ac9fb2914e4/src/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2f97e77b196c3aa915fd10742cd78a61abd6f796/src/ERC20Factory.sol)
 
 **Inherits:**
 Ownable
@@ -36,7 +36,7 @@ function launchToken(
     uint256 maxPerWallet,
     uint256 autoWithdrawThreshold,
     uint256 maxTaxSwap,
-    address affilateFeeRecipient,
+    address affiliateFeeRecipient,
     address feeRecipient,
     uint256 feePercentage,
     uint256 burnPercentage,
@@ -57,7 +57,7 @@ function launchToken(
 |`maxPerWallet`|`uint256`|- the maximum amount of tokens allowed to be held by one wallet|
 |`autoWithdrawThreshold`|`uint256`|- the threshold at which the contract will automatically withdraw the tax fees|
 |`maxTaxSwap`|`uint256`|- the maximum amount of tokens allowed to be swapped at once by manual or autoswap|
-|`affilateFeeRecipient`|`address`|- the address to receive the affiliate fee|
+|`affiliateFeeRecipient`|`address`|- the address to receive the affiliate fee|
 |`feeRecipient`|`address`|- the address to receive the tax fees|
 |`feePercentage`|`uint256`|- the percent in basis points to use as a tax|
 |`burnPercentage`|`uint256`|- the percent in basis points to burn on every tx if this token is deflationary|

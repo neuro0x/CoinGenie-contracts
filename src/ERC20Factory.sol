@@ -29,7 +29,7 @@ contract ERC20Factory is Ownable {
      * @param maxPerWallet - the maximum amount of tokens allowed to be held by one wallet
      * @param maxTaxSwap - the maximum amount of tokens allowed to be swapped at once by manual or autoswap
      * @param autoWithdrawThreshold - the threshold at which the contract will automatically withdraw the tax fees
-     * @param affilateFeeRecipient - the address to receive the affiliate fee
+     * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param feeRecipient - the address to receive the tax fees
      * @param feePercentage - the percent in basis points to use as a tax
      * @param burnPercentage - the percent in basis points to burn on every tx if this token is deflationary
@@ -46,7 +46,7 @@ contract ERC20Factory is Ownable {
         uint256 maxPerWallet,
         uint256 autoWithdrawThreshold,
         uint256 maxTaxSwap,
-        address affilateFeeRecipient,
+        address affiliateFeeRecipient,
         address feeRecipient,
         uint256 feePercentage,
         uint256 burnPercentage,
@@ -64,7 +64,7 @@ contract ERC20Factory is Ownable {
             maxPerWallet,
             maxTaxSwap,
             autoWithdrawThreshold,
-            affilateFeeRecipient,
+            affiliateFeeRecipient,
             feeRecipient,
             feePercentage,
             burnPercentage

@@ -129,12 +129,20 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @dev The flag for whether swapping is enabled and trading open
     bool public isSwapEnabled;
 
+    /**
+     * Modifiers
+     */
+
     /// @dev Modifier to prevent swapping tokens for ETH recursively
     modifier lockTheSwap() {
         _inSwap = true;
         _;
         _inSwap = false;
     }
+
+    /**
+     * Errors
+     */
 
     /// @notice Error thrown when the genie is already set.
     error GenieAlreadySet();
@@ -182,6 +190,10 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @param minAmount The minimum required token amount.
     error InsufficientTokens(uint256 amount, uint256 minAmount);
 
+    /**
+     * Events
+     */
+
     /// @notice This event is emitted when the trading is opened.
     /// @param pair The address of the LP token.
     event TradingOpened(address indexed pair);
@@ -216,7 +228,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @param customConfigProps Represents the features of the token
      * @param maxPerWallet The max amount of tokens per wallet
      * @param maxToSwapForTax The max amount of tokens to swap for tax
-     * @param _affilateFeeRecipient The address of the affiliate fee recipient
+     * @param _affiliateFeeRecipient The address of the affiliate fee recipient
      * @param _feeRecipient The address of the fee recipient
      * @param _feePercentage The fee percentage in basis points
      * @param _burnPercentage The burn percentage in basis points
@@ -230,7 +242,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         uint256 maxPerWallet,
         uint256 maxToSwapForTax,
         uint256 _autoWithdrawThreshold,
-        address _affilateFeeRecipient,
+        address _affiliateFeeRecipient,
         address _feeRecipient,
         uint256 _feePercentage,
         uint256 _burnPercentage
@@ -240,7 +252,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         SafeTransfer.validateAddress(tokenOwner);
         initialSupply = initialSupplyToSet;
         _tokenDecimals = 18;
-        affiliateFeeRecipient = _affilateFeeRecipient;
+        affiliateFeeRecipient = _affiliateFeeRecipient;
 
         if (_feePercentage > _MAX_TAX) {
             revert InvalidTaxBPS(_feePercentage);
@@ -630,9 +642,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
             address[] memory path = new address[](2);
             path[0] = address(this);
             path[1] = UNISWAP_V2_ROUTER.WETH();
-            _approve(from, address(UNISWAP_V2_ROUTER), tokenBalance);
+            uint256 amountToSwap = _min(tokenBalance, maxTaxSwap);
             UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
-                tokenBalance, 0, path, from, block.timestamp
+                amountToSwap, 0, path, from, block.timestamp
             );
         }
     }

@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1be8602db6e4423afff57d4f4bbe0ac9fb2914e4/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2f97e77b196c3aa915fd10742cd78a61abd6f796/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -260,6 +260,8 @@ bool public isSwapEnabled;
 ## Functions
 ### lockTheSwap
 
+Modifiers
+
 *Modifier to prevent swapping tokens for ETH recursively*
 
 
@@ -282,7 +284,7 @@ constructor(
     uint256 maxPerWallet,
     uint256 maxToSwapForTax,
     uint256 _autoWithdrawThreshold,
-    address _affilateFeeRecipient,
+    address _affiliateFeeRecipient,
     address _feeRecipient,
     uint256 _feePercentage,
     uint256 _burnPercentage
@@ -301,7 +303,7 @@ constructor(
 |`maxPerWallet`|`uint256`|The max amount of tokens per wallet|
 |`maxToSwapForTax`|`uint256`|The max amount of tokens to swap for tax|
 |`_autoWithdrawThreshold`|`uint256`||
-|`_affilateFeeRecipient`|`address`|The address of the affiliate fee recipient|
+|`_affiliateFeeRecipient`|`address`|The address of the affiliate fee recipient|
 |`_feeRecipient`|`address`|The address of the fee recipient|
 |`_feePercentage`|`uint256`|The fee percentage in basis points|
 |`_burnPercentage`|`uint256`|The burn percentage in basis points|
@@ -719,6 +721,8 @@ function _min(uint256 a, uint256 b) private pure returns (uint256);
 
 ## Events
 ### TradingOpened
+Events
+
 This event is emitted when the trading is opened.
 
 
@@ -768,6 +772,8 @@ event AutoWithdrawThresholdUpdated(uint256 indexed threshold);
 
 ## Errors
 ### GenieAlreadySet
+Errors
+
 Error thrown when the genie is already set.
 
 
