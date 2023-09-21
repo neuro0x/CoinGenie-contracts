@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0ff0bc3fd275beec72c45dbd48acbf4c3729be77/src/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ef1e24d786ae2bf765d737858fa4ade01a419b3d/src/ERC20Factory.sol)
 
 **Inherits:**
 Ownable
@@ -40,7 +40,7 @@ function launchToken(
     address feeRecipient,
     uint256 feePercentage,
     uint256 burnPercentage,
-    address coinGenieTreasury
+    address treasuryRecipient
 )
     external
     returns (CoinGenieERC20 newToken);
@@ -61,7 +61,7 @@ function launchToken(
 |`feeRecipient`|`address`|- the address to receive the tax fees|
 |`feePercentage`|`uint256`|- the percent in basis points to use as a tax|
 |`burnPercentage`|`uint256`|- the percent in basis points to burn on every tx if this token is deflationary|
-|`coinGenieTreasury`|`address`|- the address to receive the royalty fee|
+|`treasuryRecipient`|`address`|- the address to receive the royalty fee|
 
 **Returns**
 

@@ -61,19 +61,21 @@ contract CoinGenieERC20Test is Test {
         });
         coinGenie = new CoinGenie(address(coinGenieERC20Factory), address(coinGenieAirdropFactory));
         coinGenieERC20 = CoinGenieERC20(
-            coinGenie.launchToken(
-                coinGenieLaunchToken.name,
-                coinGenieLaunchToken.symbol,
-                coinGenieLaunchToken.initialSupply,
-                coinGenieLaunchToken.tokenOwner,
-                coinGenieLaunchToken.customConfigProps,
-                coinGenieLaunchToken.maxPerWallet,
-                coinGenieLaunchToken.autoWithdrawThreshold,
-                coinGenieLaunchToken.maxTaxSwap,
-                coinGenieLaunchToken.affiliateFeeRecipient,
-                coinGenieLaunchToken.feeRecipient,
-                coinGenieLaunchToken.feePercentage,
-                coinGenieLaunchToken.burnPercentage
+            payable(
+                coinGenie.launchToken(
+                    coinGenieLaunchToken.name,
+                    coinGenieLaunchToken.symbol,
+                    coinGenieLaunchToken.initialSupply,
+                    coinGenieLaunchToken.tokenOwner,
+                    coinGenieLaunchToken.customConfigProps,
+                    coinGenieLaunchToken.maxPerWallet,
+                    coinGenieLaunchToken.autoWithdrawThreshold,
+                    coinGenieLaunchToken.maxTaxSwap,
+                    coinGenieLaunchToken.affiliateFeeRecipient,
+                    coinGenieLaunchToken.feeRecipient,
+                    coinGenieLaunchToken.feePercentage,
+                    coinGenieLaunchToken.burnPercentage
+                )
             )
         );
 

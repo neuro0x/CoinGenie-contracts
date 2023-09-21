@@ -30,7 +30,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
     error MigratorNotSet();
     error NotUniPair(address lpToken);
 
-    IUniswapV2Factory private constant UNISWAP_V2_FACTORY =
+    IUniswapV2Factory private constant _UNISWAP_V2_FACTORY =
         IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
 
     struct User {
@@ -93,7 +93,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
 
         // ensure this pair is a univ2 pair by querying the factory
         IUniswapV2Pair lpair = IUniswapV2Pair(address(lpToken));
-        address factoryPairAddress = UNISWAP_V2_FACTORY.getPair(lpair.token0(), lpair.token1());
+        address factoryPairAddress = _UNISWAP_V2_FACTORY.getPair(lpair.token0(), lpair.token1());
 
         if (factoryPairAddress != address(lpToken)) {
             revert NotUniPair(address(lpToken));

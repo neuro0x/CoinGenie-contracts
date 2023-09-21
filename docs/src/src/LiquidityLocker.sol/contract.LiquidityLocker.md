@@ -1,5 +1,5 @@
 # LiquidityLocker
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0ff0bc3fd275beec72c45dbd48acbf4c3729be77/src/LiquidityLocker.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ef1e24d786ae2bf765d737858fa4ade01a419b3d/src/LiquidityLocker.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -11,10 +11,10 @@ Ownable, ReentrancyGuard
 
 
 ## State Variables
-### UNISWAP_V2_FACTORY
+### _UNISWAP_V2_FACTORY
 
 ```solidity
-IUniswapV2Factory private constant UNISWAP_V2_FACTORY = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
+IUniswapV2Factory private constant _UNISWAP_V2_FACTORY = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
 ```
 
 

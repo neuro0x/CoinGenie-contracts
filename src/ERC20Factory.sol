@@ -33,7 +33,7 @@ contract ERC20Factory is Ownable {
      * @param feeRecipient - the address to receive the tax fees
      * @param feePercentage - the percent in basis points to use as a tax
      * @param burnPercentage - the percent in basis points to burn on every tx if this token is deflationary
-     * @param coinGenieTreasury - the address to receive the royalty fee
+     * @param treasuryRecipient - the address to receive the royalty fee
      *
      * @return newToken - the CoinGenieERC20 token that was created
      */
@@ -50,7 +50,7 @@ contract ERC20Factory is Ownable {
         address feeRecipient,
         uint256 feePercentage,
         uint256 burnPercentage,
-        address coinGenieTreasury
+        address treasuryRecipient
     )
         external
         returns (CoinGenieERC20 newToken)
@@ -70,7 +70,7 @@ contract ERC20Factory is Ownable {
             burnPercentage
         );
 
-        coinGenieERC20.setCoinGenieTreasury(coinGenieTreasury);
+        coinGenieERC20.setCoinGenieTreasury(treasuryRecipient);
         coinGenieERC20.setGenie(_genie);
 
         if (tokenOwner != address(0) && tokenOwner != coinGenieERC20.owner()) {

@@ -27,7 +27,7 @@ contract CoinGenie is Ownable, ReentrancyGuard {
 
     error InvalidPayoutCategory(PayoutCategory category);
 
-    uint256 private constant MAX_BPS = 10_000;
+    uint256 private constant _MAX_BPS = 10_000;
 
     /// @dev The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
@@ -313,10 +313,10 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         uint256 legalShare = _payouts[PayoutCategory.Legal].share;
         uint256 marketingShare = _payouts[PayoutCategory.Marketing].share;
 
-        uint256 treasuryAmount = contractBalance.mul(treasuryShare).div(MAX_BPS);
-        uint256 devAmount = contractBalance.mul(devShare).div(MAX_BPS);
-        uint256 legalAmount = contractBalance.mul(legalShare).div(MAX_BPS);
-        uint256 marketingAmount = contractBalance.mul(marketingShare).div(MAX_BPS);
+        uint256 treasuryAmount = contractBalance.mul(treasuryShare).div(_MAX_BPS);
+        uint256 devAmount = contractBalance.mul(devShare).div(_MAX_BPS);
+        uint256 legalAmount = contractBalance.mul(legalShare).div(_MAX_BPS);
+        uint256 marketingAmount = contractBalance.mul(marketingShare).div(_MAX_BPS);
 
         SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Treasury].receiver, treasuryAmount);
         SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Dev].receiver, devAmount);

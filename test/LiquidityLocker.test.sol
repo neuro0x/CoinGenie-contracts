@@ -68,19 +68,21 @@ contract LiquidityLockerTest is Test {
         erc20Factory = new ERC20Factory();
         coinGenie = new CoinGenie(address(new ERC20Factory()), address(new AirdropERC20ClaimableFactory()));
         coinGenieERC20 = CoinGenieERC20(
-            coinGenie.launchToken(
-                coinGenieLaunchToken.name,
-                coinGenieLaunchToken.symbol,
-                coinGenieLaunchToken.initialSupply,
-                coinGenieLaunchToken.tokenOwner,
-                coinGenieLaunchToken.customConfigProps,
-                coinGenieLaunchToken.maxPerWallet,
-                coinGenieLaunchToken.autoWithdrawThreshold,
-                coinGenieLaunchToken.maxTaxSwap,
-                coinGenieLaunchToken.affiliateFeeRecipient,
-                coinGenieLaunchToken.feeRecipient,
-                coinGenieLaunchToken.feePercentage,
-                coinGenieLaunchToken.burnPercentage
+            payable(
+                coinGenie.launchToken(
+                    coinGenieLaunchToken.name,
+                    coinGenieLaunchToken.symbol,
+                    coinGenieLaunchToken.initialSupply,
+                    coinGenieLaunchToken.tokenOwner,
+                    coinGenieLaunchToken.customConfigProps,
+                    coinGenieLaunchToken.maxPerWallet,
+                    coinGenieLaunchToken.autoWithdrawThreshold,
+                    coinGenieLaunchToken.maxTaxSwap,
+                    coinGenieLaunchToken.affiliateFeeRecipient,
+                    coinGenieLaunchToken.feeRecipient,
+                    coinGenieLaunchToken.feePercentage,
+                    coinGenieLaunchToken.burnPercentage
+                )
             )
         );
 

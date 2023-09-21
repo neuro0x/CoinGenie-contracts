@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0ff0bc3fd275beec72c45dbd48acbf4c3729be77/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ef1e24d786ae2bf765d737858fa4ade01a419b3d/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -14,6 +14,8 @@ THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
 
 ## State Variables
 ### _MAX_BPS
+Private constants
+
 *The max basis points representing 100%*
 
 
@@ -49,7 +51,98 @@ uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
 ```
 
 
+### _TREASURY_FEE_PERCENTAGE
+*the royalty fee percentage taken on transfers*
+
+
+```solidity
+uint256 private constant _TREASURY_FEE_PERCENTAGE = 50;
+```
+
+
+### _LP_ETH_FEE_PERCENTAGE
+*the percent of eth taken when liquidity is open*
+
+
+```solidity
+uint256 private constant _LP_ETH_FEE_PERCENTAGE = 50;
+```
+
+
+### _AFFILIATE_FEE_PERCENTAGE
+*the affiliate fee percentage taken on transfers*
+
+
+```solidity
+uint256 private constant _AFFILIATE_FEE_PERCENTAGE = 25;
+```
+
+
+### _tokenDecimals
+Private immutable
+
+*number of decimals of the token*
+
+
+```solidity
+uint8 private immutable _tokenDecimals;
+```
+
+
+### _inSwap
+Private constants
+
+*Are we currently swapping tokens for ETH?*
+
+
+```solidity
+bool private _inSwap;
+```
+
+
+### _feeWhitelist
+*The whitelist of addresses that are exempt from fees*
+
+
+```solidity
+mapping(address feePayer => bool isWhitelisted) private _feeWhitelist;
+```
+
+
+### UNISWAP_V2_ROUTER
+Public constants
+
+*The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps*
+
+
+```solidity
+IUniswapV2Router02 public constant UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+```
+
+
+### initialSupply
+Public immutable
+
+*initial number of tokens which will be minted during initialization*
+
+
+```solidity
+uint256 public immutable initialSupply;
+```
+
+
+### affiliateFeeRecipient
+*address of the affiliate fee recipient*
+
+
+```solidity
+address public immutable affiliateFeeRecipient;
+```
+
+
 ### discountFeeRequiredAmount
+Public
+
 *The amount of $GENIE a person has to hold to get the discount*
 
 
@@ -64,24 +157,6 @@ uint256 public discountFeeRequiredAmount = 1_000_000 ether;
 
 ```solidity
 address public genieToken;
-```
-
-
-### _tokenDecimals
-*number of decimals of the token*
-
-
-```solidity
-uint8 private immutable _tokenDecimals;
-```
-
-
-### initialSupply
-*initial number of tokens which will be minted during initialization*
-
-
-```solidity
-uint256 public immutable initialSupply;
 ```
 
 
@@ -130,21 +205,12 @@ address public feeRecipient;
 ```
 
 
-### affiliateFeeRecipient
-*address of the affiliate fee recipient*
-
-
-```solidity
-address public immutable affiliateFeeRecipient;
-```
-
-
-### coinGenieTreasury
+### treasuryRecipient
 *address of the royalty fee recipient (Coin Genie)*
 
 
 ```solidity
-address public coinGenieTreasury;
+address public treasuryRecipient;
 ```
 
 
@@ -157,48 +223,12 @@ uint256 public feePercentage;
 ```
 
 
-### affiliateFeePercentage
-*the affiliate fee percentage taken on transfers*
-
-
-```solidity
-uint256 public affiliateFeePercentage = 25;
-```
-
-
 ### burnPercentage
 *the affiliate fee percentage in basis points*
 
 
 ```solidity
 uint256 public burnPercentage;
-```
-
-
-### treasuryFeePercentage
-*the royalty fee percentage taken on transfers*
-
-
-```solidity
-uint256 public treasuryFeePercentage = 50;
-```
-
-
-### lpEthFeePercentage
-*the percent of eth taken when liquidity is open*
-
-
-```solidity
-uint256 public lpEthFeePercentage = 50;
-```
-
-
-### UNISWAP_V2_ROUTER
-*The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps*
-
-
-```solidity
-IUniswapV2Router02 public constant UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 ```
 
 
@@ -217,22 +247,6 @@ address public uniswapV2Pair;
 
 ```solidity
 bool public isSwapEnabled;
-```
-
-
-### _inSwap
-*Are we currently swapping tokens for ETH?*
-
-
-```solidity
-bool private _inSwap;
-```
-
-
-### _feeWhitelist
-
-```solidity
-mapping(address feePayer => bool isWhitelisted) private _feeWhitelist;
 ```
 
 
@@ -286,30 +300,12 @@ constructor(
 |`_burnPercentage`|`uint256`|The burn percentage in basis points|
 
 
-### _beforeTokenTransfer
-
-*hook called before any transfer of tokens. This includes minting and burning
-imposed by the ERC20 standard*
+### receive
 
 
 ```solidity
-function _beforeTokenTransfer(
-    address from,
-    address to,
-    uint256 amount
-)
-    internal
-    virtual
-    override(ERC20, ERC20Pausable);
+receive() external payable;
 ```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`from`|`address`|- address of the sender|
-|`to`|`address`|- address of the recipient|
-|`amount`|`uint256`|- amount of tokens to transfer|
-
 
 ### isPausable
 
@@ -663,30 +659,37 @@ the ETH to the tax wallet.*
 function manualSwap() external nonReentrant;
 ```
 
-### _takeFees
+### _beforeTokenTransfer
+
+*hook called before any transfer of tokens. This includes minting and burning
+imposed by the ERC20 standard*
 
 
 ```solidity
-function _takeFees(address from, address to, uint256 amount) private returns (uint256 amountToTransfer);
-```
-
-### _getTransferAmounts
-
-*Gets the amount of tokens to transfer and the amount of tax to capture*
-
-
-```solidity
-function _getTransferAmounts(uint256 amount)
-    private
-    view
-    returns (uint256 treasuryAmount, uint256 taxAmount, uint256 affiliateAmount, uint256 deflationAmount);
+function _beforeTokenTransfer(
+    address from,
+    address to,
+    uint256 amount
+)
+    internal
+    virtual
+    override(ERC20, ERC20Pausable);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`amount`|`uint256`|The amount of tokens to transfer|
+|`from`|`address`|- address of the sender|
+|`to`|`address`|- address of the recipient|
+|`amount`|`uint256`|- amount of tokens to transfer|
 
+
+### _takeFees
+
+
+```solidity
+function _takeFees(address from, address to, uint256 amount) private returns (uint256 _amount);
+```
 
 ### _swapTokensForEth
 
@@ -750,6 +753,22 @@ This event is emitted when the burn configuration of the token has been updated.
 
 ```solidity
 event BurnConfigUpdated(uint256 indexed _burnPercentage);
+```
+
+### MaxTaxSwapUpdated
+This event is emitted when the maximum amount of tokens to swap for tax has been updated.
+
+
+```solidity
+event MaxTaxSwapUpdated(uint256 indexed maxTaxSwap);
+```
+
+### AutoWithdrawThresholdUpdated
+This event is emitted when the auto withdraw threshold has been updated.
+
+
+```solidity
+event AutoWithdrawThresholdUpdated(uint256 indexed threshold);
 ```
 
 ## Errors

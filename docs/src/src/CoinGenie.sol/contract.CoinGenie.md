@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0ff0bc3fd275beec72c45dbd48acbf4c3729be77/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ef1e24d786ae2bf765d737858fa4ade01a419b3d/src/CoinGenie.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -11,10 +11,10 @@ Ownable, ReentrancyGuard
 
 
 ## State Variables
-### MAX_BPS
+### _MAX_BPS
 
 ```solidity
-uint256 private constant MAX_BPS = 10_000;
+uint256 private constant _MAX_BPS = 10_000;
 ```
 
 
