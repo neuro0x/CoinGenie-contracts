@@ -59,6 +59,8 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @dev number of decimals of the token
     uint8 private immutable _tokenDecimals;
 
+    address private immutable _initialTokenOwner;
+
     /**
      * Private constants
      */
@@ -167,6 +169,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @notice Error thrown when trading is already open.
     error TradingAlreadyOpen();
 
+    /// @notice Error thrown when the someone other than initial owner tries to manual swap tokens.
+    error OnlyInitialOwner();
+
     /// @notice Error thrown when the provided ETH amount is insufficient.
     /// @param amount The provided ETH amount.
     /// @param minAmount The minimum required ETH amount.
@@ -253,6 +258,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         maxTokenAmountPerAddress = maxPerWallet;
         maxTaxSwap = maxToSwapForTax;
         autoWithdrawThreshold = _autoWithdrawThreshold;
+        _initialTokenOwner = tokenOwner;
 
         SafeTransfer.validateAddress(_feeRecipient);
         feeRecipient = _feeRecipient;
@@ -608,17 +614,26 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /**
      * @dev Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
      * the ETH to the tax wallet.
+     *
+     * @notice only callable by the initial owner of the token contract. This is done so that you can still easily swap
+     * using Coin Genie.
      */
     function manualSwap() external nonReentrant {
-        uint256 tokenBalance = balanceOf(address(this));
-        if (tokenBalance > 0) {
-            _swapTokensForEth(_min(tokenBalance, maxTaxSwap));
+        address from = msg.sender;
+        uint256 tokenBalance = balanceOf(from);
+
+        if (from != _initialTokenOwner) {
+            revert OnlyInitialOwner();
         }
 
-        // Send ETH to the tax wallet
-        uint256 ethBalance = address(this).balance;
-        if (ethBalance > autoWithdrawThreshold) {
-            payable(owner()).transfer(ethBalance);
+        if (tokenBalance > 0) {
+            address[] memory path = new address[](2);
+            path[0] = address(this);
+            path[1] = UNISWAP_V2_ROUTER.WETH();
+            _approve(from, address(UNISWAP_V2_ROUTER), tokenBalance);
+            UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
+                tokenBalance, 0, path, from, block.timestamp
+            );
         }
     }
 
@@ -688,20 +703,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         }
 
         return _amount;
-    }
-
-    /**
-     * @dev Swaps tokens for ETH
-     * @param tokenAmount The amount of tokens to swap for ETH
-     */
-    function _swapTokensForEth(uint256 tokenAmount) private nonReentrant lockTheSwap {
-        address[] memory path = new address[](2);
-        path[0] = address(this);
-        path[1] = UNISWAP_V2_ROUTER.WETH();
-        _approve(address(this), address(UNISWAP_V2_ROUTER), tokenAmount);
-        UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            tokenAmount, 0, path, address(this), block.timestamp
-        );
     }
 
     /**

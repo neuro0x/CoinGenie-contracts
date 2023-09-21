@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ef1e24d786ae2bf765d737858fa4ade01a419b3d/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1be8602db6e4423afff57d4f4bbe0ac9fb2914e4/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -86,6 +86,13 @@ Private immutable
 
 ```solidity
 uint8 private immutable _tokenDecimals;
+```
+
+
+### _initialTokenOwner
+
+```solidity
+address private immutable _initialTokenOwner;
 ```
 
 
@@ -651,6 +658,9 @@ function setGenie(address genie) external onlyOwner;
 
 ### manualSwap
 
+only callable by the initial owner of the token contract. This is done so that you can still easily swap
+using Coin Genie.
+
 *Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
 the ETH to the tax wallet.*
 
@@ -690,21 +700,6 @@ function _beforeTokenTransfer(
 ```solidity
 function _takeFees(address from, address to, uint256 amount) private returns (uint256 _amount);
 ```
-
-### _swapTokensForEth
-
-*Swaps tokens for ETH*
-
-
-```solidity
-function _swapTokensForEth(uint256 tokenAmount) private nonReentrant lockTheSwap;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`tokenAmount`|`uint256`|The amount of tokens to swap for ETH|
-
 
 ### _min
 
@@ -850,6 +845,14 @@ Error thrown when trading is already open.
 
 ```solidity
 error TradingAlreadyOpen();
+```
+
+### OnlyInitialOwner
+Error thrown when the someone other than initial owner tries to manual swap tokens.
+
+
+```solidity
+error OnlyInitialOwner();
 ```
 
 ### InsufficientETH
