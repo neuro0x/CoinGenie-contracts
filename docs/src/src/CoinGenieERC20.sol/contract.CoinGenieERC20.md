@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/696bed93410e72f25c90235dd80f0f2e6660f759/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/93d3316789485d03bb6716fff464c677481c7719/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -65,7 +65,7 @@ uint256 private constant _TREASURY_FEE_PERCENTAGE = 50;
 
 
 ```solidity
-uint256 private constant _LP_ETH_FEE_PERCENTAGE = 50;
+uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100;
 ```
 
 
@@ -652,6 +652,7 @@ function openTrading(
     payable
     onlyOwner
     nonReentrant
+    whenNotPaused
     returns (IUniswapV2Pair);
 ```
 **Parameters**
@@ -660,6 +661,37 @@ function openTrading(
 |----|----|-----------|
 |`amountToLP`|`uint256`|The amount of tokens to add to Uniswap|
 |`payInGenie`|`bool`|Whether to pay the fee in $GENIE or ETH Emits a {TradingOpened} event. Preconditions: Requirements: `isSwapEnabled` must be false. `amountToLP >= _MIN_LIQUIDITY_TOKEN` `msg.value >= _MIN_LIQUIDITY_ETH`|
+
+
+### addLiquidity
+
+*Adds liquidity to Uniswap*
+
+
+```solidity
+function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`amountToLP`|`uint256`|The amount of tokens to add to Uniswap|
+|`payInGenie`|`bool`|Whether to pay the fee in $GENIE or ETH|
+
+
+### removeLiquidity
+
+*Removes liquidity from Uniswap*
+
+
+```solidity
+function removeLiquidity(uint256 amountToRemove) external whenNotPaused onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`amountToRemove`|`uint256`|The amount of LP tokens to remove|
 
 
 ### setGenie
