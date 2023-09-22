@@ -1,5 +1,5 @@
 # LiquidityLocker
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/93d3316789485d03bb6716fff464c677481c7719/src/LiquidityLocker.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1cfc531106d8871a871320f80be02ead1873a835/src/LiquidityLocker.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -11,6 +11,20 @@ Ownable, ReentrancyGuard
 
 
 ## State Variables
+### fee
+
+```solidity
+uint256 public fee;
+```
+
+
+### feeRecipient
+
+```solidity
+address public feeRecipient;
+```
+
+
 ### _UNISWAP_V2_FACTORY
 
 ```solidity
@@ -47,6 +61,52 @@ IUniswapV2Migrator public migrator;
 
 
 ## Functions
+### constructor
+
+*Creates a new LiquidityLocker contract*
+
+
+```solidity
+constructor(uint256 _fee, address _feeRecipient);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_fee`|`uint256`|The fee amount to use|
+|`_feeRecipient`|`address`|The address to send fees to|
+
+
+### setFee
+
+*Set the fee amount*
+
+
+```solidity
+function setFee(uint256 amount) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`amount`|`uint256`|The fee amount to use|
+
+
+### setFeeRecipient
+
+*Set the fee recipient*
+
+
+```solidity
+function setFeeRecipient(address feeRecipient_) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`feeRecipient_`|`address`|The address to send fees to|
+
+
 ### setMigrator
 
 *Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3*
@@ -293,6 +353,12 @@ event OnDeposit(address lpToken, address user, uint256 amount, uint256 lockDate,
 
 ```solidity
 error InvalidAmount();
+```
+
+### InvalidRecipient
+
+```solidity
+error InvalidRecipient();
 ```
 
 ### InvalidLockDate

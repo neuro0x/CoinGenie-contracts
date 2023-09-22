@@ -83,7 +83,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const uniV2Locker = await deploy("LiquidityLocker", {
       from: deployer,
       libraries: { SafeTransfer: safeTransferLib.address },
-      args: [],
+      args: [parseEther("0.01"), coinGenie.address],
       log: true,
       autoMine: true,
     });

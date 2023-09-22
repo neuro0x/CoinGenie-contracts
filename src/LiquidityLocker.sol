@@ -22,7 +22,11 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    uint256 public fee;
+    address public feeRecipient;
+
     error InvalidAmount();
+    error InvalidRecipient();
     error InvalidLockDate();
     error LockMismatch();
     error BeforeUnlockDate();
@@ -58,6 +62,32 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
     event OnDeposit(address lpToken, address user, uint256 amount, uint256 lockDate, uint256 unlockDate);
 
     /**
+     * @dev Creates a new LiquidityLocker contract
+     * @param _fee The fee amount to use
+     * @param _feeRecipient The address to send fees to
+     */
+    constructor(uint256 _fee, address _feeRecipient) {
+        fee = _fee;
+        feeRecipient = _feeRecipient;
+    }
+
+    /**
+     * @dev Set the fee amount
+     * @param amount The fee amount to use
+     */
+    function setFee(uint256 amount) external onlyOwner {
+        fee = amount;
+    }
+
+    /**
+     * @dev Set the fee recipient
+     * @param feeRecipient_ The address to send fees to
+     */
+    function setFeeRecipient(address feeRecipient_) external onlyOwner {
+        feeRecipient = feeRecipient_;
+    }
+
+    /**
      * @dev Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3
      * @param _migrator The address of the migrator contract
      */
@@ -83,6 +113,10 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
         nonReentrant
         returns (TokenLock memory tokenLock)
     {
+        if (msg.value < fee) {
+            revert InvalidAmount();
+        }
+
         if (amountOfLPToLock == 0) {
             revert InvalidAmount();
         }
@@ -117,6 +151,8 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
         user.lockedTokens.add(address(lpToken));
         uint256[] storage userLocks = user.locksForToken[address(lpToken)];
         userLocks.push(tokenLock.lockID);
+
+        payable(feeRecipient).transfer(msg.value);
 
         emit OnDeposit(address(lpToken), _msgSender(), tokenLock.amount, tokenLock.lockDate, tokenLock.unlockDate);
     }
