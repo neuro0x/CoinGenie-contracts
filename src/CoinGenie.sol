@@ -8,6 +8,7 @@ import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
 
 import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
 
 import { ERC20Factory } from "./ERC20Factory.sol";
 import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
@@ -329,25 +330,20 @@ contract CoinGenie is Ownable, ReentrancyGuard {
      * @param tokenAddress The address of the token to swap
      * @param amount The amount of tokens to swap
      */
-    function swapERC20s(address tokenAddress, address lpTokenAddress, uint256 amount) external {
-        (uint256 reserve0, uint256 reserve1,) = IUniswapV2Pair(lpTokenAddress).getReserves();
-        uint256 quotedAmount = UNISWAP_V2_ROUTER.quote(amount, reserve0, reserve1);
+    function swapERC20s(address tokenAddress, uint256 amount) external {
+        require(IERC20(tokenAddress).approve(address(UNISWAP_V2_ROUTER), amount), "Approval failed");
 
-        if (quotedAmount >= quoteThreshold) {
-            require(IERC20(tokenAddress).approve(address(UNISWAP_V2_ROUTER), amount), "Approval failed");
+        address[] memory path = new address[](2);
+        path[0] = tokenAddress;
+        path[1] = UNISWAP_V2_ROUTER.WETH();
 
-            address[] memory path = new address[](2);
-            path[0] = tokenAddress;
-            path[1] = UNISWAP_V2_ROUTER.WETH();
-
-            UNISWAP_V2_ROUTER.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-                amount,
-                0, // accept any amount of ETH
-                path,
-                address(this),
-                block.timestamp
-            );
-        }
+        UNISWAP_V2_ROUTER.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            amount,
+            0, // accept any amount of ETH
+            path,
+            address(this),
+            block.timestamp
+        );
     }
 
     /**

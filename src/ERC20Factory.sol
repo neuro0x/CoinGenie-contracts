@@ -16,6 +16,9 @@ contract ERC20Factory is Ownable {
     /// @dev The address of the genie token
     address private _genie;
 
+    /// @dev The amount of $GENIE a person has to hold to get the discount
+    uint256 private _discountFeeRequiredAmount = 1_000_000 ether;
+
     /// @notice Error thrown when the genie is already set.
     error GenieAlreadySet();
 
@@ -71,6 +74,7 @@ contract ERC20Factory is Ownable {
         );
 
         coinGenieERC20.setCoinGenieTreasury(treasuryRecipient);
+        coinGenieERC20.setDiscountFeeRequiredAmount(_discountFeeRequiredAmount);
         coinGenieERC20.setGenie(_genie);
 
         if (tokenOwner != address(0) && tokenOwner != coinGenieERC20.owner()) {
@@ -78,6 +82,14 @@ contract ERC20Factory is Ownable {
         }
 
         return coinGenieERC20;
+    }
+
+    /**
+     * @dev Allows the owner to set the amount of $GENIE a person has to hold to get the discount if it has not been set
+     * @param amount - the amount of $GENIE a person has to hold to get the discount
+     */
+    function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
+        _discountFeeRequiredAmount = amount;
     }
 
     /**

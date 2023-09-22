@@ -35,8 +35,23 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const { deployer } = await hre.getNamedAccounts();
     const { deploy } = hre.deployments;
 
+    const safeTransferLib = await deploy("SafeTransfer", {
+      from: deployer,
+      args: [],
+      log: true,
+      autoMine: true,
+    });
+
+    const commonLib = await deploy("Common", {
+      from: deployer,
+      args: [],
+      log: true,
+      autoMine: true,
+    });
+
     const erc20Factory = await deploy("ERC20Factory", {
       from: deployer,
+      libraries: { Common: commonLib.address },
       args: [],
       log: true,
       autoMine: true,
@@ -51,6 +66,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     const airdropERC20 = await deploy("AirdropERC20", {
       from: deployer,
+      libraries: { SafeTransfer: safeTransferLib.address },
       args: [],
       log: true,
       autoMine: true,
@@ -58,6 +74,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     const coinGenie = await deploy("CoinGenie", {
       from: deployer,
+      libraries: { SafeTransfer: safeTransferLib.address, Common: commonLib.address },
       args: [erc20Factory.address, airdropClaimableFactory.address],
       log: true,
       autoMine: true,
@@ -65,6 +82,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     const uniV2Locker = await deploy("LiquidityLocker", {
       from: deployer,
+      libraries: { SafeTransfer: safeTransferLib.address },
       args: [],
       log: true,
       autoMine: true,

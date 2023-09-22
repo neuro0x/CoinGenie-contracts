@@ -88,7 +88,7 @@ contract LiquidityLockerTest is Test {
 
         erc20Factory.setGenie(address(coinGenieERC20));
         coinGenieERC20.setGenie(address(coinGenieERC20));
-        lpToken = coinGenieERC20.openTrading{ value: 10 ether }(coinGenieERC20.balanceOf(address(this)));
+        lpToken = coinGenieERC20.openTrading{ value: 10 ether }(coinGenieERC20.balanceOf(address(this)), false);
     }
 
     function testFuzz_setMigrator(IUniswapV2Migrator migrator) public {

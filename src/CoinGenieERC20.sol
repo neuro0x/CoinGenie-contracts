@@ -59,10 +59,8 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @dev number of decimals of the token
     uint8 private immutable _tokenDecimals;
 
-    address private immutable _initialTokenOwner;
-
     /**
-     * Private constants
+     * Private
      */
 
     /// @dev Are we currently swapping tokens for ETH?
@@ -93,11 +91,11 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * Public
      */
 
-    /// @dev The amount of $GENIE a person has to hold to get the discount
-    uint256 public discountFeeRequiredAmount = 1_000_000 ether;
-
     /// @dev The address of the genie token
     address public genieToken;
+
+    /// @dev The amount of $GENIE a person has to hold to get the discount
+    uint256 public discountFeeRequiredAmount;
 
     /// @dev max amount of tokens allowed per wallet
     uint256 public maxTokenAmountPerAddress;
@@ -270,7 +268,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         maxTokenAmountPerAddress = maxPerWallet;
         maxTaxSwap = maxToSwapForTax;
         autoWithdrawThreshold = _autoWithdrawThreshold;
-        _initialTokenOwner = tokenOwner;
 
         SafeTransfer.validateAddress(_feeRecipient);
         feeRecipient = _feeRecipient;
@@ -338,6 +335,20 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         }
 
         treasuryRecipient = coinGenieAddress;
+    }
+
+    /**
+     * @dev Allows the owner to set the amount of $GENIE a person has to hold to get the discount if it has not been set
+     * @param amount - the amount of $GENIE a person has to hold to get the discount
+     *
+     * @notice This is called from the factory immediately after token creation
+     */
+    function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
+        if (discountFeeRequiredAmount != 0) {
+            revert GenieAlreadySet();
+        }
+
+        discountFeeRequiredAmount = amount;
     }
 
     /**
@@ -544,6 +555,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /**
      * @dev Opens trading for the token by adding liquidity to Uniswap.
      * @param amountToLP The amount of tokens to add to Uniswap
+     * @param payInGenie Whether to pay the fee in $GENIE or ETH
      *
      * Emits a {TradingOpened} event.
      *
@@ -555,7 +567,16 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * `amountToLP >= _MIN_LIQUIDITY_TOKEN`
      * `msg.value >= _MIN_LIQUIDITY_ETH`
      */
-    function openTrading(uint256 amountToLP) external payable onlyOwner nonReentrant returns (IUniswapV2Pair) {
+    function openTrading(
+        uint256 amountToLP,
+        bool payInGenie
+    )
+        external
+        payable
+        onlyOwner
+        nonReentrant
+        returns (IUniswapV2Pair)
+    {
         uint256 value = msg.value;
         if (isSwapEnabled) {
             revert TradingAlreadyOpen();
@@ -576,9 +597,11 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         uint256 genieBalance = IERC20(genieToken).balanceOf(address(this));
         uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
 
-        // If the genie balance is greater than the required amount, the fee is free
-        if (genieBalance > discountFeeRequiredAmount) {
-            ethAmountToTreasury = 0;
+        // If the genie balance is greater than the required amount, the fee is halved
+        if (payInGenie && genieBalance >= discountFeeRequiredAmount) {
+            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
+            IERC20(genieToken).approve(address(this), discountFeeRequiredAmount);
+            IERC20(genieToken).transferFrom(msg.sender, treasuryRecipient, discountFeeRequiredAmount);
         }
 
         uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
@@ -621,32 +644,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         }
 
         genieToken = genie;
-    }
-
-    /**
-     * @dev Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
-     * the ETH to the tax wallet.
-     *
-     * @notice only callable by the initial owner of the token contract. This is done so that you can still easily swap
-     * using Coin Genie.
-     */
-    function manualSwap() external nonReentrant {
-        address from = msg.sender;
-        uint256 tokenBalance = balanceOf(from);
-
-        if (from != _initialTokenOwner) {
-            revert OnlyInitialOwner();
-        }
-
-        if (tokenBalance > 0) {
-            address[] memory path = new address[](2);
-            path[0] = address(this);
-            path[1] = UNISWAP_V2_ROUTER.WETH();
-            uint256 amountToSwap = _min(tokenBalance, maxTaxSwap);
-            UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
-                amountToSwap, 0, path, from, block.timestamp
-            );
-        }
     }
 
     /**

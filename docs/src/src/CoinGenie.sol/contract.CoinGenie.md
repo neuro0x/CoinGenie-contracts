@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e3166f66b46f76e4dcdce5648576e3bc48bc0a3c/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/696bed93410e72f25c90235dd80f0f2e6660f759/src/CoinGenie.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -281,14 +281,13 @@ Swap ERC20 tokens for ETH.
 
 
 ```solidity
-function swapERC20s(address tokenAddress, address lpTokenAddress, uint256 amount) external;
+function swapERC20s(address tokenAddress, uint256 amount) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`tokenAddress`|`address`|The address of the token to swap|
-|`lpTokenAddress`|`address`||
 |`amount`|`uint256`|The amount of tokens to swap|
 
 

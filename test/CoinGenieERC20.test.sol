@@ -157,13 +157,37 @@ contract CoinGenieERC20Test is Test {
         assertEq(coinGenieERC20.burnPercentage(), burnPercentage);
     }
 
+    function test_openTrading_payInGenie() public {
+        CoinGenieERC20 testToken = CoinGenieERC20(
+            payable(
+                coinGenie.launchToken(
+                    coinGenieLaunchToken.name,
+                    coinGenieLaunchToken.symbol,
+                    coinGenieLaunchToken.initialSupply,
+                    coinGenieLaunchToken.tokenOwner,
+                    coinGenieLaunchToken.customConfigProps,
+                    coinGenieLaunchToken.maxPerWallet,
+                    coinGenieLaunchToken.autoWithdrawThreshold,
+                    coinGenieLaunchToken.maxTaxSwap,
+                    coinGenieLaunchToken.affiliateFeeRecipient,
+                    coinGenieLaunchToken.feeRecipient,
+                    coinGenieLaunchToken.feePercentage,
+                    coinGenieLaunchToken.burnPercentage
+                )
+            )
+        );
+
+        testToken.openTrading{ value: 10 ether }(10 ether, true);
+        assertEq(testToken.isSwapEnabled(), true);
+    }
+
     function testFuzz_openTrading(uint256 value, uint256 amountToLp) public {
         vm.assume(value >= MIN_LIQUIDITY);
         vm.assume(value < address(this).balance / 2);
         vm.assume(amountToLp <= coinGenieERC20.balanceOf(address(this)));
         vm.assume(amountToLp > MIN_LIQUIDITY_TOKEN);
 
-        coinGenieERC20.openTrading{ value: value }(amountToLp);
+        coinGenieERC20.openTrading{ value: value }(amountToLp, false);
 
         assertEq(coinGenieERC20.isSwapEnabled(), true);
     }
@@ -173,7 +197,7 @@ contract CoinGenieERC20Test is Test {
         vm.assume(amount <= balance / 2);
         vm.assume(amount > 10_000);
 
-        coinGenieERC20.openTrading{ value: 10 ether }(balance / 2);
+        coinGenieERC20.openTrading{ value: 10 ether }(balance / 2, false);
 
         address to1 = address(0x1);
         address to2 = address(0x2);
@@ -190,7 +214,7 @@ contract CoinGenieERC20Test is Test {
         vm.assume(amount <= balance / 2);
         vm.assume(amount > 10_000);
 
-        coinGenieERC20.openTrading{ value: 10 ether }(balance / 2);
+        coinGenieERC20.openTrading{ value: 10 ether }(balance / 2, false);
 
         address to1 = address(0x1);
         coinGenieERC20.approve(to1, type(uint256).max);

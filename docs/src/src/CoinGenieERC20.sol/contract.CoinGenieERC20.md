@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e3166f66b46f76e4dcdce5648576e3bc48bc0a3c/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/696bed93410e72f25c90235dd80f0f2e6660f759/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -89,15 +89,8 @@ uint8 private immutable _tokenDecimals;
 ```
 
 
-### _initialTokenOwner
-
-```solidity
-address private immutable _initialTokenOwner;
-```
-
-
 ### _inSwap
-Private constants
+Private
 
 *Are we currently swapping tokens for ETH?*
 
@@ -147,23 +140,23 @@ address public immutable affiliateFeeRecipient;
 ```
 
 
-### discountFeeRequiredAmount
+### genieToken
 Public
 
-*The amount of $GENIE a person has to hold to get the discount*
-
-
-```solidity
-uint256 public discountFeeRequiredAmount = 1_000_000 ether;
-```
-
-
-### genieToken
 *The address of the genie token*
 
 
 ```solidity
 address public genieToken;
+```
+
+
+### discountFeeRequiredAmount
+*The amount of $GENIE a person has to hold to get the discount*
+
+
+```solidity
+uint256 public discountFeeRequiredAmount;
 ```
 
 
@@ -394,6 +387,23 @@ function setCoinGenieTreasury(address coinGenieAddress) external;
 |Name|Type|Description|
 |----|----|-----------|
 |`coinGenieAddress`|`address`|- the address of the coinGenie|
+
+
+### setDiscountFeeRequiredAmount
+
+This is called from the factory immediately after token creation
+
+*Allows the owner to set the amount of $GENIE a person has to hold to get the discount if it has not been set*
+
+
+```solidity
+function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`amount`|`uint256`|- the amount of $GENIE a person has to hold to get the discount|
 
 
 ### setMaxTaxSwap
@@ -634,13 +644,22 @@ function unpause() external onlyOwner;
 
 
 ```solidity
-function openTrading(uint256 amountToLP) external payable onlyOwner nonReentrant returns (IUniswapV2Pair);
+function openTrading(
+    uint256 amountToLP,
+    bool payInGenie
+)
+    external
+    payable
+    onlyOwner
+    nonReentrant
+    returns (IUniswapV2Pair);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`amountToLP`|`uint256`|The amount of tokens to add to Uniswap Emits a {TradingOpened} event. Preconditions: Requirements: `isSwapEnabled` must be false. `amountToLP >= _MIN_LIQUIDITY_TOKEN` `msg.value >= _MIN_LIQUIDITY_ETH`|
+|`amountToLP`|`uint256`|The amount of tokens to add to Uniswap|
+|`payInGenie`|`bool`|Whether to pay the fee in $GENIE or ETH Emits a {TradingOpened} event. Preconditions: Requirements: `isSwapEnabled` must be false. `amountToLP >= _MIN_LIQUIDITY_TOKEN` `msg.value >= _MIN_LIQUIDITY_ETH`|
 
 
 ### setGenie
@@ -657,19 +676,6 @@ function setGenie(address genie) external onlyOwner;
 |----|----|-----------|
 |`genie`|`address`|- the address of the genie token|
 
-
-### manualSwap
-
-only callable by the initial owner of the token contract. This is done so that you can still easily swap
-using Coin Genie.
-
-*Swaps tokens for ETH if the contract balance is greater than the max amount to swap for tax. Then sends
-the ETH to the tax wallet.*
-
-
-```solidity
-function manualSwap() external nonReentrant;
-```
 
 ### _beforeTokenTransfer
 

@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e3166f66b46f76e4dcdce5648576e3bc48bc0a3c/src/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/696bed93410e72f25c90235dd80f0f2e6660f759/src/ERC20Factory.sol)
 
 **Inherits:**
 Ownable
@@ -17,6 +17,15 @@ Ownable
 
 ```solidity
 address private _genie;
+```
+
+
+### _discountFeeRequiredAmount
+*The amount of $GENIE a person has to hold to get the discount*
+
+
+```solidity
+uint256 private _discountFeeRequiredAmount = 1_000_000 ether;
 ```
 
 
@@ -68,6 +77,21 @@ function launchToken(
 |Name|Type|Description|
 |----|----|-----------|
 |`newToken`|`CoinGenieERC20`|- the CoinGenieERC20 token that was created|
+
+
+### setDiscountFeeRequiredAmount
+
+*Allows the owner to set the amount of $GENIE a person has to hold to get the discount if it has not been set*
+
+
+```solidity
+function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`amount`|`uint256`|- the amount of $GENIE a person has to hold to get the discount|
 
 
 ### setGenie

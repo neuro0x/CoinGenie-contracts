@@ -1,0 +1,42 @@
+{
+  "address": "0x74d7491431661644e88eDe48538E1bF47B060ebC",
+  "abi": [],
+  "transactionHash": "0x401738e7ef8020925b2c0ca3d5c5dfec7dc42a251d383866c80d751a32b71a57",
+  "receipt": {
+    "to": null,
+    "from": "0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5",
+    "contractAddress": "0x74d7491431661644e88eDe48538E1bF47B060ebC",
+    "transactionIndex": 18,
+    "gasUsed": "67159",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x66e2ba629c816c246cc1ee1aa7ba317edbb5d7f9dc091bfdf4edb6a2980bc074",
+    "transactionHash": "0x401738e7ef8020925b2c0ca3d5c5dfec7dc42a251d383866c80d751a32b71a57",
+    "logs": [],
+    "blockNumber": 9740124,
+    "cumulativeGasUsed": "2533095",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "8d509b748c1ad2e1ff04bbd23b55cda0",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Common items used across the CoinGenie contracts.\",\"kind\":\"dev\",\"methods\":{},\"title\":\"Common\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/lib/Common.sol\":\"Common\"},\"evmVersion\":\"paris\",\"libraries\":{\":__CACHE_BREAKER__\":\"0x0000000000000031363935333935353734323334\"},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"details\":{\"constantOptimizer\":true,\"cse\":true,\"deduplicate\":true,\"inliner\":true,\"jumpdestRemover\":true,\"orderLiterals\":true,\"peephole\":true,\"yul\":true,\"yulDetails\":{\"optimizerSteps\":\"dhfoDgvulfnTUtnIf:fDnTOc\",\"stackAllocation\":true}},\"runs\":200},\"remappings\":[],\"viaIR\":true},\"sources\":{\"src/lib/Common.sol\":{\"content\":\"// SPDX-License-Identifier: GPL-3.0\\npragma solidity ^0.8.20;\\n\\n/**\\n * @title Common\\n * @dev Common items used across the CoinGenie contracts.\\n */\\nlibrary Common {\\n    /// @dev set of features supported by the token\\n    struct TokenConfigProperties {\\n        bool isBurnable;\\n        bool isPausable;\\n        bool isDeflationary;\\n    }\\n}\\n\",\"keccak256\":\"0x077884f042fbef72e79889fa4eef48f2884522241491c321f7bcaafcefb68af6\",\"license\":\"GPL-3.0\"}},\"version\":1}",
+  "bytecode": "0x608060405234601a57604051603f6020823930815050603f90f35b600080fdfe6080604052600080fdfea26469706673582212209fbe6ec4c82323051082017e0c96d6a4a01b8a325d74a7d676a08f9b2d78fd5864736f6c63430008140033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212209fbe6ec4c82323051082017e0c96d6a4a01b8a325d74a7d676a08f9b2d78fd5864736f6c63430008140033",
+  "devdoc": {
+    "details": "Common items used across the CoinGenie contracts.",
+    "kind": "dev",
+    "methods": {},
+    "title": "Common",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
