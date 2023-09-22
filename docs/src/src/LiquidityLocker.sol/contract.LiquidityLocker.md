@@ -1,5 +1,5 @@
 # LiquidityLocker
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2f97e77b196c3aa915fd10742cd78a61abd6f796/src/LiquidityLocker.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e3166f66b46f76e4dcdce5648576e3bc48bc0a3c/src/LiquidityLocker.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
