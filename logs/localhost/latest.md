@@ -806,3 +806,29 @@ We whitelist the coin genie contract for the airdrop contract, each of the facto
 4. [CoinGenie - 0x6345e50859b0Ce82D8A495ba9894C6C81de385F3](https://localhost.etherscan.io/address/0x6345e50859b0Ce82D8A495ba9894C6C81de385F3)
 5. [LiquidityLocker - 0x88D1aF96098a928eE278f162c1a84f339652f95b](https://localhost.etherscan.io/address/0x88D1aF96098a928eE278f162c1a84f339652f95b)
 6. [CoinGenieERC20 - 0x54C813a7953109Fd259dC123BE8Cb631C11605a5](https://localhost.etherscan.io/address/0x54C813a7953109Fd259dC123BE8Cb631C11605a5)
+# 1. LOCALHOST
+<blockquote>📅 9/22/2023-4:32:56 PM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,674,781</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0x2BfFFF9e9a8c4db0A50fC60B32F248FFC48D52bb](https://localhost.etherscan.io/token/0x2BfFFF9e9a8c4db0A50fC60B32F248FFC48D52bb)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Auto Withdraw Threshold: 0.25 ETH
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0x87c470437282174b3f8368c7CF1Ac03bcAe57954](https://localhost.etherscan.io/address/0x87c470437282174b3f8368c7CF1Ac03bcAe57954)
+2. [AirdropERC20ClaimableFactory - 0x746a48E39dC57Ff14B872B8979E20efE5E5100B1](https://localhost.etherscan.io/address/0x746a48E39dC57Ff14B872B8979E20efE5E5100B1)
+3. [AirdropERC20 - 0x96E303b6D807c0824E83f954784e2d6f3614f167](https://localhost.etherscan.io/address/0x96E303b6D807c0824E83f954784e2d6f3614f167)
+4. [CoinGenie - 0x9CC8B5379C40E24F374cd55973c138fff83ed214](https://localhost.etherscan.io/address/0x9CC8B5379C40E24F374cd55973c138fff83ed214)
+5. [LiquidityLocker - 0xd3b893cd083f07Fe371c1a87393576e7B01C52C6](https://localhost.etherscan.io/address/0xd3b893cd083f07Fe371c1a87393576e7B01C52C6)
+6. [CoinGenieERC20 - 0x2BfFFF9e9a8c4db0A50fC60B32F248FFC48D52bb](https://localhost.etherscan.io/address/0x2BfFFF9e9a8c4db0A50fC60B32F248FFC48D52bb)
