@@ -42,7 +42,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         bool isBurnable;
         bool isDeflationary;
         uint256 maxPerWallet;
-        uint256 autoWithdrawThreshold;
         uint256 maxTaxSwap;
         address affiliateFeeRecipient;
         address feeRecipient;
@@ -139,7 +138,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
      * @param tokenOwner The address that will be the owner of the token
      * @param customConfigProps A struct of configuration booleans for the token
      * @param maxPerWallet The maximum amount of tokens allowed to be held by one wallet
-     * @param autoWithdrawThreshold The threshold for the amount of tokens to swap for ETH
      * @param maxTaxSwap The maximum amount of tokens allowed to be swapped at once by manual or autoswap
      * @param affiliateFeeRecipient The address to receive the affiliate fee
      * @param feeRecipient The address to receive the tax fees
@@ -155,7 +153,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         address tokenOwner,
         Common.TokenConfigProperties memory customConfigProps,
         uint256 maxPerWallet,
-        uint256 autoWithdrawThreshold,
         uint256 maxTaxSwap,
         address affiliateFeeRecipient,
         address feeRecipient,
@@ -173,7 +170,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
             tokenOwner,
             customConfigProps,
             maxPerWallet,
-            autoWithdrawThreshold,
             maxTaxSwap,
             affiliateFeeRecipient,
             feeRecipient,
@@ -196,7 +192,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
                 isBurnable: customConfigProps.isBurnable,
                 isDeflationary: customConfigProps.isDeflationary,
                 maxPerWallet: maxPerWallet,
-                autoWithdrawThreshold: autoWithdrawThreshold,
                 maxTaxSwap: maxTaxSwap,
                 affiliateFeeRecipient: affiliateFeeRecipient,
                 feeRecipient: feeRecipient,

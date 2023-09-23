@@ -31,7 +31,6 @@ contract ERC20Factory is Ownable {
      * @param customConfigProps - a struct of configuration booleans for the token
      * @param maxPerWallet - the maximum amount of tokens allowed to be held by one wallet
      * @param maxTaxSwap - the maximum amount of tokens allowed to be swapped at once by manual or autoswap
-     * @param autoWithdrawThreshold - the threshold at which the contract will automatically withdraw the tax fees
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param feeRecipient - the address to receive the tax fees
      * @param feePercentage - the percent in basis points to use as a tax
@@ -47,7 +46,6 @@ contract ERC20Factory is Ownable {
         address tokenOwner,
         Common.TokenConfigProperties memory customConfigProps,
         uint256 maxPerWallet,
-        uint256 autoWithdrawThreshold,
         uint256 maxTaxSwap,
         address affiliateFeeRecipient,
         address feeRecipient,
@@ -66,7 +64,6 @@ contract ERC20Factory is Ownable {
             customConfigProps,
             maxPerWallet,
             maxTaxSwap,
-            autoWithdrawThreshold,
             affiliateFeeRecipient,
             feeRecipient,
             feePercentage,

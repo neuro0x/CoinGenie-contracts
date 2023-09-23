@@ -111,7 +111,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
         isDeflationary: true,
       },
       parseEther("5000000"),
-      parseEther("0.25"),
       parseEther("500000"),
       coinGenie.address,
       coinGenie.address,
@@ -138,7 +137,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     logToFile(`- Total Supply: ${(100_000_000).toLocaleString()}`);
     logToFile(`- Max/Wallet: ${(5_000_000).toLocaleString()}`);
     logToFile(`- Max to Swap for Tax: ${(500_000).toLocaleString()}`);
-    logToFile(`- Auto Withdraw Threshold: ${(0.25).toLocaleString()} ETH`);
     logToFile(`- Tax Wallet: ${deployer}`);
 
     await genieContract.setGenie(genieAddress);

@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d6f738a50d1fae8492b679886756ad8884cf3c69/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e03955d87c28c239ded540551932ffc13ebe532f/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -178,15 +178,6 @@ uint256 public maxTaxSwap;
 ```
 
 
-### autoWithdrawThreshold
-*max amount of ETH the contract can accrue before withdrawing them to the fee recipient*
-
-
-```solidity
-uint256 public autoWithdrawThreshold;
-```
-
-
 ### tokenConfig
 *features of the token*
 
@@ -276,7 +267,6 @@ constructor(
     Common.TokenConfigProperties memory customConfigProps,
     uint256 maxPerWallet,
     uint256 maxToSwapForTax,
-    uint256 _autoWithdrawThreshold,
     address _affiliateFeeRecipient,
     address _feeRecipient,
     uint256 _feePercentage,
@@ -295,7 +285,6 @@ constructor(
 |`customConfigProps`|`Common.TokenConfigProperties`|Represents the features of the token|
 |`maxPerWallet`|`uint256`|The max amount of tokens per wallet|
 |`maxToSwapForTax`|`uint256`|The max amount of tokens to swap for tax|
-|`_autoWithdrawThreshold`|`uint256`||
 |`_affiliateFeeRecipient`|`address`|The address of the affiliate fee recipient|
 |`_feeRecipient`|`address`|The address of the fee recipient|
 |`_feePercentage`|`uint256`|The fee percentage in basis points|
@@ -419,21 +408,6 @@ function setMaxTaxSwap(uint256 maxTax) external onlyOwner;
 |Name|Type|Description|
 |----|----|-----------|
 |`maxTax`|`uint256`|- the new max amount of tokens to swap for tax|
-
-
-### setAutoWithdrawThreshold
-
-*Allows the owner to set the max amount of tokens the contract can accrue before swapping them for ETH*
-
-
-```solidity
-function setAutoWithdrawThreshold(uint256 threshold) external onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`threshold`|`uint256`|- the new max amount of tokens to swap for tax|
 
 
 ### setMaxTokenAmountPerAddress
@@ -798,14 +772,6 @@ This event is emitted when the maximum amount of tokens to swap for tax has been
 
 ```solidity
 event MaxTaxSwapUpdated(uint256 indexed maxTaxSwap);
-```
-
-### AutoWithdrawThresholdUpdated
-This event is emitted when the auto withdraw threshold has been updated.
-
-
-```solidity
-event AutoWithdrawThresholdUpdated(uint256 indexed threshold);
 ```
 
 ## Errors

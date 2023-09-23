@@ -2,20 +2,20 @@
 
 pragma solidity ^0.8.20;
 
-import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
-import {Ownable} from "openzeppelin/access/Ownable.sol";
-import {ERC20Burnable} from "openzeppelin/token/ERC20/extensions/ERC20Burnable.sol";
-import {ERC20Pausable} from "openzeppelin/token/ERC20/extensions/ERC20Pausable.sol";
-import {ReentrancyGuard} from "openzeppelin/security/ReentrancyGuard.sol";
-import {SafeMath} from "openzeppelin/utils/math/SafeMath.sol";
+import { ERC20 } from "openzeppelin/token/ERC20/ERC20.sol";
+import { IERC20 } from "openzeppelin/token/ERC20/IERC20.sol";
+import { Ownable } from "openzeppelin/access/Ownable.sol";
+import { ERC20Burnable } from "openzeppelin/token/ERC20/extensions/ERC20Burnable.sol";
+import { ERC20Pausable } from "openzeppelin/token/ERC20/extensions/ERC20Pausable.sol";
+import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
+import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
 
-import {IUniswapV2Pair} from "v2-core/interfaces/IUniswapV2Pair.sol";
-import {IUniswapV2Router02} from "v2-periphery/interfaces/IUniswapV2Router02.sol";
-import {IUniswapV2Factory} from "v2-core/interfaces/IUniswapV2Factory.sol";
+import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
 
-import {Common} from "./lib/Common.sol";
-import {SafeTransfer} from "./lib/SafeTransfer.sol";
+import { Common } from "./lib/Common.sol";
+import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
 /**
  * @title CoinGenieERC20
@@ -75,7 +75,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
 
     /// @dev The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
-    IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+        IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     /**
      * Public immutable
@@ -102,9 +102,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
 
     /// @dev max amount of tokens the contract can accrue before swapping them for ETH
     uint256 public maxTaxSwap;
-
-    /// @dev max amount of ETH the contract can accrue before withdrawing them to the fee recipient
-    uint256 public autoWithdrawThreshold;
 
     /// @dev features of the token
     Common.TokenConfigProperties public tokenConfig;
@@ -213,10 +210,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @param maxTaxSwap The updated maximum amount of tokens to swap for tax.
     event MaxTaxSwapUpdated(uint256 indexed maxTaxSwap);
 
-    /// @notice This event is emitted when the auto withdraw threshold has been updated.
-    /// @param threshold The updated auto withdraw threshold.
-    event AutoWithdrawThresholdUpdated(uint256 indexed threshold);
-
     /**
      * @dev Initializes the contract with the provided parameters
      * @param name_ The name of the token
@@ -239,13 +232,12 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         Common.TokenConfigProperties memory customConfigProps,
         uint256 maxPerWallet,
         uint256 maxToSwapForTax,
-        uint256 _autoWithdrawThreshold,
         address _affiliateFeeRecipient,
         address _feeRecipient,
         uint256 _feePercentage,
         uint256 _burnPercentage
     )
-    ERC20(name_, symbol_)
+        ERC20(name_, symbol_)
     {
         SafeTransfer.validateAddress(tokenOwner);
         initialSupply = initialSupplyToSet;
@@ -267,7 +259,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         tokenConfig = customConfigProps;
         maxTokenAmountPerAddress = maxPerWallet;
         maxTaxSwap = maxToSwapForTax;
-        autoWithdrawThreshold = _autoWithdrawThreshold;
 
         SafeTransfer.validateAddress(_feeRecipient);
         feeRecipient = _feeRecipient;
@@ -287,7 +278,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     }
 
     // solhint-disable-next-line no-empty-blocks
-    receive() external payable {}
+    receive() external payable { }
 
     /**
      * @return true if the token is pausable
@@ -359,15 +350,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     function setMaxTaxSwap(uint256 maxTax) external onlyOwner {
         maxTaxSwap = maxTax;
         emit MaxTaxSwapUpdated(maxTax);
-    }
-
-    /**
-     * @dev Allows the owner to set the max amount of tokens the contract can accrue before swapping them for ETH
-     * @param threshold - the new max amount of tokens to swap for tax
-     */
-    function setAutoWithdrawThreshold(uint256 threshold) external onlyOwner {
-        autoWithdrawThreshold = threshold;
-        emit AutoWithdrawThresholdUpdated(threshold);
     }
 
     /**
@@ -478,11 +460,11 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         address to,
         uint256 amount
     )
-    public
-    virtual
-    override
-    whenNotPaused
-    returns (bool)
+        public
+        virtual
+        override
+        whenNotPaused
+        returns (bool)
     {
         bool excludedFromFee = _feeWhitelist[from] || _feeWhitelist[to];
 
@@ -572,12 +554,12 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         uint256 amountToLP,
         bool payInGenie
     )
-    external
-    payable
-    onlyOwner
-    nonReentrant
-    whenNotPaused
-    returns (IUniswapV2Pair)
+        external
+        payable
+        onlyOwner
+        nonReentrant
+        whenNotPaused
+        returns (IUniswapV2Pair)
     {
         address from = _msgSender();
         uint256 value = msg.value;
@@ -614,13 +596,13 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
 
         // Create the LP token
         uniswapV2Pair =
-                                IUniswapV2Factory(UNISWAP_V2_ROUTER.factory()).createPair(address(this), UNISWAP_V2_ROUTER.WETH());
+            IUniswapV2Factory(UNISWAP_V2_ROUTER.factory()).createPair(address(this), UNISWAP_V2_ROUTER.WETH());
 
         // Approve the router to spend the LP token
         IERC20(uniswapV2Pair).approve(address(UNISWAP_V2_ROUTER), type(uint256).max);
 
         // Add liquidity to Uniswap
-        UNISWAP_V2_ROUTER.addLiquidityETH{value: ethAmountToLP}(
+        UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
             address(this), balanceOf(address(this)), 0, 0, owner(), block.timestamp
         );
 
@@ -667,7 +649,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         IERC20(uniswapV2Pair).approve(address(UNISWAP_V2_ROUTER), type(uint256).max);
 
         // Add liquidity to Uniswap
-        UNISWAP_V2_ROUTER.addLiquidityETH{value: ethAmountToLP}(
+        UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
             address(this), balanceOf(address(this)), 0, 0, owner(), block.timestamp
         );
 
@@ -713,9 +695,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         address to,
         uint256 amount
     )
-    internal
-    virtual
-    override(ERC20, ERC20Pausable)
+        internal
+        virtual
+        override(ERC20, ERC20Pausable)
     {
         super._beforeTokenTransfer(from, to, amount);
     }
