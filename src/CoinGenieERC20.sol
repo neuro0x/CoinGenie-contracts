@@ -579,7 +579,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         whenNotPaused
         returns (IUniswapV2Pair)
     {
+        address from = _msgSender();
         uint256 value = msg.value;
+
         if (isSwapEnabled) {
             revert TradingAlreadyOpen();
         }
@@ -596,13 +598,14 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         transfer(address(this), amountToLP);
 
         // Get the ETH amount to LP and the ETH amount to treasury
-        uint256 genieBalance = IERC20(genieToken).balanceOf(address(this));
+        CoinGenieERC20 genie = CoinGenieERC20(payable(genieToken));
+        uint256 genieBalance = genie.balanceOf(from);
         uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
 
         // If the genie balance is greater than the required amount, the fee is halved
         if (payInGenie && genieBalance >= discountFeeRequiredAmount) {
-            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
-            IERC20(genieToken).transferFrom(owner(), treasuryRecipient, discountFeeRequiredAmount);
+            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            genie.transferFrom(from, treasuryRecipient, discountFeeRequiredAmount);
         }
 
         uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
@@ -640,16 +643,18 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @param amountToLP The amount of tokens to add to Uniswap
      * @param payInGenie Whether to pay the fee in $GENIE or ETH
      */
-    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused onlyOwner {
+    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused {
         uint256 value = msg.value;
+        address from = _msgSender();
         // Get the ETH amount to LP and the ETH amount to treasury
-        uint256 genieBalance = IERC20(genieToken).balanceOf(address(this));
+        CoinGenieERC20 genie = CoinGenieERC20(payable(genieToken));
+        uint256 genieBalance = genie.balanceOf(from);
         uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
 
         // If the genie balance is greater than the required amount, the fee is halved
         if (payInGenie && genieBalance >= discountFeeRequiredAmount) {
-            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
-            IERC20(genieToken).transferFrom(owner(), treasuryRecipient, discountFeeRequiredAmount);
+            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            genie.transferFrom(from, treasuryRecipient, discountFeeRequiredAmount);
         }
 
         uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
@@ -678,10 +683,11 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @dev Removes liquidity from Uniswap
      * @param amountToRemove The amount of LP tokens to remove
      */
-    function removeLiquidity(uint256 amountToRemove) external whenNotPaused onlyOwner {
-        IERC20(uniswapV2Pair).transferFrom(owner(), address(this), amountToRemove);
+    function removeLiquidity(uint256 amountToRemove) external whenNotPaused {
+        address from = _msgSender();
+        IERC20(uniswapV2Pair).transferFrom(from, address(this), amountToRemove);
         UNISWAP_V2_ROUTER.removeLiquidityETHSupportingFeeOnTransferTokens(
-            address(this), amountToRemove, 0, 0, owner(), block.timestamp
+            address(this), amountToRemove, 0, 0, from, block.timestamp
         );
     }
 

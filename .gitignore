@@ -17,3 +17,7 @@ lcov.info
 !broadcast
 broadcast/*
 broadcast/*/31337/
+
+# artifacts
+artifacts
+deployments

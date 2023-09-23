@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1cfc531106d8871a871320f80be02ead1873a835/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/7a18b0fb6b724ecfa94871017bed31bb89c0a203/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -669,7 +669,7 @@ function openTrading(
 
 
 ```solidity
-function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused onlyOwner;
+function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused;
 ```
 **Parameters**
 
@@ -685,7 +685,7 @@ function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonR
 
 
 ```solidity
-function removeLiquidity(uint256 amountToRemove) external whenNotPaused onlyOwner;
+function removeLiquidity(uint256 amountToRemove) external whenNotPaused;
 ```
 **Parameters**
 
