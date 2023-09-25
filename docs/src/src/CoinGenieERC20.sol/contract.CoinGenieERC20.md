@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e03955d87c28c239ded540551932ffc13ebe532f/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/90b9fd259ed50a92a67f59cd7bd61f416f5ff1c4/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -169,15 +169,6 @@ uint256 public maxTokenAmountPerAddress;
 ```
 
 
-### maxTaxSwap
-*max amount of tokens the contract can accrue before swapping them for ETH*
-
-
-```solidity
-uint256 public maxTaxSwap;
-```
-
-
 ### tokenConfig
 *features of the token*
 
@@ -266,7 +257,6 @@ constructor(
     address tokenOwner,
     Common.TokenConfigProperties memory customConfigProps,
     uint256 maxPerWallet,
-    uint256 maxToSwapForTax,
     address _affiliateFeeRecipient,
     address _feeRecipient,
     uint256 _feePercentage,
@@ -284,7 +274,6 @@ constructor(
 |`tokenOwner`|`address`|The owner of the token|
 |`customConfigProps`|`Common.TokenConfigProperties`|Represents the features of the token|
 |`maxPerWallet`|`uint256`|The max amount of tokens per wallet|
-|`maxToSwapForTax`|`uint256`|The max amount of tokens to swap for tax|
 |`_affiliateFeeRecipient`|`address`|The address of the affiliate fee recipient|
 |`_feeRecipient`|`address`|The address of the fee recipient|
 |`_feePercentage`|`uint256`|The fee percentage in basis points|
@@ -395,28 +384,11 @@ function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner;
 |`amount`|`uint256`|- the amount of $GENIE a person has to hold to get the discount|
 
 
-### setMaxTaxSwap
-
-*Allows the owner to set the max amount of tokens the contract can accrue before swapping them for ETH*
-
-
-```solidity
-function setMaxTaxSwap(uint256 maxTax) external onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`maxTax`|`uint256`|- the new max amount of tokens to swap for tax|
-
-
 ### setMaxTokenAmountPerAddress
 
 only callable by the owner
 
 only callable if the token is not paused
-
-only callable if the token supports max amount of tokens per wallet
 
 *Allows the owner to set a max amount of tokens per wallet*
 
@@ -766,14 +738,6 @@ This event is emitted when the burn configuration of the token has been updated.
 event BurnConfigUpdated(uint256 indexed _burnPercentage);
 ```
 
-### MaxTaxSwapUpdated
-This event is emitted when the maximum amount of tokens to swap for tax has been updated.
-
-
-```solidity
-event MaxTaxSwapUpdated(uint256 indexed maxTaxSwap);
-```
-
 ## Errors
 ### GenieAlreadySet
 Errors
@@ -793,12 +757,20 @@ Error thrown when the provided maximum token amount is invalid.
 error InvalidMaxTokenAmount(uint256 maxPerWallet);
 ```
 
-### MaxTokenAmountPerAddrLtPrevious
-Error thrown when the new maximum token amount per address is less than or equal to the previous value.
+### MaxTokenAmountTooHigh
+Error thrown when the new maximum token amount per address is greater than the total supply.
 
 
 ```solidity
-error MaxTokenAmountPerAddrLtPrevious();
+error MaxTokenAmountTooHigh(uint256 newAmount, uint256 maxAllowed);
+```
+
+### MaxTokenAmountTooLow
+Error thrown when the new maximum token amount per address is less than 1% of the total supply.
+
+
+```solidity
+error MaxTokenAmountTooLow(uint256 newAmount, uint256 minAmount);
 ```
 
 ### DestBalanceExceedsMaxAllowed

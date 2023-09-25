@@ -111,7 +111,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
         isDeflationary: true,
       },
       parseEther("5000000"),
-      parseEther("500000"),
       coinGenie.address,
       coinGenie.address,
       100,

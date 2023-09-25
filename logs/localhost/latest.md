@@ -1166,3 +1166,128 @@ We whitelist the coin genie contract for the airdrop contract, each of the facto
 4. [CoinGenie - 0x7Ce73F8f636C6bD3357A0A8a59e0ab6462C955B0](https://localhost.etherscan.io/address/0x7Ce73F8f636C6bD3357A0A8a59e0ab6462C955B0)
 5. [LiquidityLocker - 0x87c470437282174b3f8368c7CF1Ac03bcAe57954](https://localhost.etherscan.io/address/0x87c470437282174b3f8368c7CF1Ac03bcAe57954)
 6. [CoinGenieERC20 - 0x30A4d3Afd03A643732C3F8DfAde29b870F141272](https://localhost.etherscan.io/address/0x30A4d3Afd03A643732C3F8DfAde29b870F141272)
+# 1. LOCALHOST
+<blockquote>📅 9/23/2023-8:18:00 PM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,649,570</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0x30A4d3Afd03A643732C3F8DfAde29b870F141272](https://localhost.etherscan.io/token/0x30A4d3Afd03A643732C3F8DfAde29b870F141272)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0x37D31345F164Ab170B19bc35225Abc98Ce30b46A](https://localhost.etherscan.io/address/0x37D31345F164Ab170B19bc35225Abc98Ce30b46A)
+2. [AirdropERC20ClaimableFactory - 0x6345e50859b0Ce82D8A495ba9894C6C81de385F3](https://localhost.etherscan.io/address/0x6345e50859b0Ce82D8A495ba9894C6C81de385F3)
+3. [AirdropERC20 - 0x88D1aF96098a928eE278f162c1a84f339652f95b](https://localhost.etherscan.io/address/0x88D1aF96098a928eE278f162c1a84f339652f95b)
+4. [CoinGenie - 0x7Ce73F8f636C6bD3357A0A8a59e0ab6462C955B0](https://localhost.etherscan.io/address/0x7Ce73F8f636C6bD3357A0A8a59e0ab6462C955B0)
+5. [LiquidityLocker - 0x87c470437282174b3f8368c7CF1Ac03bcAe57954](https://localhost.etherscan.io/address/0x87c470437282174b3f8368c7CF1Ac03bcAe57954)
+6. [CoinGenieERC20 - 0x30A4d3Afd03A643732C3F8DfAde29b870F141272](https://localhost.etherscan.io/address/0x30A4d3Afd03A643732C3F8DfAde29b870F141272)
+# 1. LOCALHOST
+<blockquote>📅 9/24/2023-1:38:18 PM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,649,570</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0x786E998735e08022210477aA8650cafd9C8Bbb9b](https://localhost.etherscan.io/token/0x786E998735e08022210477aA8650cafd9C8Bbb9b)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0x38c76A767d45Fc390160449948aF80569E2C4217](https://localhost.etherscan.io/address/0x38c76A767d45Fc390160449948aF80569E2C4217)
+2. [AirdropERC20ClaimableFactory - 0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1](https://localhost.etherscan.io/address/0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1)
+3. [AirdropERC20 - 0xfc073209b7936A771F77F63D42019a3a93311869](https://localhost.etherscan.io/address/0xfc073209b7936A771F77F63D42019a3a93311869)
+4. [CoinGenie - 0xb4e9A5BC64DC07f890367F72941403EEd7faDCbB](https://localhost.etherscan.io/address/0xb4e9A5BC64DC07f890367F72941403EEd7faDCbB)
+5. [LiquidityLocker - 0xa8d297D643a11cE83b432e87eEBce6bee0fd2bAb](https://localhost.etherscan.io/address/0xa8d297D643a11cE83b432e87eEBce6bee0fd2bAb)
+6. [CoinGenieERC20 - 0x786E998735e08022210477aA8650cafd9C8Bbb9b](https://localhost.etherscan.io/address/0x786E998735e08022210477aA8650cafd9C8Bbb9b)
+# 1. LOCALHOST
+<blockquote>📅 9/25/2023-9:10:16 AM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,573,984</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0xcAd726d050C035de39925A6478b2546061cbAfe7](https://localhost.etherscan.io/token/0xcAd726d050C035de39925A6478b2546061cbAfe7)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0x43b9Ef43D415e84aD9964567002d648b11747A8f](https://localhost.etherscan.io/address/0x43b9Ef43D415e84aD9964567002d648b11747A8f)
+2. [AirdropERC20ClaimableFactory - 0xFCa5Bb3732185AE6AaFC65aD8C9A4fBFf21DbaaD](https://localhost.etherscan.io/address/0xFCa5Bb3732185AE6AaFC65aD8C9A4fBFf21DbaaD)
+3. [AirdropERC20 - 0x32cd5ecdA7f2B8633C00A0434DE28Db111E60636](https://localhost.etherscan.io/address/0x32cd5ecdA7f2B8633C00A0434DE28Db111E60636)
+4. [CoinGenie - 0xbeC6419cD931e29ef41157fe24C6928a0C952f0b](https://localhost.etherscan.io/address/0xbeC6419cD931e29ef41157fe24C6928a0C952f0b)
+5. [LiquidityLocker - 0x55027d3dBBcEA0327eF73eFd74ba0Af42A13A966](https://localhost.etherscan.io/address/0x55027d3dBBcEA0327eF73eFd74ba0Af42A13A966)
+6. [CoinGenieERC20 - 0xcAd726d050C035de39925A6478b2546061cbAfe7](https://localhost.etherscan.io/address/0xcAd726d050C035de39925A6478b2546061cbAfe7)
+# 1. LOCALHOST
+<blockquote>📅 9/25/2023-11:34:49 AM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,577,880</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0xe4B9003Fff2C379B8837d057ff956091E09f69a9](https://localhost.etherscan.io/token/0xe4B9003Fff2C379B8837d057ff956091E09f69a9)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1](https://localhost.etherscan.io/address/0xDC57724Ea354ec925BaFfCA0cCf8A1248a8E5CF1)
+2. [AirdropERC20ClaimableFactory - 0xfc073209b7936A771F77F63D42019a3a93311869](https://localhost.etherscan.io/address/0xfc073209b7936A771F77F63D42019a3a93311869)
+3. [AirdropERC20 - 0xb4e9A5BC64DC07f890367F72941403EEd7faDCbB](https://localhost.etherscan.io/address/0xb4e9A5BC64DC07f890367F72941403EEd7faDCbB)
+4. [CoinGenie - 0xa8d297D643a11cE83b432e87eEBce6bee0fd2bAb](https://localhost.etherscan.io/address/0xa8d297D643a11cE83b432e87eEBce6bee0fd2bAb)
+5. [LiquidityLocker - 0x6Da3D07a6BF01F02fB41c02984a49B5d9Aa6ea92](https://localhost.etherscan.io/address/0x6Da3D07a6BF01F02fB41c02984a49B5d9Aa6ea92)
+6. [CoinGenieERC20 - 0xe4B9003Fff2C379B8837d057ff956091E09f69a9](https://localhost.etherscan.io/address/0xe4B9003Fff2C379B8837d057ff956091E09f69a9)
+# 1. LOCALHOST
+<blockquote>📅 9/25/2023-12:03:15 PM</blockquote>
+
+<blockquote>🧞‍♂️ Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266</blockquote>
+
+<blockquote>⛽️ Gas Used: 9,596,618</blockquote>
+
+## 🕊️ Whitelisting
+We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.
+## 🧞‍♂️🪙 Creating $GENIE token
+- Address: [0xC16A0469721A8398d566faE9B3f777e8060311E5](https://localhost.etherscan.io/token/0xC16A0469721A8398d566faE9B3f777e8060311E5)
+- Name: Genie
+- Symbol: GENIE
+- Tax: 1%
+- Total Supply: 100,000,000
+- Max/Wallet: 5,000,000
+- Max to Swap for Tax: 500,000
+- Tax Wallet: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+## 👷‍♂️ Contract Links
+1. [ERC20Factory - 0x20Dc424c5fa468CbB1c702308F0cC9c14DA2825C](https://localhost.etherscan.io/address/0x20Dc424c5fa468CbB1c702308F0cC9c14DA2825C)
+2. [AirdropERC20ClaimableFactory - 0x4653251486a57f90Ee89F9f34E098b9218659b83](https://localhost.etherscan.io/address/0x4653251486a57f90Ee89F9f34E098b9218659b83)
+3. [AirdropERC20 - 0x89ec9355b1Bcc964e576211c8B011BD709083f8d](https://localhost.etherscan.io/address/0x89ec9355b1Bcc964e576211c8B011BD709083f8d)
+4. [CoinGenie - 0x72662E4da74278430123cE51405c1e7A1B87C294](https://localhost.etherscan.io/address/0x72662E4da74278430123cE51405c1e7A1B87C294)
+5. [LiquidityLocker - 0x52bad4A8584909895C22bdEcf8DBF33314468Fb0](https://localhost.etherscan.io/address/0x52bad4A8584909895C22bdEcf8DBF33314468Fb0)
+6. [CoinGenieERC20 - 0xC16A0469721A8398d566faE9B3f777e8060311E5](https://localhost.etherscan.io/address/0xC16A0469721A8398d566faE9B3f777e8060311E5)

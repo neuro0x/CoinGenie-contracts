@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e03955d87c28c239ded540551932ffc13ebe532f/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/90b9fd259ed50a92a67f59cd7bd61f416f5ff1c4/src/CoinGenie.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -138,8 +138,6 @@ function launchToken(
     address tokenOwner,
     Common.TokenConfigProperties memory customConfigProps,
     uint256 maxPerWallet,
-    uint256 autoWithdrawThreshold,
-    uint256 maxTaxSwap,
     address affiliateFeeRecipient,
     address feeRecipient,
     uint256 feePercentage,
@@ -158,8 +156,6 @@ function launchToken(
 |`tokenOwner`|`address`|The address that will be the owner of the token|
 |`customConfigProps`|`Common.TokenConfigProperties`|A struct of configuration booleans for the token|
 |`maxPerWallet`|`uint256`|The maximum amount of tokens allowed to be held by one wallet|
-|`autoWithdrawThreshold`|`uint256`|The threshold for the amount of tokens to swap for ETH|
-|`maxTaxSwap`|`uint256`|The maximum amount of tokens allowed to be swapped at once by manual or autoswap|
 |`affiliateFeeRecipient`|`address`|The address to receive the affiliate fee|
 |`feeRecipient`|`address`|The address to receive the tax fees|
 |`feePercentage`|`uint256`|The percent in basis points to use as a tax|
@@ -388,8 +384,6 @@ struct LaunchedToken {
     bool isBurnable;
     bool isDeflationary;
     uint256 maxPerWallet;
-    uint256 autoWithdrawThreshold;
-    uint256 maxTaxSwap;
     address affiliateFeeRecipient;
     address feeRecipient;
     uint256 feePercentage;

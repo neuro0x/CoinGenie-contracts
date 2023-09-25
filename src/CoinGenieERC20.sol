@@ -100,9 +100,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @dev max amount of tokens allowed per wallet
     uint256 public maxTokenAmountPerAddress;
 
-    /// @dev max amount of tokens the contract can accrue before swapping them for ETH
-    uint256 public maxTaxSwap;
-
     /// @dev features of the token
     Common.TokenConfigProperties public tokenConfig;
 
@@ -145,8 +142,11 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @notice Error thrown when the provided maximum token amount is invalid.
     error InvalidMaxTokenAmount(uint256 maxPerWallet);
 
-    /// @notice Error thrown when the new maximum token amount per address is less than or equal to the previous value.
-    error MaxTokenAmountPerAddrLtPrevious();
+    /// @notice Error thrown when the new maximum token amount per address is greater than the total supply.
+    error MaxTokenAmountTooHigh(uint256 newAmount, uint256 maxAllowed);
+
+    /// @notice Error thrown when the new maximum token amount per address is less than 1% of the total supply.
+    error MaxTokenAmountTooLow(uint256 newAmount, uint256 minAmount);
 
     /// @notice Error thrown when the destination balance exceeds the maximum allowed amount.
     /// @param addr The address whose balance would exceed the limit.
@@ -206,10 +206,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @param _burnPercentage The updated burn percentage.
     event BurnConfigUpdated(uint256 indexed _burnPercentage);
 
-    /// @notice This event is emitted when the maximum amount of tokens to swap for tax has been updated.
-    /// @param maxTaxSwap The updated maximum amount of tokens to swap for tax.
-    event MaxTaxSwapUpdated(uint256 indexed maxTaxSwap);
-
     /**
      * @dev Initializes the contract with the provided parameters
      * @param name_ The name of the token
@@ -218,7 +214,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @param tokenOwner The owner of the token
      * @param customConfigProps Represents the features of the token
      * @param maxPerWallet The max amount of tokens per wallet
-     * @param maxToSwapForTax The max amount of tokens to swap for tax
      * @param _affiliateFeeRecipient The address of the affiliate fee recipient
      * @param _feeRecipient The address of the fee recipient
      * @param _feePercentage The fee percentage in basis points
@@ -231,7 +226,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         address tokenOwner,
         Common.TokenConfigProperties memory customConfigProps,
         uint256 maxPerWallet,
-        uint256 maxToSwapForTax,
         address _affiliateFeeRecipient,
         address _feeRecipient,
         uint256 _feePercentage,
@@ -258,7 +252,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
 
         tokenConfig = customConfigProps;
         maxTokenAmountPerAddress = maxPerWallet;
-        maxTaxSwap = maxToSwapForTax;
 
         SafeTransfer.validateAddress(_feeRecipient);
         feeRecipient = _feeRecipient;
@@ -344,25 +337,21 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     }
 
     /**
-     * @dev Allows the owner to set the max amount of tokens the contract can accrue before swapping them for ETH
-     * @param maxTax - the new max amount of tokens to swap for tax
-     */
-    function setMaxTaxSwap(uint256 maxTax) external onlyOwner {
-        maxTaxSwap = maxTax;
-        emit MaxTaxSwapUpdated(maxTax);
-    }
-
-    /**
      * @dev Allows the owner to set a max amount of tokens per wallet
      * @param newMaxTokenAmount - the new max amount of tokens per wallet
      *
      * @notice only callable by the owner
      * @notice only callable if the token is not paused
-     * @notice only callable if the token supports max amount of tokens per wallet
      */
     function setMaxTokenAmountPerAddress(uint256 newMaxTokenAmount) external onlyOwner whenNotPaused {
-        if (newMaxTokenAmount <= maxTokenAmountPerAddress) {
-            revert MaxTokenAmountPerAddrLtPrevious();
+        uint256 _totalSupply = totalSupply();
+        if (newMaxTokenAmount > _totalSupply) {
+            revert MaxTokenAmountTooHigh(newMaxTokenAmount, _totalSupply);
+        }
+
+        uint256 _minAmount = _totalSupply.div(100);
+        if (newMaxTokenAmount < _totalSupply.mul(5).div(100)) {
+            revert MaxTokenAmountTooLow(newMaxTokenAmount, _minAmount);
         }
 
         maxTokenAmountPerAddress = newMaxTokenAmount;
