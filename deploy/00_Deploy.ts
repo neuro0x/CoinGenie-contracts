@@ -25,10 +25,10 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const date = Date.now();
     const displayDate = `${new Date(date).toLocaleDateString()}-${new Date(date).toLocaleTimeString()}`;
     const numFiles = fs.readdirSync(`./logs/${networkName}`).length;
-    const logFileName =
-      networkName === "localhost" ? `./logs/${networkName}/latest.md` : `./logs/${networkName}/${numFiles}.md`;
+    const logFileName = `./logs/${networkName}/${numFiles}.md`;
 
     const logToFile = (message: string) => {
+      if (networkName === "localhost") return;
       fs.appendFileSync(logFileName, message + "\n");
     };
 
