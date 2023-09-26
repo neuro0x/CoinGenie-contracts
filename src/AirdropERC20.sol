@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.20;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
 
 import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
 import { IERC20 } from "openzeppelin/token/ERC20/IERC20.sol";

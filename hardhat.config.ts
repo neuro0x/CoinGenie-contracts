@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-solhint";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "hardhat-preprocessor";
+import "@xyrusworx/hardhat-solidity-json";
 
 dotenv.config();
 
@@ -50,7 +51,7 @@ const config: HardhatUserConfig = {
     cache: "./cache_hardhat",
   },
   solidity: {
-    version: "0.8.20",
+    version: "0.8.21",
     settings: {
       viaIR: true,
       optimizer: {
