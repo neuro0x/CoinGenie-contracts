@@ -2,7 +2,6 @@
 - [Home](README.md)
 # src
   - [❱ lib](src/lib/README.md)
-    - [Common](src/lib/Common.sol/library.Common.md)
     - [SafeTransfer](src/lib/SafeTransfer.sol/library.SafeTransfer.md)
   - [AirdropERC20](src/AirdropERC20.sol/contract.AirdropERC20.md)
   - [AirdropERC20Claimable](src/AirdropERC20Claimable.sol/contract.AirdropERC20Claimable.md)

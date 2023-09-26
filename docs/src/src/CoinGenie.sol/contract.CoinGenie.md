@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2b7dbfa8a0020849c0e020af4ebb51d80cd336e1/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/8990e6bba2ee9e30860dfed31dabf72b036f41e2/src/CoinGenie.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -138,7 +138,9 @@ function launchToken(
     string memory symbol,
     uint256 initialSupply,
     address tokenOwner,
-    Common.TokenConfigProperties memory customConfigProps,
+    bool isBurnable,
+    bool isPausable,
+    bool isDeflationary,
     uint256 maxPerWallet,
     address affiliateFeeRecipient,
     address feeRecipient,
@@ -156,7 +158,9 @@ function launchToken(
 |`symbol`|`string`|The symbol of the token|
 |`initialSupply`|`uint256`|The initial supply of the token|
 |`tokenOwner`|`address`|The address that will be the owner of the token|
-|`customConfigProps`|`Common.TokenConfigProperties`|A struct of configuration booleans for the token|
+|`isBurnable`|`bool`|Whether the token is burnable|
+|`isPausable`|`bool`|Whether the token is pausable|
+|`isDeflationary`|`bool`|Whether the token is deflationary|
 |`maxPerWallet`|`uint256`|The maximum amount of tokens allowed to be held by one wallet|
 |`affiliateFeeRecipient`|`address`|The address to receive the affiliate fee|
 |`feeRecipient`|`address`|The address to receive the tax fees|
@@ -405,6 +409,7 @@ struct LaunchedToken {
     string symbol;
     uint256 initialSupply;
     bool isBurnable;
+    bool isPausable;
     bool isDeflationary;
     uint256 maxPerWallet;
     address affiliateFeeRecipient;

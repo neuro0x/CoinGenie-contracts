@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2b7dbfa8a0020849c0e020af4ebb51d80cd336e1/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/8990e6bba2ee9e30860dfed31dabf72b036f41e2/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -169,12 +169,30 @@ uint256 public maxTokenAmountPerAddress;
 ```
 
 
-### tokenConfig
-*features of the token*
+### isBurnable
+*is the token burnable*
 
 
 ```solidity
-Common.TokenConfigProperties public tokenConfig;
+bool public isBurnable;
+```
+
+
+### isPausable
+*is the token pausable*
+
+
+```solidity
+bool public isPausable;
+```
+
+
+### isDeflationary
+*is the token deflationary*
+
+
+```solidity
+bool public isDeflationary;
 ```
 
 
@@ -255,7 +273,9 @@ constructor(
     string memory symbol_,
     uint256 initialSupplyToSet,
     address tokenOwner,
-    Common.TokenConfigProperties memory customConfigProps,
+    bool isBurnable_,
+    bool isPausable_,
+    bool isDeflationary_,
     uint256 maxPerWallet,
     address _affiliateFeeRecipient,
     address _feeRecipient,
@@ -272,7 +292,9 @@ constructor(
 |`symbol_`|`string`|The symbol of the token|
 |`initialSupplyToSet`|`uint256`|The initial supply of the token|
 |`tokenOwner`|`address`|The owner of the token|
-|`customConfigProps`|`Common.TokenConfigProperties`|Represents the features of the token|
+|`isBurnable_`|`bool`|Whether the token is burnable|
+|`isPausable_`|`bool`|Whether the token is pausable|
+|`isDeflationary_`|`bool`|Whether the token is deflationary|
 |`maxPerWallet`|`uint256`|The max amount of tokens per wallet|
 |`_affiliateFeeRecipient`|`address`|The address of the affiliate fee recipient|
 |`_feeRecipient`|`address`|The address of the fee recipient|
@@ -286,32 +308,6 @@ constructor(
 ```solidity
 receive() external payable;
 ```
-
-### isPausable
-
-
-```solidity
-function isPausable() public view returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|true if the token is pausable|
-
-
-### isBurnable
-
-
-```solidity
-function isBurnable() public view returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|true if the token is burnable|
-
 
 ### isWhitelisted
 
@@ -337,19 +333,6 @@ function decimals() public view virtual override returns (uint8);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint8`|number of decimals for the token|
-
-
-### isDeflationary
-
-
-```solidity
-function isDeflationary() public view returns (bool);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bool`|true if the token supports deflation|
 
 
 ### setCoinGenieTreasury

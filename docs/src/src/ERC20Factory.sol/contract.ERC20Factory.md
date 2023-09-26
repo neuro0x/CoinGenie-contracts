@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2b7dbfa8a0020849c0e020af4ebb51d80cd336e1/src/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/8990e6bba2ee9e30860dfed31dabf72b036f41e2/src/ERC20Factory.sol)
 
 **Inherits:**
 Ownable
@@ -41,7 +41,9 @@ function launchToken(
     string memory symbol,
     uint256 initialSupply,
     address tokenOwner,
-    Common.TokenConfigProperties memory customConfigProps,
+    bool isBurnable,
+    bool isPausable,
+    bool isDeflationary,
     uint256 maxPerWallet,
     address affiliateFeeRecipient,
     address feeRecipient,
@@ -60,7 +62,9 @@ function launchToken(
 |`symbol`|`string`|- the ticker symbol of the token|
 |`initialSupply`|`uint256`|- the initial supply of the token|
 |`tokenOwner`|`address`|- the address that will be the owner of the token|
-|`customConfigProps`|`Common.TokenConfigProperties`|- a struct of configuration booleans for the token|
+|`isBurnable`|`bool`|- whether or not the token is burnable|
+|`isPausable`|`bool`|- whether or not the token is pausable|
+|`isDeflationary`|`bool`|- whether or not the token is deflationary|
 |`maxPerWallet`|`uint256`|- the maximum amount of tokens allowed to be held by one wallet|
 |`affiliateFeeRecipient`|`address`|- the address to receive the affiliate fee|
 |`feeRecipient`|`address`|- the address to receive the tax fees|
