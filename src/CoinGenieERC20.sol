@@ -702,6 +702,12 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         super._beforeTokenTransfer(from, to, amount);
     }
 
+    /**
+     * @dev Takes the fees from the transfer amount
+     * @param from - address of the sender
+     * @param to - address of the recipient
+     * @param amount - amount of tokens to transfer
+     */
     function _takeFees(address from, address to, uint256 amount) private returns (uint256 _amount) {
         uint256 treasuryAmount;
         uint256 taxAmount;

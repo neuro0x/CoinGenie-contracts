@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/6513d4b92c3fc6307b36cde8f44463c03d16d8b4/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/9fabaedc72a79775729f566e1e6e755a063084c4/src/CoinGenieERC20.sol)
 
 **Inherits:**
 ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard
@@ -665,10 +665,20 @@ function _beforeTokenTransfer(
 
 ### _takeFees
 
+*Takes the fees from the transfer amount*
+
 
 ```solidity
 function _takeFees(address from, address to, uint256 amount) private returns (uint256 _amount);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`from`|`address`|- address of the sender|
+|`to`|`address`|- address of the recipient|
+|`amount`|`uint256`|- amount of tokens to transfer|
+
 
 ### _min
 
