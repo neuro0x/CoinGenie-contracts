@@ -13,7 +13,7 @@ import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
 import { ERC20Factory } from "./ERC20Factory.sol";
 import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
 import { AirdropERC20ClaimableFactory } from "./AirdropERC20ClaimableFactory.sol";
-import { Common } from "./lib/Common.sol";
+
 import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
 /*
@@ -64,6 +64,7 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         string symbol;
         uint256 initialSupply;
         bool isBurnable;
+        bool isPausable;
         bool isDeflationary;
         uint256 maxPerWallet;
         address affiliateFeeRecipient;
@@ -190,7 +191,9 @@ contract CoinGenie is Ownable, ReentrancyGuard {
      * @param symbol The symbol of the token
      * @param initialSupply The initial supply of the token
      * @param tokenOwner The address that will be the owner of the token
-     * @param customConfigProps A struct of configuration booleans for the token
+     * @param isBurnable Whether the token is burnable
+     * @param isPausable Whether the token is pausable
+     * @param isDeflationary Whether the token is deflationary
      * @param maxPerWallet The maximum amount of tokens allowed to be held by one wallet
      * @param affiliateFeeRecipient The address to receive the affiliate fee
      * @param feeRecipient The address to receive the tax fees
@@ -204,7 +207,9 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         string memory symbol,
         uint256 initialSupply,
         address tokenOwner,
-        Common.TokenConfigProperties memory customConfigProps,
+        bool isBurnable,
+        bool isPausable,
+        bool isDeflationary,
         uint256 maxPerWallet,
         address affiliateFeeRecipient,
         address feeRecipient,
@@ -220,7 +225,9 @@ contract CoinGenie is Ownable, ReentrancyGuard {
             symbol,
             initialSupply,
             tokenOwner,
-            customConfigProps,
+            isBurnable,
+            isPausable,
+            isDeflationary,
             maxPerWallet,
             affiliateFeeRecipient,
             feeRecipient,
@@ -240,8 +247,9 @@ contract CoinGenie is Ownable, ReentrancyGuard {
                 name: name,
                 symbol: symbol,
                 initialSupply: initialSupply,
-                isBurnable: customConfigProps.isBurnable,
-                isDeflationary: customConfigProps.isDeflationary,
+                isBurnable: isBurnable,
+                isPausable: isPausable,
+                isDeflationary: isDeflationary,
                 maxPerWallet: maxPerWallet,
                 affiliateFeeRecipient: affiliateFeeRecipient,
                 feeRecipient: feeRecipient,

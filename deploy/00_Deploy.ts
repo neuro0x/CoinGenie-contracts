@@ -42,16 +42,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
       autoMine: true,
     });
 
-    const commonLib = await deploy("Common", {
-      from: deployer,
-      args: [],
-      log: true,
-      autoMine: true,
-    });
-
     const erc20Factory = await deploy("ERC20Factory", {
       from: deployer,
-      libraries: { Common: commonLib.address },
       args: [],
       log: true,
       autoMine: true,
@@ -74,7 +66,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     const coinGenie = await deploy("CoinGenie", {
       from: deployer,
-      libraries: { SafeTransfer: safeTransferLib.address, Common: commonLib.address },
+      libraries: { SafeTransfer: safeTransferLib.address },
       args: [erc20Factory.address, airdropClaimableFactory.address],
       log: true,
       autoMine: true,
@@ -105,11 +97,9 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
       "GENIE",
       parseEther("100000000"),
       deployer,
-      {
-        isBurnable: true,
-        isPausable: false,
-        isDeflationary: true,
-      },
+      true,
+      true,
+      true,
       parseEther("5000000"),
       coinGenie.address,
       coinGenie.address,

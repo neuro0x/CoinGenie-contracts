@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 import { Ownable } from "openzeppelin/access/Ownable.sol";
 
 import { CoinGenieERC20 } from "./CoinGenieERC20.sol";
-import { Common } from "./lib/Common.sol";
 
 /*
    
@@ -55,7 +54,9 @@ contract ERC20Factory is Ownable {
      * @param symbol - the ticker symbol of the token
      * @param initialSupply - the initial supply of the token
      * @param tokenOwner - the address that will be the owner of the token
-     * @param customConfigProps - a struct of configuration booleans for the token
+     * @param isBurnable - whether or not the token is burnable
+     * @param isPausable - whether or not the token is pausable
+     * @param isDeflationary - whether or not the token is deflationary
      * @param maxPerWallet - the maximum amount of tokens allowed to be held by one wallet
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param feeRecipient - the address to receive the tax fees
@@ -70,7 +71,9 @@ contract ERC20Factory is Ownable {
         string memory symbol,
         uint256 initialSupply,
         address tokenOwner,
-        Common.TokenConfigProperties memory customConfigProps,
+        bool isBurnable,
+        bool isPausable,
+        bool isDeflationary,
         uint256 maxPerWallet,
         address affiliateFeeRecipient,
         address feeRecipient,
@@ -86,7 +89,9 @@ contract ERC20Factory is Ownable {
             symbol,
             initialSupply,
             tokenOwner,
-            customConfigProps,
+            isBurnable,
+            isPausable,
+            isDeflationary,
             maxPerWallet,
             affiliateFeeRecipient,
             feeRecipient,

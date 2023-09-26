@@ -14,7 +14,6 @@ import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
 
-import { Common } from "./lib/Common.sol";
 import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
 /*
@@ -127,8 +126,14 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     /// @dev max amount of tokens allowed per wallet
     uint256 public maxTokenAmountPerAddress;
 
-    /// @dev features of the token
-    Common.TokenConfigProperties public tokenConfig;
+    /// @dev is the token burnable
+    bool public isBurnable;
+
+    /// @dev is the token pausable
+    bool public isPausable;
+
+    /// @dev is the token deflationary
+    bool public isDeflationary;
 
     /// @dev the address of the fee recipient
     address public feeRecipient;
@@ -239,7 +244,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @param symbol_ The symbol of the token
      * @param initialSupplyToSet The initial supply of the token
      * @param tokenOwner The owner of the token
-     * @param customConfigProps Represents the features of the token
+     * @param isBurnable_ Whether the token is burnable
+     * @param isPausable_ Whether the token is pausable
+     * @param isDeflationary_ Whether the token is deflationary
      * @param maxPerWallet The max amount of tokens per wallet
      * @param _affiliateFeeRecipient The address of the affiliate fee recipient
      * @param _feeRecipient The address of the fee recipient
@@ -251,7 +258,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         string memory symbol_,
         uint256 initialSupplyToSet,
         address tokenOwner,
-        Common.TokenConfigProperties memory customConfigProps,
+        bool isBurnable_,
+        bool isPausable_,
+        bool isDeflationary_,
         uint256 maxPerWallet,
         address _affiliateFeeRecipient,
         address _feeRecipient,
@@ -269,7 +278,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
             revert InvalidTaxBPS(_feePercentage);
         }
 
-        if (customConfigProps.isDeflationary) {
+        if (isDeflationary_) {
             if (_burnPercentage > _MAX_TAX) {
                 revert InvalidDeflationBPS(_burnPercentage);
             }
@@ -277,7 +286,9 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
             burnPercentage = _burnPercentage;
         }
 
-        tokenConfig = customConfigProps;
+        isBurnable = isBurnable_;
+        isPausable = isPausable_;
+        isDeflationary = isDeflationary_;
         maxTokenAmountPerAddress = maxPerWallet;
 
         SafeTransfer.validateAddress(_feeRecipient);
@@ -301,20 +312,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     receive() external payable { }
 
     /**
-     * @return true if the token is pausable
-     */
-    function isPausable() public view returns (bool) {
-        return tokenConfig.isPausable;
-    }
-
-    /**
-     * @return true if the token is burnable
-     */
-    function isBurnable() public view returns (bool) {
-        return tokenConfig.isBurnable;
-    }
-
-    /**
      * @return true if the feePayer is whitelisted
      */
     function isWhitelisted(address feePayer) public view returns (bool) {
@@ -326,13 +323,6 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      */
     function decimals() public view virtual override returns (uint8) {
         return _tokenDecimals;
-    }
-
-    /**
-     * @return true if the token supports deflation
-     */
-    function isDeflationary() public view returns (bool) {
-        return tokenConfig.isDeflationary;
     }
 
     /**
@@ -419,7 +409,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice only callable if the burnPercentage is not greater than the max allowed bps
      */
     function setDeflationConfig(uint256 _burnPercentage) external onlyOwner whenNotPaused {
-        if (!isDeflationary()) {
+        if (!isDeflationary) {
             revert TokenIsNotDeflationary();
         }
 
@@ -502,7 +492,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice only callable if the token supports burning
      */
     function burn(uint256 amount) public override onlyOwner whenNotPaused {
-        if (!isBurnable()) {
+        if (!isBurnable) {
             revert BurningNotEnabled();
         }
 
@@ -520,7 +510,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice needs Approval
      */
     function burnFrom(address from, uint256 amount) public override onlyOwner whenNotPaused {
-        if (!isBurnable()) {
+        if (!isBurnable) {
             revert BurningNotEnabled();
         }
 
@@ -533,7 +523,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice only callable by the owner
      */
     function pause() external onlyOwner {
-        if (!isPausable()) {
+        if (!isPausable) {
             revert PausingNotEnabled();
         }
         _pause();
@@ -545,7 +535,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice only callable by the owner
      */
     function unpause() external onlyOwner {
-        if (!isPausable()) {
+        if (!isPausable) {
             revert PausingNotEnabled();
         }
         _unpause();
@@ -736,7 +726,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
             affiliateAmount = amount.mul(_AFFILIATE_FEE_PERCENTAGE).div(_MAX_BPS);
         }
 
-        if (isDeflationary()) {
+        if (isDeflationary) {
             deflationAmount = amount.mul(burnPercentage).div(_MAX_BPS);
         }
 
