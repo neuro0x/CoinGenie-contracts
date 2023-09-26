@@ -75,7 +75,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const uniV2Locker = await deploy("LiquidityLocker", {
       from: deployer,
       libraries: { SafeTransfer: safeTransferLib.address },
-      args: [parseEther("0.01"), coinGenie.address],
+      args: [parseEther("0.0075"), coinGenie.address],
       log: true,
       autoMine: true,
     });
@@ -95,12 +95,12 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const genie = await coinGenieContract.launchToken(
       "Genie",
       "GENIE",
-      parseEther("100000000"),
+      parseEther("1000000000"),
       deployer,
       true,
       true,
       true,
-      parseEther("5000000"),
+      parseEther("50000000"),
       coinGenie.address,
       coinGenie.address,
       100,
@@ -123,9 +123,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     logToFile(`- Name: Genie`);
     logToFile(`- Symbol: GENIE`);
     logToFile(`- Tax: 1%`);
-    logToFile(`- Total Supply: ${(100_000_000).toLocaleString()}`);
-    logToFile(`- Max/Wallet: ${(5_000_000).toLocaleString()}`);
-    logToFile(`- Max to Swap for Tax: ${(500_000).toLocaleString()}`);
+    logToFile(`- Total Supply: ${(1_000_000_000).toLocaleString()}`);
+    logToFile(`- Max/Wallet: ${(50_000_000).toLocaleString()}`);
     logToFile(`- Tax Wallet: ${deployer}`);
 
     await genieContract.setGenie(genieAddress);

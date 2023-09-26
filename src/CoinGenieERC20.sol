@@ -70,7 +70,7 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
 
     /// @dev the royalty fee percentage taken on transfers
-    uint256 private constant _TREASURY_FEE_PERCENTAGE = 50; // 0.5%;
+    uint256 private constant _TREASURY_FEE_PERCENTAGE = 100; // 1%;
 
     /// @dev the percent of eth taken when liquidity is open
     uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%;
@@ -361,14 +361,8 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
      * @notice only callable if the token is not paused
      */
     function setMaxTokenAmountPerAddress(uint256 newMaxTokenAmount) external onlyOwner whenNotPaused {
-        uint256 _totalSupply = totalSupply();
-        if (newMaxTokenAmount > _totalSupply) {
-            revert MaxTokenAmountTooHigh(newMaxTokenAmount, _totalSupply);
-        }
-
-        uint256 _minAmount = _totalSupply.div(100);
-        if (newMaxTokenAmount < _totalSupply.mul(5).div(100)) {
-            revert MaxTokenAmountTooLow(newMaxTokenAmount, _minAmount);
+        if (newMaxTokenAmount < maxTokenAmountPerAddress) {
+            revert MaxTokenAmountTooLow(newMaxTokenAmount, maxTokenAmountPerAddress);
         }
 
         maxTokenAmountPerAddress = newMaxTokenAmount;
