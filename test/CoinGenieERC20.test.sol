@@ -30,8 +30,6 @@ contract CoinGenieERC20Test is Test {
         address tokenOwner;
         Common.TokenConfigProperties customConfigProps;
         uint256 maxPerWallet;
-        uint256 autoWithdrawThreshold;
-        uint256 maxTaxSwap;
         address affiliateFeeRecipient;
         address feeRecipient;
         uint256 feePercentage;
@@ -52,8 +50,6 @@ contract CoinGenieERC20Test is Test {
             tokenOwner: address(this),
             customConfigProps: tokenConfigProps,
             maxPerWallet: 100_000_000_000 ether,
-            autoWithdrawThreshold: 0.25 ether,
-            maxTaxSwap: 100_000_000 ether,
             affiliateFeeRecipient: address(this),
             feeRecipient: address(this),
             feePercentage: 200,
@@ -69,8 +65,6 @@ contract CoinGenieERC20Test is Test {
                     coinGenieLaunchToken.tokenOwner,
                     coinGenieLaunchToken.customConfigProps,
                     coinGenieLaunchToken.maxPerWallet,
-                    coinGenieLaunchToken.autoWithdrawThreshold,
-                    coinGenieLaunchToken.maxTaxSwap,
                     coinGenieLaunchToken.affiliateFeeRecipient,
                     coinGenieLaunchToken.feeRecipient,
                     coinGenieLaunchToken.feePercentage,
@@ -167,8 +161,6 @@ contract CoinGenieERC20Test is Test {
                     coinGenieLaunchToken.tokenOwner,
                     coinGenieLaunchToken.customConfigProps,
                     coinGenieLaunchToken.maxPerWallet,
-                    coinGenieLaunchToken.autoWithdrawThreshold,
-                    coinGenieLaunchToken.maxTaxSwap,
                     coinGenieLaunchToken.affiliateFeeRecipient,
                     coinGenieLaunchToken.feeRecipient,
                     coinGenieLaunchToken.feePercentage,

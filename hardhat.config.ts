@@ -52,18 +52,10 @@ const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.20",
     settings: {
-      viaIR: true,
       optimizer: {
         enabled: true,
         // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
         runs: 200,
-        details: {
-          yul: true,
-          yulDetails: {
-            stackAllocation: true,
-            optimizerSteps: "dhfoDgvulfnTUtnIf",
-          },
-        },
       },
     },
   },

@@ -16,6 +16,33 @@ import { AirdropERC20ClaimableFactory } from "./AirdropERC20ClaimableFactory.sol
 import { Common } from "./lib/Common.sol";
 import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
+/*
+   
+            ██████                                                                                  
+           ████████         █████████     ██████████     ███  ████         ███                      
+            ██████        █████████████ ██████████████   ████ ██████      ████                      
+              ██        ████████  ████ ██████    ██████  ████ ███████     ████                      
+              ██       █████          █████        █████ ████ █████████   ████                      
+              ██       █████          ████         █████ ████ ████ ██████ ████                      
+             ████      █████          ████         █████ ████ ████  ██████████                      
+            █████       █████         █████        █████ ████ ████    ████████                      
+           ████████      █████████████ ████████████████  ████ ████     ███████                      
+          ████  ████      █████████████  ████████████    ████ ████       █████                      
+        █████    █████        █████          ████                                                   
+      ██████      ██████                                                                            
+    ██████         ███████                                                                          
+  ████████          ████████           ███████████  █████████████████        ████  ████ ████████████
+ ████████           █████████        █████████████  ███████████████████      ████ █████ ████████████
+█████████           ██████████     ███████          █████        ████████    ████ █████ ████        
+██████████         ████████████    █████            █████        █████████   ████ █████ ████        
+██████████████   ██████████████    █████   ████████ ████████████ ████ ██████ ████ █████ ███████████ 
+███████████████████████████████    █████   ████████ ██████████   ████  ██████████ █████ ██████████  
+███████████████████████████████    ██████      ████ █████        ████    ████████ █████ ████        
+ █████████████████████████████      ███████████████ ████████████ ████      ██████ █████ ████████████
+  ██████████████████████████          █████████████ █████████████████       █████ █████ ████████████
+
+ */
+
 /**
  * @title CoinGenie
  * @author @neuro_0x
@@ -24,10 +51,7 @@ import { SafeTransfer } from "./lib/SafeTransfer.sol";
 contract CoinGenie is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
-    error ShareToHigh(uint256 share, uint256 maxShare);
-
-    error InvalidPayoutCategory(PayoutCategory category);
-
+    /// @dev The maximum basis points value.
     uint256 private constant _MAX_BPS = 10_000;
 
     /// @dev The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps
@@ -82,9 +106,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         bytes32 merkleRoot
     );
 
-    /// @dev The threshold for the amount of tokens to swap for ETH
-    uint256 public quoteThreshold = 0.1 ether;
-
     /// @dev A mapping of payout categories to payouts.
     mapping(PayoutCategory category => Payout payout) private _payouts;
 
@@ -105,6 +126,40 @@ contract CoinGenie is Ownable, ReentrancyGuard {
 
     /// @dev A mapping of tokens launched by a specific owner.
     mapping(address user => LaunchedToken[] tokens) public tokensLaunchedBy;
+
+    /// @dev Error emitted when the share is higher than the max share.
+    error ShareToHigh(uint256 share, uint256 maxShare);
+
+    /// @dev Error emitted when the payout category is invalid.
+    error InvalidPayoutCategory(PayoutCategory category);
+
+    /// @dev Error emitted when the caller is not a team member.
+    error NotTeamMember(address caller);
+
+    /// @dev Error emitted when the approval fails.
+    error ApprovalFailed();
+
+    /// @dev Event emitted when a payout address is updated.
+    event PayoutUpdated(PayoutCategory category, address receiver, uint256 share);
+
+    /// @dev Event emitted when a payout is withdrawn.
+    event PayoutWithdrawn(uint256 amount);
+
+    /**
+     * @notice Modifier to ensure that the caller is a team member.
+     */
+    modifier onlyTeamMember() {
+        address caller = msg.sender;
+        bool isTeamMember = caller == _payouts[PayoutCategory.Treasury].receiver
+            || caller == _payouts[PayoutCategory.Dev].receiver || caller == _payouts[PayoutCategory.Legal].receiver
+            || caller == _payouts[PayoutCategory.Marketing].receiver;
+
+        if (!isTeamMember) {
+            revert NotTeamMember(caller);
+        }
+
+        _;
+    }
 
     /**
      * @notice Construct the CoinGenie contract.
@@ -291,12 +346,14 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         }
 
         _payouts[category] = Payout({ receiver: receiver, share: share });
+
+        emit PayoutUpdated(category, receiver, share);
     }
 
     /**
      * @notice Withdraw the contract balance to the payout addresses.
      */
-    function withdraw() external {
+    function withdraw() external onlyTeamMember {
         uint256 contractBalance = address(this).balance;
 
         uint256 treasuryShare = _payouts[PayoutCategory.Treasury].share;
@@ -313,6 +370,8 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Dev].receiver, devAmount);
         SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Legal].receiver, legalAmount);
         SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Marketing].receiver, marketingAmount);
+
+        emit PayoutWithdrawn(contractBalance);
     }
 
     /**
@@ -320,28 +379,22 @@ contract CoinGenie is Ownable, ReentrancyGuard {
      * @param tokenAddress The address of the token to swap
      * @param amount The amount of tokens to swap
      */
-    function swapERC20s(address tokenAddress, uint256 amount) external {
-        require(IERC20(tokenAddress).approve(address(UNISWAP_V2_ROUTER), amount), "Approval failed");
+    function swapERC20s(address tokenAddress, uint256 amount) external onlyTeamMember {
+        if (!IERC20(tokenAddress).approve(address(UNISWAP_V2_ROUTER), amount)) {
+            revert ApprovalFailed();
+        }
 
         address[] memory path = new address[](2);
         path[0] = tokenAddress;
         path[1] = UNISWAP_V2_ROUTER.WETH();
 
-        UNISWAP_V2_ROUTER.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
             amount,
             0, // accept any amount of ETH
             path,
             address(this),
             block.timestamp
         );
-    }
-
-    /**
-     * @notice Set the threshold for the amount of tokens to swap for ETH.
-     * @param _quoteThreshold The threshold for the amount of tokens to swap for ETH
-     */
-    function setQuoteThreshold(uint256 _quoteThreshold) external onlyOwner {
-        quoteThreshold = _quoteThreshold;
     }
 
     /**

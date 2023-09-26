@@ -9,5 +9,6 @@
     "named-parameters-mapping": "warn",
     "no-console": "off",
     "not-rely-on-time": "off"
-  }
+  },
+  "ignore-files": ["./lib/**/*.sol"]
 }

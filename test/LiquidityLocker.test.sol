@@ -38,8 +38,6 @@ contract LiquidityLockerTest is Test {
         address tokenOwner;
         Common.TokenConfigProperties customConfigProps;
         uint256 maxPerWallet;
-        uint256 autoWithdrawThreshold;
-        uint256 maxTaxSwap;
         address affiliateFeeRecipient;
         address feeRecipient;
         uint256 feePercentage;
@@ -49,7 +47,6 @@ contract LiquidityLockerTest is Test {
     function setUp() public {
         mockERC20 = new MockERC20("TEST", "TEST", 18);
         mockERC20.mint(address(this), 100_000_000 ether);
-        liquidityLocker = new LiquidityLocker();
         tokenConfigProps = Common.TokenConfigProperties({ isBurnable: true, isPausable: true, isDeflationary: true });
         coinGenieLaunchToken = CoinGenieLaunchToken({
             name: "Genie",
@@ -58,8 +55,6 @@ contract LiquidityLockerTest is Test {
             tokenOwner: address(this),
             customConfigProps: tokenConfigProps,
             maxPerWallet: 100_000_000_000 ether,
-            autoWithdrawThreshold: 0.25 ether,
-            maxTaxSwap: 100_000_000 ether,
             affiliateFeeRecipient: address(this),
             feeRecipient: address(this),
             feePercentage: 200,
@@ -67,6 +62,7 @@ contract LiquidityLockerTest is Test {
         });
         erc20Factory = new ERC20Factory();
         coinGenie = new CoinGenie(address(new ERC20Factory()), address(new AirdropERC20ClaimableFactory()));
+        liquidityLocker = new LiquidityLocker(0.01 ether, address(coinGenie));
         coinGenieERC20 = CoinGenieERC20(
             payable(
                 coinGenie.launchToken(
@@ -76,8 +72,6 @@ contract LiquidityLockerTest is Test {
                     coinGenieLaunchToken.tokenOwner,
                     coinGenieLaunchToken.customConfigProps,
                     coinGenieLaunchToken.maxPerWallet,
-                    coinGenieLaunchToken.autoWithdrawThreshold,
-                    coinGenieLaunchToken.maxTaxSwap,
                     coinGenieLaunchToken.affiliateFeeRecipient,
                     coinGenieLaunchToken.feeRecipient,
                     coinGenieLaunchToken.feePercentage,

@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/90b9fd259ed50a92a67f59cd7bd61f416f5ff1c4/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/2b7dbfa8a0020849c0e020af4ebb51d80cd336e1/src/CoinGenie.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -12,6 +12,8 @@ Ownable, ReentrancyGuard
 
 ## State Variables
 ### _MAX_BPS
+*The maximum basis points value.*
+
 
 ```solidity
 uint256 private constant _MAX_BPS = 10_000;
@@ -24,15 +26,6 @@ uint256 private constant _MAX_BPS = 10_000;
 
 ```solidity
 IUniswapV2Router02 public constant UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-```
-
-
-### quoteThreshold
-*The threshold for the amount of tokens to swap for ETH*
-
-
-```solidity
-uint256 public quoteThreshold = 0.1 ether;
 ```
 
 
@@ -100,6 +93,15 @@ mapping(address user => LaunchedToken[] tokens) public tokensLaunchedBy;
 
 
 ## Functions
+### onlyTeamMember
+
+Modifier to ensure that the caller is a team member.
+
+
+```solidity
+modifier onlyTeamMember();
+```
+
 ### constructor
 
 Construct the CoinGenie contract.
@@ -268,7 +270,7 @@ Withdraw the contract balance to the payout addresses.
 
 
 ```solidity
-function withdraw() external;
+function withdraw() external onlyTeamMember;
 ```
 
 ### swapERC20s
@@ -277,7 +279,7 @@ Swap ERC20 tokens for ETH.
 
 
 ```solidity
-function swapERC20s(address tokenAddress, uint256 amount) external;
+function swapERC20s(address tokenAddress, uint256 amount) external onlyTeamMember;
 ```
 **Parameters**
 
@@ -285,21 +287,6 @@ function swapERC20s(address tokenAddress, uint256 amount) external;
 |----|----|-----------|
 |`tokenAddress`|`address`|The address of the token to swap|
 |`amount`|`uint256`|The amount of tokens to swap|
-
-
-### setQuoteThreshold
-
-Set the threshold for the amount of tokens to swap for ETH.
-
-
-```solidity
-function setQuoteThreshold(uint256 _quoteThreshold) external onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_quoteThreshold`|`uint256`|The threshold for the amount of tokens to swap for ETH|
 
 
 ### getLaunchedTokensForAddress
@@ -359,17 +346,53 @@ event ClaimableAirdropCreated(
 );
 ```
 
+### PayoutUpdated
+*Event emitted when a payout address is updated.*
+
+
+```solidity
+event PayoutUpdated(PayoutCategory category, address receiver, uint256 share);
+```
+
+### PayoutWithdrawn
+*Event emitted when a payout is withdrawn.*
+
+
+```solidity
+event PayoutWithdrawn(uint256 amount);
+```
+
 ## Errors
 ### ShareToHigh
+*Error emitted when the share is higher than the max share.*
+
 
 ```solidity
 error ShareToHigh(uint256 share, uint256 maxShare);
 ```
 
 ### InvalidPayoutCategory
+*Error emitted when the payout category is invalid.*
+
 
 ```solidity
 error InvalidPayoutCategory(PayoutCategory category);
+```
+
+### NotTeamMember
+*Error emitted when the caller is not a team member.*
+
+
+```solidity
+error NotTeamMember(address caller);
+```
+
+### ApprovalFailed
+*Error emitted when the approval fails.*
+
+
+```solidity
+error ApprovalFailed();
 ```
 
 ## Structs
