@@ -10,5 +10,5 @@
     "no-console": "off",
     "not-rely-on-time": "off"
   },
-  "ignore-files": ["./lib/**/*.sol"]
+  "ignore-files": ["./lib/**/*.sol", "node_modules/**/*.sol"]
 }
