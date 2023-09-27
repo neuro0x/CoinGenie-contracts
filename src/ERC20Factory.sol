@@ -43,7 +43,7 @@ contract ERC20Factory is Ownable {
     address private _genie;
 
     /// @dev The amount of $GENIE a person has to hold to get the discount
-    uint256 private _discountFeeRequiredAmount = 1_000_000 ether;
+    uint256 private _discountFeeRequiredAmount = 100_000 ether;
 
     /// @notice Error thrown when the genie is already set.
     error GenieAlreadySet();

@@ -19,6 +19,8 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
+    "json": "hardhat solidity-json",
+    "json:copy": "cp ./artifacts/solidity-json/src/CoinGenieERC20.sol.json ../app/generated/CoinGenieERC20.sol.json",
     "docs": "rm -rf docs && forge doc",
     "abis": "ts-node abiGen.ts",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
