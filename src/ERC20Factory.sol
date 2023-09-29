@@ -5,6 +5,7 @@ pragma solidity ^0.8.21;
 import { Ownable } from "openzeppelin/access/Ownable.sol";
 
 import { CoinGenieERC20 } from "./CoinGenieERC20.sol";
+import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
 
 /*
    
@@ -52,60 +53,51 @@ contract ERC20Factory is Ownable {
      * @dev Creates a new instance of the CoinGenieERC20 contract
      * @param name - the name of the token
      * @param symbol - the ticker symbol of the token
-     * @param initialSupply - the initial supply of the token
-     * @param tokenOwner - the address that will be the owner of the token
-     * @param isBurnable - whether or not the token is burnable
-     * @param isPausable - whether or not the token is pausable
-     * @param isDeflationary - whether or not the token is deflationary
-     * @param maxPerWallet - the maximum amount of tokens allowed to be held by one wallet
+     * @param totalSupply - the totalSupply of the token
+     * @param feeRecipient - the address that will be the owner of the token and receive fees
+     * @param coinGenie - the address of the CoinGenie contract
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
-     * @param feeRecipient - the address to receive the tax fees
-     * @param feePercentage - the percent in basis points to use as a tax
-     * @param burnPercentage - the percent in basis points to burn on every tx if this token is deflationary
-     * @param treasuryRecipient - the address to receive the royalty fee
+     * @param taxPercent - the percent in basis points to use as a tax
+     * @param deflationPercent - the percent in basis points to use as a deflation
+     * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
+     * @param maxWalletPercent - amount of tokens allowed to be held in one wallet as a percent of the total supply
+     * @param tokenOwner - the address that will be the owner of the token
      *
-     * @return newToken - the CoinGenieERC20 token that was created
+     * @return coinGenieERC20 - the CoinGenieERC20 token that was created
      */
     function launchToken(
         string memory name,
         string memory symbol,
-        uint256 initialSupply,
-        address tokenOwner,
-        bool isBurnable,
-        bool isPausable,
-        bool isDeflationary,
-        uint256 maxPerWallet,
-        address affiliateFeeRecipient,
-        address feeRecipient,
-        uint256 feePercentage,
-        uint256 burnPercentage,
-        address treasuryRecipient
+        uint256 totalSupply,
+        address payable feeRecipient,
+        address payable coinGenie,
+        address payable affiliateFeeRecipient,
+        uint256 taxPercent,
+        uint256 deflationPercent,
+        uint256 maxBuyPercent,
+        uint256 maxWalletPercent,
+        address tokenOwner
     )
         external
-        returns (CoinGenieERC20 newToken)
+        returns (ICoinGenieERC20 coinGenieERC20)
     {
-        CoinGenieERC20 coinGenieERC20 = new CoinGenieERC20(
+        coinGenieERC20 = new CoinGenieERC20(
             name,
             symbol,
-            initialSupply,
-            tokenOwner,
-            isBurnable,
-            isPausable,
-            isDeflationary,
-            maxPerWallet,
-            affiliateFeeRecipient,
+            totalSupply,
             feeRecipient,
-            feePercentage,
-            burnPercentage
+            coinGenie,
+            affiliateFeeRecipient,
+            taxPercent,
+            deflationPercent,
+            maxBuyPercent,
+            maxWalletPercent,
+            _discountFeeRequiredAmount,
+            tokenOwner
         );
 
-        coinGenieERC20.setCoinGenieTreasury(treasuryRecipient);
-        coinGenieERC20.setDiscountFeeRequiredAmount(_discountFeeRequiredAmount);
-        coinGenieERC20.setGenie(_genie);
-
-        if (tokenOwner != address(0) && tokenOwner != coinGenieERC20.owner()) {
-            coinGenieERC20.transferOwnership(tokenOwner);
-        }
+        coinGenieERC20.setGenie(payable(_genie));
+        Ownable(address(coinGenieERC20)).transferOwnership(tokenOwner);
 
         return coinGenieERC20;
     }

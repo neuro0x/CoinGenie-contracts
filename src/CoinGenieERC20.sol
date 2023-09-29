@@ -1,23 +1,7 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.21;
 
-import { ERC20 } from "openzeppelin/token/ERC20/ERC20.sol";
-import { IERC20 } from "openzeppelin/token/ERC20/IERC20.sol";
-import { Ownable } from "openzeppelin/access/Ownable.sol";
-import { ERC20Burnable } from "openzeppelin/token/ERC20/extensions/ERC20Burnable.sol";
-import { ERC20Pausable } from "openzeppelin/token/ERC20/extensions/ERC20Pausable.sol";
-import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
-import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
-
-import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
-import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
-import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
-
-import { SafeTransfer } from "./lib/SafeTransfer.sol";
-
 /*
-   
             ██████                                                                                  
            ████████         █████████     ██████████     ███  ████         ███                      
             ██████        █████████████ ██████████████   ████ ██████      ████                      
@@ -40,8 +24,21 @@ import { SafeTransfer } from "./lib/SafeTransfer.sol";
 ███████████████████████████████    ██████      ████ █████        ████    ████████ █████ ████        
  █████████████████████████████      ███████████████ ████████████ ████      ██████ █████ ████████████
   ██████████████████████████          █████████████ █████████████████       █████ █████ ████████████
-
  */
+
+import { Ownable } from "openzeppelin/access/Ownable.sol";
+import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
+import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
+import { IERC165 } from "openzeppelin/utils/introspection/IERC165.sol";
+
+import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
+
+import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
+import { SafeTransfer } from "./lib/SafeTransfer.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title CoinGenieERC20
@@ -50,507 +47,228 @@ import { SafeTransfer } from "./lib/SafeTransfer.sol";
  *
  * @notice THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
  */
-contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, ReentrancyGuard {
+contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
-    /**
-     * Private constants
-     */
+    struct FeeTakers {
+        address payable feeRecipient;
+        address payable coinGenie;
+        address payable affiliateFeeRecipient;
+    }
 
-    /// @dev The max basis points representing 100%
+    struct FeePercentages {
+        uint256 taxPercent;
+        uint256 deflationPercent;
+        uint256 maxBuyPercent;
+        uint256 maxWalletPercent;
+        uint256 discountFeeRequiredAmount;
+    }
+
+    uint8 private constant _DECIMALS = 18;
+
     uint256 private constant _MAX_BPS = 10_000;
-
-    /// @dev The max tax that can be applied to a transaction. The value is in ether but is handled as 5%.
+    uint256 private constant _MIN_MAX_PER_WALLET = 1 ether;
     uint256 private constant _MAX_TAX = 2000; // 20%
-
-    /// @dev The minimum amount of eth that must be added to Uniswap when trading is opened.
     uint256 private constant _MIN_LIQUIDITY_ETH = 0.5 ether;
-
-    /// @dev The minimum amount of erc20 token that must be added to Uniswap when trading is opened.
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
-
-    /// @dev the royalty fee percentage taken on transfers
-    uint256 private constant _TREASURY_FEE_PERCENTAGE = 100; // 1%;
-
-    /// @dev the percent of eth taken when liquidity is open
+    uint256 private constant _COIN_GENIE_FEE = 100; // 1%;
     uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%;
 
-    /// @dev the affiliate fee percentage taken on transfers
-    uint256 private constant _AFFILIATE_FEE_PERCENTAGE = 25; // 0.25%;
-
-    /**
-     * Private immutable
-     */
-
-    /// @dev number of decimals of the token
-    uint8 private immutable _tokenDecimals;
-
-    /**
-     * Private
-     */
-
-    /// @dev Are we currently swapping tokens for ETH?
-    bool private _inSwap;
-
-    /// @dev The whitelist of addresses that are exempt from fees
-    mapping(address feePayer => bool isWhitelisted) private _feeWhitelist;
-
-    /**
-     * Public constants
-     */
-
-    /// @dev The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps
-    IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
+    IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    /**
-     * Public immutable
-     */
+    mapping(address holder => uint256 balance) private _balances;
+    mapping(address holder => mapping(address spender => uint256 allowance)) private _allowances;
+    mapping(address holder => bool isWhiteListed) private _whitelist;
 
-    /// @dev initial number of tokens which will be minted during initialization
-    uint256 public immutable initialSupply;
+    FeeTakers private _feeTakers;
+    FeePercentages private _feePercentages;
 
-    /// @dev address of the affiliate fee recipient
-    address public immutable affiliateFeeRecipient;
+    CoinGenieERC20 private _genie;
 
-    /**
-     * Public
-     */
+    address private _uniswapV2Pair;
 
-    /// @dev The address of the genie token
-    address public genieToken;
+    bool private _isTradingOpen;
+    bool private _inSwap;
+    bool private _isSwapEnabled;
 
-    /// @dev The amount of $GENIE a person has to hold to get the discount
-    uint256 public discountFeeRequiredAmount;
+    string private _name;
+    string private _symbol;
 
-    /// @dev max amount of tokens allowed per wallet
-    uint256 public maxTokenAmountPerAddress;
+    uint256 private _totalSupply;
 
-    /// @dev is the token burnable
-    bool public isBurnable;
+    error GenieAlreadySet();
+    error ApproveFromZeroAddress();
+    error BurnFromZeroAddress();
+    error TransferFromZeroAddress();
+    error TradingAlreadyOpen();
+    error OnlyFeeRecipient();
+    error InsufficientETH(uint256 amount, uint256 minAmount);
+    error InsufficientTokens(uint256 amount, uint256 minAmount);
+    error InsufficientAllowance(uint256 amount, uint256 allowance);
+    error ExceedsMaxAmount(uint256 amount, uint256 maxAmount);
 
-    /// @dev is the token pausable
-    bool public isPausable;
+    event TradingOpened(address indexed pair);
 
-    /// @dev is the token deflationary
-    bool public isDeflationary;
-
-    /// @dev the address of the fee recipient
-    address public feeRecipient;
-
-    /// @dev address of the royalty fee recipient (Coin Genie)
-    address public treasuryRecipient;
-
-    /// @dev the fee percentage in basis points
-    uint256 public feePercentage;
-
-    /// @dev the affiliate fee percentage in basis points
-    uint256 public burnPercentage;
-
-    /// @dev The address of the LP token. The contract uses the LP token to determine if a transfer is a buy or sell
-    address public uniswapV2Pair;
-
-    /// @dev The flag for whether swapping is enabled and trading open
-    bool public isSwapEnabled;
-
-    /**
-     * Modifiers
-     */
-
-    /// @dev Modifier to prevent swapping tokens for ETH recursively
     modifier lockTheSwap() {
         _inSwap = true;
         _;
         _inSwap = false;
     }
 
-    /**
-     * Errors
-     */
-
-    /// @notice Error thrown when the genie is already set.
-    error GenieAlreadySet();
-
-    /// @notice Error thrown when the provided maximum token amount is invalid.
-    error InvalidMaxTokenAmount(uint256 maxPerWallet);
-
-    /// @notice Error thrown when the new maximum token amount per address is greater than the total supply.
-    error MaxTokenAmountTooHigh(uint256 newAmount, uint256 maxAllowed);
-
-    /// @notice Error thrown when the new maximum token amount per address is less than 1% of the total supply.
-    error MaxTokenAmountTooLow(uint256 newAmount, uint256 minAmount);
-
-    /// @notice Error thrown when the destination balance exceeds the maximum allowed amount.
-    /// @param addr The address whose balance would exceed the limit.
-    error DestBalanceExceedsMaxAllowed(address addr);
-
-    /// @notice Error thrown when burning is not enabled.
-    error BurningNotEnabled();
-
-    /// @notice Error thrown when pausing is not enabled.
-    error PausingNotEnabled();
-
-    /// @notice Error thrown when the token is not deflationary.
-    error TokenIsNotDeflationary();
-
-    /// @notice Error thrown when an invalid tax basis point is provided.
-    /// @param bps The invalid basis points for tax.
-    error InvalidTaxBPS(uint256 bps);
-
-    /// @notice Error thrown when an invalid deflation basis point is provided.
-    /// @param bps The invalid basis points for deflation.
-    error InvalidDeflationBPS(uint256 bps);
-
-    /// @notice Error thrown when trading is already open.
-    error TradingAlreadyOpen();
-
-    /// @notice Error thrown when the someone other than initial owner tries to manual swap tokens.
-    error OnlyInitialOwner();
-
-    /// @notice Error thrown when the provided ETH amount is insufficient.
-    /// @param amount The provided ETH amount.
-    /// @param minAmount The minimum required ETH amount.
-    error InsufficientETH(uint256 amount, uint256 minAmount);
-
-    /// @notice Error thrown when the provided token amount is insufficient.
-    /// @param amount The provided token amount.
-    /// @param minAmount The minimum required token amount.
-    error InsufficientTokens(uint256 amount, uint256 minAmount);
-
-    /**
-     * Events
-     */
-
-    /// @notice This event is emitted when the trading is opened.
-    /// @param pair The address of the LP token.
-    event TradingOpened(address indexed pair);
-
-    /// @notice This event is emitted when the maximum number of tokens allowed per wallet has been updated.
-    /// @param newMaxTokenAmount The new maximum token amount per wallet.
-    event MaxTokensPerWalletSet(uint256 indexed newMaxTokenAmount);
-
-    /// @notice This event is emitted when the fee configuration of the token has been updated.
-    /// @param _feeRecipient The updated fee recipient address.
-    /// @param _feePercentage The updated fee percentage.
-    event FeeConfigUpdated(address indexed _feeRecipient, uint256 indexed _feePercentage);
-
-    /// @notice This event is emitted when the burn configuration of the token has been updated.
-    /// @param _burnPercentage The updated burn percentage.
-    event BurnConfigUpdated(uint256 indexed _burnPercentage);
-
-    /**
-     * @dev Initializes the contract with the provided parameters
-     * @param name_ The name of the token
-     * @param symbol_ The symbol of the token
-     * @param initialSupplyToSet The initial supply of the token
-     * @param tokenOwner The owner of the token
-     * @param isBurnable_ Whether the token is burnable
-     * @param isPausable_ Whether the token is pausable
-     * @param isDeflationary_ Whether the token is deflationary
-     * @param maxPerWallet The max amount of tokens per wallet
-     * @param _affiliateFeeRecipient The address of the affiliate fee recipient
-     * @param _feeRecipient The address of the fee recipient
-     * @param _feePercentage The fee percentage in basis points
-     * @param _burnPercentage The burn percentage in basis points
-     */
     constructor(
         string memory name_,
         string memory symbol_,
-        uint256 initialSupplyToSet,
-        address tokenOwner,
-        bool isBurnable_,
-        bool isPausable_,
-        bool isDeflationary_,
-        uint256 maxPerWallet,
-        address _affiliateFeeRecipient,
-        address _feeRecipient,
-        uint256 _feePercentage,
-        uint256 _burnPercentage
-    )
-        ERC20(name_, symbol_)
-    {
-        SafeTransfer.validateAddress(tokenOwner);
-        initialSupply = initialSupplyToSet;
-        _tokenDecimals = 18;
-        affiliateFeeRecipient = _affiliateFeeRecipient;
+        uint256 totalSupply_,
+        address payable feeRecipient_,
+        address payable coinGenie_,
+        address payable affiliateFeeRecipient_,
+        uint256 taxPercent_,
+        uint256 deflationPercent_,
+        uint256 maxBuyPercent_,
+        uint256 maxWalletPercent_,
+        uint256 discountFeeRequiredAmount_,
+        address tokenOwner_
+    ) {
+        _setERC20Properties(name_, symbol_, totalSupply_);
+        _setFeeRecipients(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
+        _setFeePercentages(
+            taxPercent_, deflationPercent_, maxBuyPercent_, maxWalletPercent_, discountFeeRequiredAmount_
+        );
+        _setWhitelist(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
 
-        if (_feePercentage > _MAX_TAX) {
-            revert InvalidTaxBPS(_feePercentage);
-        }
-
-        if (isDeflationary_) {
-            if (_burnPercentage > _MAX_TAX) {
-                revert InvalidDeflationBPS(_burnPercentage);
-            }
-
-            burnPercentage = _burnPercentage;
-        }
-
-        isBurnable = isBurnable_;
-        isPausable = isPausable_;
-        isDeflationary = isDeflationary_;
-        maxTokenAmountPerAddress = maxPerWallet;
-
-        SafeTransfer.validateAddress(_feeRecipient);
-        feeRecipient = _feeRecipient;
-        feePercentage = _feePercentage;
-
-        if (initialSupplyToSet != 0) {
-            _mint(tokenOwner, initialSupplyToSet);
-        }
-
-        _feeWhitelist[address(this)] = true;
-        _feeWhitelist[tokenOwner] = true;
-        _feeWhitelist[feeRecipient] = true;
-
-        if (affiliateFeeRecipient != address(0)) {
-            _feeWhitelist[affiliateFeeRecipient] = true;
-        }
+        _balances[tokenOwner_] = totalSupply_;
+        emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
     // solhint-disable-next-line no-empty-blocks
     receive() external payable { }
 
-    /**
-     * @return true if the feePayer is whitelisted
-     */
-    function isWhitelisted(address feePayer) public view returns (bool) {
-        return _feeWhitelist[feePayer];
+    function name() public view returns (string memory) {
+        return _name;
     }
 
-    /**
-     * @return number of decimals for the token
-     */
-    function decimals() public view virtual override returns (uint8) {
-        return _tokenDecimals;
+    function symbol() public view returns (string memory) {
+        return _symbol;
     }
 
-    /**
-     * @dev Allows the owner to set the address of the coingenie
-     * @param coinGenieAddress - the address of the coinGenie
-     */
-    function setCoinGenieTreasury(address coinGenieAddress) external {
-        if (treasuryRecipient != address(0)) {
-            revert GenieAlreadySet();
+    function decimals() public pure returns (uint8) {
+        return _DECIMALS;
+    }
+
+    function totalSupply() public view override returns (uint256) {
+        return _totalSupply;
+    }
+
+    function feeRecipient() public view returns (address payable) {
+        return _feeTakers.feeRecipient;
+    }
+
+    function coinGenie() public view returns (address payable) {
+        return _feeTakers.coinGenie;
+    }
+
+    function genie() public view returns (address payable) {
+        return payable(address(_genie));
+    }
+
+    function affiliateFeeRecipient() public view returns (address payable) {
+        return _feeTakers.affiliateFeeRecipient;
+    }
+
+    function isTradingOpen() public view returns (bool) {
+        return _isTradingOpen;
+    }
+
+    function isSwapEnabled() public view returns (bool) {
+        return _isSwapEnabled;
+    }
+
+    function isDeflationary() public view returns (bool) {
+        return _feePercentages.deflationPercent > 0;
+    }
+
+    function taxPercent() public view returns (uint256) {
+        return _feePercentages.taxPercent;
+    }
+
+    function deflationPercent() public view returns (uint256) {
+        return _feePercentages.deflationPercent;
+    }
+
+    function maxBuyPercent() public view returns (uint256) {
+        return _feePercentages.maxBuyPercent;
+    }
+
+    function maxWalletPercent() public view returns (uint256) {
+        return _feePercentages.maxWalletPercent;
+    }
+
+    function discountFeeRequiredAmount() public view returns (uint256) {
+        return _feePercentages.discountFeeRequiredAmount;
+    }
+
+    function lpToken() public view returns (address) {
+        return _uniswapV2Pair;
+    }
+
+    function balanceOf(address account) public view override returns (uint256) {
+        return _balances[account];
+    }
+
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+
+    function burnFrom(address from, uint256 amount) public {
+        if (amount > _allowances[from][msg.sender]) {
+            revert InsufficientAllowance(amount, _allowances[from][msg.sender]);
         }
 
-        _feeWhitelist[treasuryRecipient] = false;
-        _feeWhitelist[coinGenieAddress] = true;
-        treasuryRecipient = coinGenieAddress;
+        _burn(from, amount);
     }
 
-    /**
-     * @dev Allows the owner to set the amount of $GENIE a person has to hold to get the discount if it has not been set
-     * @param amount - the amount of $GENIE a person has to hold to get the discount
-     *
-     * @notice This is called from the factory immediately after token creation
-     */
-    function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
-        if (discountFeeRequiredAmount != 0) {
-            revert GenieAlreadySet();
-        }
-
-        discountFeeRequiredAmount = amount;
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        _transfer(_msgSender(), recipient, amount);
+        return true;
     }
 
-    /**
-     * @dev Allows the owner to set a max amount of tokens per wallet
-     * @param newMaxTokenAmount - the new max amount of tokens per wallet
-     *
-     * @notice only callable by the owner
-     * @notice only callable if the token is not paused
-     */
-    function setMaxTokenAmountPerAddress(uint256 newMaxTokenAmount) external onlyOwner whenNotPaused {
-        if (newMaxTokenAmount < maxTokenAmountPerAddress) {
-            revert MaxTokenAmountTooLow(newMaxTokenAmount, maxTokenAmountPerAddress);
-        }
-
-        maxTokenAmountPerAddress = newMaxTokenAmount;
-        emit MaxTokensPerWalletSet(newMaxTokenAmount);
+    function allowance(address owner, address spender) public view override returns (uint256) {
+        return _allowances[owner][spender];
     }
 
-    /**
-     * @dev Allows the owner to set the tax config
-     * @param _feeRecipient - the new feeRecipient
-     * @param _feePercentage - the new feePercentage
-     *
-     * @notice only callable by the owner
-     * @notice only callable if the token is not paused
-     * @notice only callable if the feePercentage is not greater than the max tax
-     */
-    function setTaxConfig(address _feeRecipient, uint256 _feePercentage) external onlyOwner whenNotPaused {
-        if (_feePercentage > _MAX_TAX) {
-            revert InvalidTaxBPS(_feePercentage);
-        }
-
-        feePercentage = _feePercentage;
-
-        SafeTransfer.validateAddress(_feeRecipient);
-        _feeWhitelist[feeRecipient] = false;
-        feeRecipient = _feeRecipient;
-        _feeWhitelist[feeRecipient] = true;
-
-        emit FeeConfigUpdated(_feeRecipient, _feePercentage);
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        _approve(_msgSender(), spender, amount);
+        return true;
     }
 
-    /**
-     * @dev Allows the owner to set the deflation config
-     * @param _burnPercentage - the new burnPercentage
-     *
-     * @notice only callable by the owner
-     * @notice only callable if the token is not paused
-     * @notice only callable if the token supports deflation
-     * @notice only callable if the burnPercentage is not greater than the max allowed bps
-     */
-    function setDeflationConfig(uint256 _burnPercentage) external onlyOwner whenNotPaused {
-        if (!isDeflationary) {
-            revert TokenIsNotDeflationary();
-        }
-
-        if (_burnPercentage > _MAX_TAX) {
-            revert InvalidDeflationBPS(_burnPercentage);
-        }
-
-        burnPercentage = _burnPercentage;
-        emit BurnConfigUpdated(_burnPercentage);
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+        _transfer(sender, recipient, amount);
+        _approve(
+            sender,
+            _msgSender(),
+            _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance")
+        );
+        return true;
     }
 
-    /**
-     * @dev Allows to transfer a predefined amount of tokens to a predefined address
-     * @param to - the address to transfer the tokens to
-     * @param amount - the amount of tokens to transfer
-     * @return true if the transfer was successful
-     *
-     * @notice only callable if the token is not paused
-     * @notice only callable if the balance of the receiver is lower than the max amount of tokens per wallet
-     * @notice checks if blacklisting is enabled and if the sender and receiver are not blacklisted
-     * @notice checks if whitelisting is enabled and if the sender and receiver are whitelisted
-     * @notice captures the tax during the transfer if tax is enabvled
-     * @notice burns the deflationary amount during the transfer if deflation is enabled
-     */
-    function transfer(address to, uint256 amount) public virtual override whenNotPaused returns (bool) {
-        address from = msg.sender;
-        bool excludedFromFee = _feeWhitelist[from] || _feeWhitelist[to];
-
-        if (isSwapEnabled && !excludedFromFee) {
-            uint256 amountToTransfer = _takeFees(from, to, amount);
-
-            return super.transfer(to, amountToTransfer);
+    function manualSwap() external {
+        if (_msgSender() != _feeTakers.feeRecipient) {
+            revert OnlyFeeRecipient();
         }
 
-        return super.transfer(to, amount);
-    }
-
-    /**
-     * @dev Allows to transfer a predefined amount of tokens from a predefined address to a predefined address
-     * @param from - the address to transfer the tokens from
-     * @param to - the address to transfer the tokens to
-     * @param amount - the amount of tokens to transfer
-     * @return true if the transfer was successful
-     *
-     * @notice only callable if the token is not paused
-     * @notice only callable if the balance of the receiver is lower than the max amount of tokens per wallet
-     * @notice checks if blacklisting is enabled and if the sender and receiver are not blacklisted
-     * @notice checks if whitelisting is enabled and if the sender and receiver are whitelisted
-     * @notice captures the tax during the transfer if tax is enabvled
-     * @notice burns the deflationary amount during the transfer if deflation is enabled
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    )
-        public
-        virtual
-        override
-        whenNotPaused
-        returns (bool)
-    {
-        bool excludedFromFee = _feeWhitelist[from] || _feeWhitelist[to];
-
-        if (isSwapEnabled && !excludedFromFee) {
-            uint256 amountToTransfer = _takeFees(from, to, amount);
-
-            return super.transferFrom(from, to, amountToTransfer);
+        uint256 contractBalance = balanceOf(address(this));
+        if (contractBalance > 0) {
+            _swapTokensForEth(contractBalance);
         }
 
-        return super.transferFrom(from, to, amount);
-    }
-
-    /**
-     * @dev Allows to burn a predefined amount of tokens
-     * @param amount - the amount of tokens to burn
-     *
-     * @notice only callable by the owner
-     * @notice only callable if the token is not paused
-     * @notice only callable if the token supports burning
-     */
-    function burn(uint256 amount) public override onlyOwner whenNotPaused {
-        if (!isBurnable) {
-            revert BurningNotEnabled();
+        uint256 contractEthBalance = address(this).balance;
+        if (contractEthBalance > 0) {
+            _sendEthToFee(contractEthBalance);
         }
-
-        super.burn(amount);
     }
 
-    /**
-     * @dev Allows to burn a predefined amount of tokens from a predefined address
-     * @param from - the address to burn the tokens from
-     * @param amount - the amount of tokens to burn
-     *
-     * @notice only callable by the owner
-     * @notice only callable if the token is not paused
-     * @notice only callable if the token supports burning
-     * @notice needs Approval
-     */
-    function burnFrom(address from, uint256 amount) public override onlyOwner whenNotPaused {
-        if (!isBurnable) {
-            revert BurningNotEnabled();
-        }
-
-        super.burnFrom(from, amount);
-    }
-
-    /**
-     * @dev Allows to pause the token
-     *
-     * @notice only callable by the owner
-     */
-    function pause() external onlyOwner {
-        if (!isPausable) {
-            revert PausingNotEnabled();
-        }
-        _pause();
-    }
-
-    /**
-     * @dev Allows to unpause the token
-     *
-     * @notice only callable by the owner
-     */
-    function unpause() external onlyOwner {
-        if (!isPausable) {
-            revert PausingNotEnabled();
-        }
-        _unpause();
-    }
-
-    /**
-     * @dev Opens trading for the token by adding liquidity to Uniswap.
-     * @param amountToLP The amount of tokens to add to Uniswap
-     * @param payInGenie Whether to pay the fee in $GENIE or ETH
-     *
-     * Emits a {TradingOpened} event.
-     *
-     * Preconditions:
-     *
-     * Requirements:
-     *
-     * `isSwapEnabled` must be false.
-     * `amountToLP >= _MIN_LIQUIDITY_TOKEN`
-     * `msg.value >= _MIN_LIQUIDITY_ETH`
-     */
-    function openTrading(
+    function createPairAndAddLiquidity(
         uint256 amountToLP,
         bool payInGenie
     )
@@ -558,13 +276,191 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         payable
         onlyOwner
         nonReentrant
-        whenNotPaused
-        returns (IUniswapV2Pair)
+        returns (address)
     {
-        address from = _msgSender();
         uint256 value = msg.value;
+        address from = _msgSender();
+        _openTradingChecks(amountToLP, value);
 
-        if (isSwapEnabled) {
+        transfer(address(this), amountToLP);
+        _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
+
+        CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
+        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
+        if (payInGenie) {
+            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
+        }
+
+        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
+        _uniswapV2Pair =
+            IUniswapV2Factory(_UNISWAP_V2_ROUTER.factory()).createPair(address(this), _UNISWAP_V2_ROUTER.WETH());
+
+        _UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
+            address(this), balanceOf(address(this)), 0, 0, from, block.timestamp
+        );
+
+        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
+
+        _isSwapEnabled = true;
+        _isTradingOpen = true;
+
+        if (ethAmountToTreasury > 0) {
+            console.log("-> ~ _feeTakers.coinGenie:", _feeTakers.coinGenie);
+            _feeTakers.coinGenie.transfer(ethAmountToTreasury);
+        }
+
+        emit TradingOpened(_uniswapV2Pair);
+
+        return _uniswapV2Pair;
+    }
+
+    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant {
+        uint256 value = msg.value;
+        address from = _msgSender();
+
+        transfer(address(this), amountToLP);
+        _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
+        CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
+        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
+
+        if (payInGenie) {
+            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
+        }
+
+        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
+
+        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
+        _UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
+            address(this), balanceOf(address(this)), 0, 0, from, block.timestamp
+        );
+
+        if (ethAmountToTreasury > 0) {
+            _feeTakers.coinGenie.transfer(ethAmountToTreasury);
+        }
+    }
+
+    function removeLiquidity(uint256 amountToRemove) external {
+        address from = _msgSender();
+        ICoinGenieERC20(_uniswapV2Pair).transferFrom(from, address(this), amountToRemove);
+        _UNISWAP_V2_ROUTER.removeLiquidityETHSupportingFeeOnTransferTokens(
+            address(this), amountToRemove, 0, 0, from, block.timestamp
+        );
+    }
+
+    function setGenie(address payable genie_) external {
+        if (address(_genie) != address(0)) {
+            revert GenieAlreadySet();
+        }
+
+        _genie = CoinGenieERC20(genie_);
+    }
+
+    function setFeeRecipient(address payable feeRecipient_) external onlyOwner {
+        SafeTransfer.validateAddress(feeRecipient_);
+        _feeTakers.feeRecipient = feeRecipient_;
+    }
+
+    function setTaxPercent(uint256 taxPercent_) external onlyOwner {
+        if (taxPercent_ > _MAX_TAX) {
+            revert ExceedsMaxAmount(taxPercent_, _MAX_TAX);
+        }
+
+        _feePercentages.taxPercent = taxPercent_;
+    }
+
+    function setDeflationPercent(uint256 deflationPercent_) external onlyOwner {
+        if (deflationPercent_ > _MAX_TAX) {
+            revert ExceedsMaxAmount(deflationPercent_, _MAX_TAX);
+        }
+
+        _feePercentages.deflationPercent = deflationPercent_;
+    }
+
+    function setMaxBuyPercent(uint256 maxBuyPercent_) external onlyOwner {
+        _feePercentages.maxBuyPercent = maxBuyPercent_;
+    }
+
+    function setMaxWalletPercent(uint256 maxWalletPercent_) external onlyOwner {
+        _feePercentages.maxWalletPercent = maxWalletPercent_;
+    }
+
+    function _approve(address owner, address spender, uint256 amount) private {
+        if (owner == address(0) || spender == address(0)) {
+            revert ApproveFromZeroAddress();
+        }
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+    function _transfer(address from, address to, uint256 amount) private {
+        _checkTransferRestrictions(from, to, amount);
+
+        uint256 contractAmount;
+        uint256 toAmount = amount;
+        bool excludedFromFee = _whitelist[from] || _whitelist[to];
+        if (_isSwapEnabled && !excludedFromFee) {
+            uint256 burnAmount;
+            uint256 totalFeePercent = _feePercentages.taxPercent + _COIN_GENIE_FEE;
+            contractAmount += amount.mul(totalFeePercent).div(_MAX_BPS);
+            toAmount = amount.sub(contractAmount);
+
+            if (_feePercentages.deflationPercent > 0) {
+                burnAmount = amount.mul(_feePercentages.deflationPercent).div(_MAX_BPS);
+                toAmount -= burnAmount;
+                _burn(from, burnAmount);
+            }
+
+            bool isBuy = from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER);
+            if (isBuy) {
+                _checkBuyRestrictions(to, toAmount);
+            }
+
+            uint256 contractTokenBalance = balanceOf(address(this));
+            bool tokenTaxSwapLimitReached = contractTokenBalance
+                >= (_totalSupply.mul(25).div(_MAX_BPS)).div(
+                    1 - _feePercentages.taxPercent.div(_feePercentages.taxPercent + _COIN_GENIE_FEE)
+                ) || contractTokenBalance >= _totalSupply.mul(50).div(_MAX_BPS);
+            bool doAutoSwap = !_inSwap && to == _uniswapV2Pair && _isSwapEnabled && tokenTaxSwapLimitReached;
+            if (doAutoSwap) {
+                _swapTokensForEth(_min(toAmount, contractTokenBalance));
+
+                uint256 contractEthBalance = address(this).balance;
+                _sendEthToFee(contractEthBalance);
+            }
+        }
+
+        if (contractAmount > 0) {
+            _balances[address(this)] = _balances[address(this)].add(contractAmount);
+            emit Transfer(from, address(this), contractAmount);
+        }
+
+        _balances[from] = _balances[from].sub(amount);
+        _balances[to] = _balances[to].add(toAmount);
+
+        emit Transfer(from, to, toAmount);
+    }
+
+    function _burn(address from, uint256 amount) private {
+        if (from == address(0)) {
+            revert BurnFromZeroAddress();
+        }
+
+        uint256 balanceOfFrom = balanceOf(from);
+        if (amount > balanceOfFrom) {
+            revert InsufficientTokens(amount, balanceOfFrom);
+        }
+
+        _balances[from] = balanceOfFrom.sub(amount);
+        _totalSupply = _totalSupply.sub(amount);
+
+        emit Transfer(from, address(0), amount);
+    }
+
+    function _openTradingChecks(uint256 amountToLP, uint256 value) private view {
+        if (_isSwapEnabled || _isTradingOpen) {
             revert TradingAlreadyOpen();
         }
 
@@ -575,194 +471,96 @@ contract CoinGenieERC20 is ERC20, ERC20Burnable, ERC20Pausable, Ownable, Reentra
         if (value < _MIN_LIQUIDITY_ETH) {
             revert InsufficientETH(value, _MIN_LIQUIDITY_ETH);
         }
-
-        // Transfer the tokens to the contract
-        transfer(address(this), amountToLP);
-
-        // Get the ETH amount to LP and the ETH amount to treasury
-        CoinGenieERC20 genie = CoinGenieERC20(payable(genieToken));
-        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
-
-        // If the genie balance is greater than the required amount, the fee is halved
-        if (payInGenie) {
-            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
-            genie.transferFrom(from, treasuryRecipient, discountFeeRequiredAmount);
-        }
-
-        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
-
-        // Approve the router to spend the tokens
-        _approve(address(this), address(UNISWAP_V2_ROUTER), totalSupply());
-
-        // Create the LP token
-        uniswapV2Pair =
-            IUniswapV2Factory(UNISWAP_V2_ROUTER.factory()).createPair(address(this), UNISWAP_V2_ROUTER.WETH());
-
-        // Approve the router to spend the LP token
-        IERC20(uniswapV2Pair).approve(address(UNISWAP_V2_ROUTER), type(uint256).max);
-
-        // Add liquidity to Uniswap
-        UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
-            address(this), balanceOf(address(this)), 0, 0, owner(), block.timestamp
-        );
-
-        // Enable swapping
-        isSwapEnabled = true;
-
-        // Send fee to the treasury
-        if (ethAmountToTreasury > 0) {
-            payable(treasuryRecipient).transfer(ethAmountToTreasury);
-        }
-
-        emit TradingOpened(uniswapV2Pair);
-
-        return IUniswapV2Pair(uniswapV2Pair);
     }
 
-    /**
-     * @dev Adds liquidity to Uniswap
-     * @param amountToLP The amount of tokens to add to Uniswap
-     * @param payInGenie Whether to pay the fee in $GENIE or ETH
-     */
-    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant whenNotPaused {
-        uint256 value = msg.value;
-        address from = _msgSender();
-        // Get the ETH amount to LP and the ETH amount to treasury
-        CoinGenieERC20 genie = CoinGenieERC20(payable(genieToken));
-        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
-
-        // If the genie balance is greater than the required amount, the fee is halved
-        if (payInGenie) {
-            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
-            genie.transferFrom(from, treasuryRecipient, discountFeeRequiredAmount);
+    function _checkTransferRestrictions(address from, address to, uint256 amount) private pure {
+        if (from == address(0) || to == address(0)) {
+            revert TransferFromZeroAddress();
         }
 
-        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
-
-        // Transfer the tokens to the contract
-        transfer(address(this), amountToLP);
-
-        // Approve the router to spend the tokens
-        _approve(address(this), address(UNISWAP_V2_ROUTER), totalSupply());
-
-        // Approve the router to spend the LP token
-        IERC20(uniswapV2Pair).approve(address(UNISWAP_V2_ROUTER), type(uint256).max);
-
-        // Add liquidity to Uniswap
-        UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
-            address(this), balanceOf(address(this)), 0, 0, owner(), block.timestamp
-        );
-
-        // Send fee to the treasury
-        if (ethAmountToTreasury > 0) {
-            payable(treasuryRecipient).transfer(ethAmountToTreasury);
+        if (amount == 0) {
+            revert InsufficientTokens(amount, 0);
         }
     }
 
-    /**
-     * @dev Removes liquidity from Uniswap
-     * @param amountToRemove The amount of LP tokens to remove
-     */
-    function removeLiquidity(uint256 amountToRemove) external whenNotPaused {
-        address from = _msgSender();
-        IERC20(uniswapV2Pair).transferFrom(from, address(this), amountToRemove);
-        UNISWAP_V2_ROUTER.removeLiquidityETHSupportingFeeOnTransferTokens(
-            address(this), amountToRemove, 0, 0, from, block.timestamp
+    function _checkBuyRestrictions(address to, uint256 amount) private view {
+        uint256 maxBuyAmount = _feePercentages.maxBuyPercent.mul(_totalSupply).div(_MAX_BPS);
+        if (amount > maxBuyAmount) {
+            revert ExceedsMaxAmount(amount, maxBuyAmount);
+        }
+
+        uint256 balaceOfToPlusAmount = balanceOf(to).add(amount);
+        uint256 maxWalletAmount = _feePercentages.maxWalletPercent.mul(_totalSupply).div(_MAX_BPS);
+        if (balaceOfToPlusAmount > maxWalletAmount) {
+            revert ExceedsMaxAmount(balaceOfToPlusAmount, maxWalletAmount);
+        }
+    }
+
+    function _swapTokensForEth(uint256 tokenAmount) private lockTheSwap {
+        address[] memory path = new address[](2);
+        path[0] = address(this);
+        path[1] = _UNISWAP_V2_ROUTER.WETH();
+        _approve(address(this), address(_UNISWAP_V2_ROUTER), tokenAmount);
+        _UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            tokenAmount, 0, path, address(this), block.timestamp
         );
     }
 
-    /**
-     * @dev Sets the address of the genie token
-     * @param genie - the address of the genie token
-     */
-    function setGenie(address genie) external onlyOwner {
-        if (genieToken != address(0)) {
-            revert GenieAlreadySet();
-        }
+    function _sendEthToFee(uint256 amount) private {
+        uint256 ownerFee = amount.mul(_feePercentages.taxPercent).div(_MAX_BPS);
+        uint256 coinGenieFee = amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS);
 
-        genieToken = genie;
+        _feeTakers.coinGenie.transfer(coinGenieFee);
+        _feeTakers.feeRecipient.transfer(ownerFee);
     }
 
-    /**
-     * @dev hook called before any transfer of tokens. This includes minting and burning
-     * imposed by the ERC20 standard
-     * @param from - address of the sender
-     * @param to - address of the recipient
-     * @param amount - amount of tokens to transfer
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    )
-        internal
-        virtual
-        override(ERC20, ERC20Pausable)
-    {
-        super._beforeTokenTransfer(from, to, amount);
-    }
-
-    /**
-     * @dev Takes the fees from the transfer amount
-     * @param from - address of the sender
-     * @param to - address of the recipient
-     * @param amount - amount of tokens to transfer
-     */
-    function _takeFees(address from, address to, uint256 amount) private returns (uint256 _amount) {
-        uint256 treasuryAmount;
-        uint256 taxAmount;
-        uint256 affiliateAmount;
-        uint256 deflationAmount;
-
-        if (treasuryRecipient != address(0) && _TREASURY_FEE_PERCENTAGE != 0) {
-            treasuryAmount = amount.mul(_TREASURY_FEE_PERCENTAGE).div(_MAX_BPS);
-        }
-
-        if (feeRecipient != address(0) && feePercentage != 0) {
-            taxAmount = amount.mul(feePercentage).div(_MAX_BPS);
-        }
-
-        if (affiliateFeeRecipient != address(0) && _AFFILIATE_FEE_PERCENTAGE != 0) {
-            affiliateAmount = amount.mul(_AFFILIATE_FEE_PERCENTAGE).div(_MAX_BPS);
-        }
-
-        if (isDeflationary) {
-            deflationAmount = amount.mul(burnPercentage).div(_MAX_BPS);
-        }
-
-        _amount = amount.sub(treasuryAmount).sub(taxAmount).sub(affiliateAmount).sub(deflationAmount);
-        bool exceedsMaxAmountIsBuy = from == uniswapV2Pair && to != address(UNISWAP_V2_ROUTER)
-            && balanceOf(to) + _amount > maxTokenAmountPerAddress;
-
-        if (exceedsMaxAmountIsBuy) {
-            revert DestBalanceExceedsMaxAllowed(to);
-        }
-
-        if (treasuryAmount != 0) {
-            _transfer(from, treasuryRecipient, treasuryAmount);
-        }
-
-        if (affiliateAmount != 0) {
-            _transfer(from, affiliateFeeRecipient, affiliateAmount);
-        }
-
-        if (taxAmount != 0) {
-            _transfer(from, feeRecipient, taxAmount);
-        }
-
-        if (deflationAmount != 0) {
-            _burn(from, deflationAmount);
-        }
-
-        return _amount;
-    }
-
-    /**
-     * @dev Returns the smallest of two numbers.
-     * @param a The first number.
-     * @param b The second number.
-     */
     function _min(uint256 a, uint256 b) private pure returns (uint256) {
         return a < b ? a : b;
+    }
+
+    function _setERC20Properties(string memory name_, string memory symbol_, uint256 totalSupply_) private {
+        _name = name_;
+        _symbol = symbol_;
+        _totalSupply = totalSupply_;
+    }
+
+    function _setFeeRecipients(
+        address payable feeRecipient_,
+        address payable coinGenie_,
+        address payable affiliateFeeRecipient_
+    )
+        private
+    {
+        _feeTakers.feeRecipient = feeRecipient_;
+        _feeTakers.coinGenie = coinGenie_;
+
+        if (affiliateFeeRecipient_ == address(0)) {
+            _feeTakers.affiliateFeeRecipient = coinGenie_;
+        } else {
+            _feeTakers.affiliateFeeRecipient = affiliateFeeRecipient_;
+        }
+    }
+
+    function _setFeePercentages(
+        uint256 taxPercent_,
+        uint256 deflationPercent_,
+        uint256 maxBuyPercent_,
+        uint256 maxWalletPercent_,
+        uint256 discountFeeRequiredAmount_
+    )
+        private
+    {
+        _feePercentages.taxPercent = taxPercent_;
+        _feePercentages.deflationPercent = deflationPercent_;
+        _feePercentages.maxBuyPercent = maxBuyPercent_;
+        _feePercentages.maxWalletPercent = maxWalletPercent_;
+        _feePercentages.discountFeeRequiredAmount = discountFeeRequiredAmount_;
+    }
+
+    function _setWhitelist(address feeRecipient_, address coinGenie_, address affiliateFeeRecipient_) private {
+        _whitelist[feeRecipient_] = true;
+        _whitelist[coinGenie_] = true;
+        _whitelist[affiliateFeeRecipient_] = true;
+        _whitelist[address(this)] = true;
     }
 }

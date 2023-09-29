@@ -10,7 +10,6 @@ import { CoinGenie } from "../src/CoinGenie.sol";
 import { CoinGenieERC20 } from "../src/CoinGenieERC20.sol";
 import { ERC20Factory } from "../src/ERC20Factory.sol";
 import { AirdropERC20ClaimableFactory } from "../src/AirdropERC20ClaimableFactory.sol";
-import { Common } from "../src/lib/Common.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
@@ -57,9 +56,6 @@ contract CoinGenieTest is Test {
         uint256 maxWalletClaimCount,
         bytes32 merkleRoot
     );
-
-    // solhint-disable-next-line no-empty-blocks
-    fallback() external payable { }
 
     // solhint-disable-next-line no-empty-blocks
     receive() external payable { }

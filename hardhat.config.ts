@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-solhint";
 import "hardhat-deploy";
 import "solidity-coverage";
 import "hardhat-preprocessor";
+import "hardhat-interface-generator";
 import "@xyrusworx/hardhat-solidity-json";
 
 dotenv.config();

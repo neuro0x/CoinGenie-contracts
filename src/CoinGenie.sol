@@ -1,21 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { Ownable } from "openzeppelin/access/Ownable.sol";
-import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
-import { IERC20 } from "openzeppelin/token/ERC20/IERC20.sol";
-import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
-
-import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
-import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
-import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
-
-import { ERC20Factory } from "./ERC20Factory.sol";
-import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
-import { AirdropERC20ClaimableFactory } from "./AirdropERC20ClaimableFactory.sol";
-
-import { SafeTransfer } from "./lib/SafeTransfer.sol";
-
 /*
    
             ██████                                                                                  
@@ -43,18 +28,36 @@ import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
  */
 
+import { Ownable } from "openzeppelin/access/Ownable.sol";
+import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
+import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
+import { ERC165Checker } from "openzeppelin/utils/introspection/ERC165Checker.sol";
+
+import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
+
+import { Payments } from "./Payments.sol";
+import { ERC20Factory } from "./ERC20Factory.sol";
+import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
+import { AirdropERC20ClaimableFactory } from "./AirdropERC20ClaimableFactory.sol";
+
+import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
+
+import { SafeTransfer } from "./lib/SafeTransfer.sol";
+
+import "hardhat/console.sol";
+
 /**
  * @title CoinGenie
  * @author @neuro_0x
  * @dev The orchestrator contract for the CoinGenie ecosystem.
  */
-contract CoinGenie is Ownable, ReentrancyGuard {
+contract CoinGenie is Payments, ReentrancyGuard {
     using SafeMath for uint256;
 
-    /// @dev The maximum basis points value.
     uint256 private constant _MAX_BPS = 10_000;
 
-    /// @dev The address of the Uniswap V2 Router. The contract uses the router for liquidity provision and token swaps
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
@@ -62,15 +65,13 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         address tokenAddress;
         string name;
         string symbol;
-        uint256 initialSupply;
-        bool isBurnable;
-        bool isPausable;
-        bool isDeflationary;
-        uint256 maxPerWallet;
-        address affiliateFeeRecipient;
-        address feeRecipient;
-        uint256 feePercentage;
-        uint256 burnPercentage;
+        uint256 totalSupply;
+        address payable feeRecipient;
+        address payable affiliateFeeRecipient;
+        uint256 taxPercent;
+        uint256 deflationPercent;
+        uint256 maxBuyPercent;
+        uint256 maxWalletPercent;
     }
 
     struct ClaimableAirdrop {
@@ -95,8 +96,24 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         uint256 share;
     }
 
-    event ERC20Launched(address indexed newTokenAddress);
+    mapping(PayoutCategory category => Payout payout) private _payouts;
 
+    ERC20Factory private _erc20Factory;
+    AirdropERC20ClaimableFactory private _airdropClaimableERC20Factory;
+
+    address[] public launchedTokens;
+    address[] public createdClaimableAirdrops;
+
+    mapping(address token => LaunchedToken launchedToken) public launchedTokenDetails;
+    mapping(address user => LaunchedToken[] tokens) public tokensLaunchedBy;
+    mapping(address user => ClaimableAirdrop[] airdrops) public claimableAirdropCreatedBy;
+
+    error ShareToHigh(uint256 share, uint256 maxShare);
+    error InvalidPayoutCategory(PayoutCategory category);
+    error NotTeamMember(address caller);
+    error ApprovalFailed();
+
+    event ERC20Launched(address indexed newTokenAddress);
     event ClaimableAirdropCreated(
         address indexed airdropAddress,
         address tokenOwner,
@@ -106,45 +123,6 @@ contract CoinGenie is Ownable, ReentrancyGuard {
         uint256 maxWalletClaimCount,
         bytes32 merkleRoot
     );
-
-    /// @dev A mapping of payout categories to payouts.
-    mapping(PayoutCategory category => Payout payout) private _payouts;
-
-    /// @dev Stores the address of the ERC20Factory contract.
-    ERC20Factory private _erc20Factory;
-
-    /// @dev Stores the address of the AirdropERC20Claimable contract.
-    AirdropERC20ClaimableFactory private _airdropClaimableERC20Factory;
-
-    /// @dev Stores the addresses of all airdrops launched by the contract.
-    address[] public createdClaimableAirdrops;
-
-    /// @dev A mapping of airdrops launched by a specific owner.
-    mapping(address user => ClaimableAirdrop[] airdrops) public claimableAirdropCreatedBy;
-
-    /// @dev Stores the addresses of all tokens launched by the contract.
-    address[] public launchedTokens;
-
-    /// @dev A mapping of tokens launched by a specific owner.
-    mapping(address user => LaunchedToken[] tokens) public tokensLaunchedBy;
-
-    /// @dev Error emitted when the share is higher than the max share.
-    error ShareToHigh(uint256 share, uint256 maxShare);
-
-    /// @dev Error emitted when the payout category is invalid.
-    error InvalidPayoutCategory(PayoutCategory category);
-
-    /// @dev Error emitted when the caller is not a team member.
-    error NotTeamMember(address caller);
-
-    /// @dev Error emitted when the approval fails.
-    error ApprovalFailed();
-
-    /// @dev Event emitted when a payout address is updated.
-    event PayoutUpdated(PayoutCategory category, address receiver, uint256 share);
-
-    /// @dev Event emitted when a payout is withdrawn.
-    event PayoutWithdrawn(uint256 amount);
 
     /**
      * @notice Modifier to ensure that the caller is a team member.
@@ -170,98 +148,103 @@ contract CoinGenie is Ownable, ReentrancyGuard {
     constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress) {
         _erc20Factory = ERC20Factory(erc20FactoryAddress);
         _airdropClaimableERC20Factory = AirdropERC20ClaimableFactory(airdropClaimableERC20FactoryAddress);
-
-        _payouts[PayoutCategory.Treasury] =
-            Payout({ receiver: payable(0xBe79b43B1505290DFE04294a433963dbeea736BB), share: 2000 });
-        _payouts[PayoutCategory.Dev] =
-            Payout({ receiver: payable(0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5), share: 5000 });
-        _payouts[PayoutCategory.Legal] =
-            Payout({ receiver: payable(0xbb6712A513C2d7F3E17A40d095a773c5d98574B2), share: 1500 });
-        _payouts[PayoutCategory.Marketing] =
-            Payout({ receiver: payable(0xF14A30C09897d2C7481c5907D01Ec58Ec09555af), share: 1500 });
     }
 
-    // solhint-disable-next-line no-empty-blocks
-    receive() external payable { }
+    receive() external payable override {
+        address from = _msgSender();
+        uint256 amountReceived = msg.value;
+        uint256 affiliateAmount = amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
+        _releaseAmount += amountReceived.sub(affiliateAmount);
+
+        bool isCoinGenieToken = launchedTokenDetails[from].tokenAddress == address(0);
+        if (isCoinGenieToken) {
+            ICoinGenieERC20 tokenFeeIsFrom = ICoinGenieERC20(payable(from));
+            address payable affiliate = tokenFeeIsFrom.affiliateFeeRecipient();
+
+            if (affiliate == address(this)) {
+                _amountReceivedFromAffiliate[affiliate] += amountReceived;
+                _amountOwedToAffiliate[affiliate] += affiliateAmount;
+
+                _amountEarnedByAffiliateByToken[affiliate][address(tokenFeeIsFrom)] +=
+                    amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
+            }
+        }
+
+        emit PaymentReceived(from, amountReceived);
+    }
+
+    function genie() public view override(Payments) returns (address payable) {
+        return payable(launchedTokens[0]);
+    }
 
     /**
      * @notice Launch a new instance of the ERC20.
      * @dev This function deploys a new token contract and initializes it with provided parameters.
-     * @param name The name of the token
-     * @param symbol The symbol of the token
-     * @param initialSupply The initial supply of the token
-     * @param tokenOwner The address that will be the owner of the token
-     * @param isBurnable Whether the token is burnable
-     * @param isPausable Whether the token is pausable
-     * @param isDeflationary Whether the token is deflationary
-     * @param maxPerWallet The maximum amount of tokens allowed to be held by one wallet
-     * @param affiliateFeeRecipient The address to receive the affiliate fee
-     * @param feeRecipient The address to receive the tax fees
-     * @param feePercentage The percent in basis points to use as a tax
-     * @param burnPercentage The percent in basis points to burn on every tx if this token is deflationary
+     * @param name - the name of the token
+     * @param symbol - the ticker symbol of the token
+     * @param totalSupply - the totalSupply of the token
+     * @param feeRecipient - the address that will be the owner of the token and receive fees
+     * @param affiliateFeeRecipient - the address to receive the affiliate fee
+     * @param taxPercent - the percent in basis points to use as a tax
+     * @param deflationPercent - the percent in basis points to use as a deflation
+     * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
+     * @param maxWalletPercent - amount of tokens allowed to be held in one wallet as a percent of the total supply
      *
-     * @return _tokenAddress The address of the newly deployed token contract
+     * @return newToken The CoinGenieERC20 token created
      */
     function launchToken(
         string memory name,
         string memory symbol,
-        uint256 initialSupply,
-        address tokenOwner,
-        bool isBurnable,
-        bool isPausable,
-        bool isDeflationary,
-        uint256 maxPerWallet,
-        address affiliateFeeRecipient,
-        address feeRecipient,
-        uint256 feePercentage,
-        uint256 burnPercentage
+        uint256 totalSupply,
+        address payable feeRecipient,
+        address payable affiliateFeeRecipient,
+        uint256 taxPercent,
+        uint256 deflationPercent,
+        uint256 maxBuyPercent,
+        uint256 maxWalletPercent
     )
         external
-        returns (address)
+        returns (ICoinGenieERC20 newToken)
     {
+        address tokenOwner = msg.sender;
+
         // Deploy the token contract
-        IERC20 newToken = _erc20Factory.launchToken(
+        newToken = _erc20Factory.launchToken(
             name,
             symbol,
-            initialSupply,
-            tokenOwner,
-            isBurnable,
-            isPausable,
-            isDeflationary,
-            maxPerWallet,
-            affiliateFeeRecipient,
+            totalSupply,
             feeRecipient,
-            feePercentage,
-            burnPercentage,
-            address(this)
+            payable(address(this)),
+            affiliateFeeRecipient,
+            taxPercent,
+            deflationPercent,
+            maxBuyPercent,
+            maxWalletPercent,
+            tokenOwner
         );
 
-        address newTokenAddress = address(newToken);
+        launchedTokens.push(address(newToken));
 
-        // Add the token address to the array of launched tokens
-        launchedTokens.push(newTokenAddress);
-        // Add the token address to the mapping of tokens launched by a specific owner
-        tokensLaunchedBy[tokenOwner].push(
-            LaunchedToken({
-                tokenAddress: newTokenAddress,
-                name: name,
-                symbol: symbol,
-                initialSupply: initialSupply,
-                isBurnable: isBurnable,
-                isPausable: isPausable,
-                isDeflationary: isDeflationary,
-                maxPerWallet: maxPerWallet,
-                affiliateFeeRecipient: affiliateFeeRecipient,
-                feeRecipient: feeRecipient,
-                feePercentage: feePercentage,
-                burnPercentage: burnPercentage
-            })
-        );
+        LaunchedToken memory launchedToken = LaunchedToken({
+            tokenAddress: address(newToken),
+            name: name,
+            symbol: symbol,
+            totalSupply: totalSupply,
+            feeRecipient: feeRecipient,
+            affiliateFeeRecipient: affiliateFeeRecipient,
+            taxPercent: taxPercent,
+            deflationPercent: deflationPercent,
+            maxBuyPercent: maxBuyPercent,
+            maxWalletPercent: maxWalletPercent
+        });
+
+        tokensLaunchedBy[tokenOwner].push(launchedToken);
+        launchedTokenDetails[address(newToken)] = launchedToken;
 
         // Emit the event
-        emit ERC20Launched(newTokenAddress);
+        emit ERC20Launched(address(newToken));
 
-        return newTokenAddress;
+        return newToken;
     }
 
     /**
@@ -321,88 +304,10 @@ contract CoinGenie is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Get the payout address for a specific category.
-     * @param category The category to get the payout address for
-     * @return receiver The address to receive the payout
+     * @notice Gets the number of tokens that have been launched.
      */
-    function getPayoutAddress(PayoutCategory category) external view returns (address payable) {
-        return _payouts[category].receiver;
-    }
-
-    /**
-     * @notice Get the payout share for a specific category.
-     * @param category The category to get the payout share for
-     * @return share The share of the payout
-     */
-    function getPayoutShare(PayoutCategory category) external view returns (uint256) {
-        return _payouts[category].share;
-    }
-
-    /**
-     * @notice Set the payout address for a specific category.
-     * @param category The category to set the payout address for
-     * @param receiver The address to receive the payout
-     * @param share The share of the payout
-     */
-    function updatePayout(PayoutCategory category, address payable receiver, uint256 share) external onlyOwner {
-        if (share > _payouts[category].share) {
-            revert ShareToHigh(share, _payouts[category].share);
-        }
-
-        if (category > PayoutCategory.Marketing) {
-            revert InvalidPayoutCategory(category);
-        }
-
-        _payouts[category] = Payout({ receiver: receiver, share: share });
-
-        emit PayoutUpdated(category, receiver, share);
-    }
-
-    /**
-     * @notice Withdraw the contract balance to the payout addresses.
-     */
-    function withdraw() external onlyTeamMember {
-        uint256 contractBalance = address(this).balance;
-
-        uint256 treasuryShare = _payouts[PayoutCategory.Treasury].share;
-        uint256 devShare = _payouts[PayoutCategory.Dev].share;
-        uint256 legalShare = _payouts[PayoutCategory.Legal].share;
-        uint256 marketingShare = _payouts[PayoutCategory.Marketing].share;
-
-        uint256 treasuryAmount = contractBalance.mul(treasuryShare).div(_MAX_BPS);
-        uint256 devAmount = contractBalance.mul(devShare).div(_MAX_BPS);
-        uint256 legalAmount = contractBalance.mul(legalShare).div(_MAX_BPS);
-        uint256 marketingAmount = contractBalance.mul(marketingShare).div(_MAX_BPS);
-
-        SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Treasury].receiver, treasuryAmount);
-        SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Dev].receiver, devAmount);
-        SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Legal].receiver, legalAmount);
-        SafeTransfer.safeTransferETH(_payouts[PayoutCategory.Marketing].receiver, marketingAmount);
-
-        emit PayoutWithdrawn(contractBalance);
-    }
-
-    /**
-     * @notice Swap ERC20 tokens for ETH.
-     * @param tokenAddress The address of the token to swap
-     * @param amount The amount of tokens to swap
-     */
-    function swapERC20s(address tokenAddress, uint256 amount) external onlyTeamMember {
-        if (!IERC20(tokenAddress).approve(address(UNISWAP_V2_ROUTER), amount)) {
-            revert ApprovalFailed();
-        }
-
-        address[] memory path = new address[](2);
-        path[0] = tokenAddress;
-        path[1] = UNISWAP_V2_ROUTER.WETH();
-
-        UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            amount,
-            0, // accept any amount of ETH
-            path,
-            address(this),
-            block.timestamp
-        );
+    function getNumberOfLaunchedTokens() external view returns (uint256) {
+        return launchedTokens.length;
     }
 
     /**
