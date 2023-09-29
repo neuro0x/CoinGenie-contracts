@@ -90,7 +90,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), amount);
 
         uint256 unlockTime = block.timestamp + 1 days;
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), amount, unlockTime, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), amount, unlockTime, payable(address(this))
+        );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
         for (uint256 i = 0; i < userNumLockedTokens; i++) {
@@ -120,7 +122,9 @@ contract LiquidityLockerTest is Test {
 
         lpToken.approve(address(liquidityLocker), amount);
 
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), amount, unlockDate, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), amount, unlockDate, payable(address(this))
+        );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
         for (uint256 i = 0; i < userNumLockedTokens; i++) {
@@ -147,7 +151,9 @@ contract LiquidityLockerTest is Test {
 
         lpToken.approve(address(liquidityLocker), amount);
 
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), amount, block.timestamp + 1 days, withdrawer);
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), amount, block.timestamp + 1 days, withdrawer
+        );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(withdrawer);
         for (uint256 i = 0; i < userNumLockedTokens; i++) {
@@ -178,7 +184,9 @@ contract LiquidityLockerTest is Test {
 
         lpToken.approve(address(liquidityLocker), amount);
 
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), amount, currentLockDate, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), amount, currentLockDate, payable(address(this))
+        );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
         for (uint256 i = 0; i < userNumLockedTokens; i++) {
@@ -208,7 +216,9 @@ contract LiquidityLockerTest is Test {
         uint256 amount = lpToken.balanceOf(address(this));
         lpToken.approve(address(liquidityLocker), amount);
 
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), amount, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), amount, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(lpToken.balanceOf(address(this)), 0);
 
@@ -226,7 +236,7 @@ contract LiquidityLockerTest is Test {
         uint256 balance = lpToken.balanceOf(address(this));
         lpToken.approve(address(liquidityLocker), lpToken.balanceOf(address(this)));
 
-        LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken(
+        LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken{ value: 0.1 ether }(
             IERC20(address(lpToken)), balance / 2, block.timestamp + 1 days, payable(address(this))
         );
 
@@ -240,7 +250,7 @@ contract LiquidityLockerTest is Test {
         uint256 balance = lpToken.balanceOf(address(this));
         lpToken.approve(address(liquidityLocker), balance);
 
-        LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken(
+        LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken{ value: 0.1 ether }(
             IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
         );
 
@@ -255,7 +265,7 @@ contract LiquidityLockerTest is Test {
     //     uint256 balance = lpToken.balanceOf(address(this));
     //     lpToken.approve(address(liquidityLocker), balance);
 
-    //     LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken(
+    //     LiquidityLocker.TokenLock memory tokenLock = liquidityLocker.lockLPToken{ value: 0.1 ether }(
     //         IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
     //     );
 
@@ -271,7 +281,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getNumLocksForToken(address(lpToken)), 1);
     }
@@ -281,7 +293,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getNumLockedTokens(), 1);
     }
@@ -291,7 +305,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getLockedTokenAtIndex(0), address(lpToken));
     }
@@ -301,7 +317,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getUserNumLockedTokens(address(this)), 1);
     }
@@ -311,7 +329,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getUserLockedTokenAtIndex(address(this), 0), address(lpToken));
     }
@@ -321,7 +341,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         assertEq(liquidityLocker.getUserNumLocksForToken(address(this), address(lpToken)), 1);
     }
@@ -331,7 +353,9 @@ contract LiquidityLockerTest is Test {
         lpToken.approve(address(liquidityLocker), balance);
 
         // solhint-disable-next-line max-line-length
-        liquidityLocker.lockLPToken(IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this)));
+        liquidityLocker.lockLPToken{ value: 0.1 ether }(
+            IERC20(address(lpToken)), balance, block.timestamp + 1 days, payable(address(this))
+        );
 
         (uint256 lockDate, uint256 _amount, uint256 initialAmount, uint256 unlockDate, uint256 lockID, address owner) =
             liquidityLocker.getUserLockForTokenAtIndex(address(this), address(lpToken), 0);

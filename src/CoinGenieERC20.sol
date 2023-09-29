@@ -38,8 +38,6 @@ import { IUniswapV2Factory } from "v2-core/interfaces/IUniswapV2Factory.sol";
 import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
 import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title CoinGenieERC20
  * @author @neuro_0x
@@ -67,7 +65,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint8 private constant _DECIMALS = 18;
 
     uint256 private constant _MAX_BPS = 10_000;
-    uint256 private constant _MIN_MAX_PER_WALLET = 1 ether;
     uint256 private constant _MAX_TAX = 2000; // 20%
     uint256 private constant _MIN_LIQUIDITY_ETH = 0.5 ether;
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
@@ -97,6 +94,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     uint256 private _totalSupply;
 
+    event TradingOpened(address indexed pair);
+
     error GenieAlreadySet();
     error ApproveFromZeroAddress();
     error BurnFromZeroAddress();
@@ -104,11 +103,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     error TradingAlreadyOpen();
     error OnlyFeeRecipient();
     error InsufficientETH(uint256 amount, uint256 minAmount);
+    error ExceedsMaxAmount(uint256 amount, uint256 maxAmount);
     error InsufficientTokens(uint256 amount, uint256 minAmount);
     error InsufficientAllowance(uint256 amount, uint256 allowance);
-    error ExceedsMaxAmount(uint256 amount, uint256 maxAmount);
-
-    event TradingOpened(address indexed pair);
+    error TransferFailed(uint256 amount, address from, address to);
 
     modifier lockTheSwap() {
         _inSwap = true;
@@ -306,8 +304,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _isTradingOpen = true;
 
         if (ethAmountToTreasury > 0) {
-            console.log("-> ~ _feeTakers.coinGenie:", _feeTakers.coinGenie);
-            _feeTakers.coinGenie.transfer(ethAmountToTreasury);
+            (bool success,) = _feeTakers.coinGenie.call{ value: ethAmountToTreasury }("");
+            if (!success) {
+                revert TransferFailed(ethAmountToTreasury, address(this), _feeTakers.coinGenie);
+            }
         }
 
         emit TradingOpened(_uniswapV2Pair);

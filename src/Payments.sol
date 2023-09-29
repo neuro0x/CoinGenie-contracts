@@ -50,23 +50,6 @@ abstract contract Payments is Ownable {
     error ZeroSharesForAccount(address account);
     error PayeeShareLengthMisMatch(uint256 payeesLength, uint256 sharesLength);
 
-    constructor() {
-        address[] memory payees = new address[](4);
-        uint256[] memory shares_ = new uint256[](4);
-
-        payees[0] = 0xBe79b43B1505290DFE04294a433963dbeea736BB;
-        payees[1] = 0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5;
-        payees[2] = 0xbb6712A513C2d7F3E17A40d095a773c5d98574B2;
-        payees[3] = 0xF14A30C09897d2C7481c5907D01Ec58Ec09555af;
-
-        shares_[0] = 20;
-        shares_[1] = 50;
-        shares_[2] = 15;
-        shares_[3] = 15;
-
-        _createSplit(payees, shares_);
-    }
-
     receive() external payable virtual {
         /**
          * Below is a sample implementation of how this function should be overridden.

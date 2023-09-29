@@ -46,8 +46,6 @@ import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
 
 import { SafeTransfer } from "./lib/SafeTransfer.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title CoinGenie
  * @author @neuro_0x
@@ -148,29 +146,39 @@ contract CoinGenie is Payments, ReentrancyGuard {
     constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress) {
         _erc20Factory = ERC20Factory(erc20FactoryAddress);
         _airdropClaimableERC20Factory = AirdropERC20ClaimableFactory(airdropClaimableERC20FactoryAddress);
+
+        address[] memory payees = new address[](4);
+        uint256[] memory shares_ = new uint256[](4);
+
+        payees[0] = 0xBe79b43B1505290DFE04294a433963dbeea736BB;
+        payees[1] = 0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5;
+        payees[2] = 0xbb6712A513C2d7F3E17A40d095a773c5d98574B2;
+        payees[3] = 0xF14A30C09897d2C7481c5907D01Ec58Ec09555af;
+
+        shares_[0] = 20;
+        shares_[1] = 50;
+        shares_[2] = 15;
+        shares_[3] = 15;
+
+        _createSplit(payees, shares_);
     }
 
     receive() external payable override {
         address from = _msgSender();
-        uint256 amountReceived = msg.value;
-        uint256 affiliateAmount = amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
-        _releaseAmount += amountReceived.sub(affiliateAmount);
+        if (launchedTokenDetails[from].tokenAddress == from) {
+            address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
+            uint256 amountReceived = msg.value;
+            uint256 affiliateAmount = (amountReceived * _affiliateFeePercent) / _MAX_BPS;
 
-        bool isCoinGenieToken = launchedTokenDetails[from].tokenAddress == address(0);
-        if (isCoinGenieToken) {
-            ICoinGenieERC20 tokenFeeIsFrom = ICoinGenieERC20(payable(from));
-            address payable affiliate = tokenFeeIsFrom.affiliateFeeRecipient();
-
-            if (affiliate == address(this)) {
+            if (affiliateAmount > 0) {
+                _releaseAmount += amountReceived - affiliateAmount;
                 _amountReceivedFromAffiliate[affiliate] += amountReceived;
                 _amountOwedToAffiliate[affiliate] += affiliateAmount;
-
-                _amountEarnedByAffiliateByToken[affiliate][address(tokenFeeIsFrom)] +=
-                    amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
+                _amountEarnedByAffiliateByToken[affiliate][from] += affiliateAmount;
             }
-        }
 
-        emit PaymentReceived(from, amountReceived);
+            emit PaymentReceived(from, amountReceived);
+        }
     }
 
     function genie() public view override(Payments) returns (address payable) {

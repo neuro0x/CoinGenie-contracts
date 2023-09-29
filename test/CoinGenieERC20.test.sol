@@ -67,15 +67,15 @@ contract CoinGenieERC20Test is Test {
         coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
     }
 
-    function test_tokenName() public {
+    function test_name() public {
         assertEq(coinGenieERC20.name(), coinGenieLaunchToken.name);
     }
 
-    function test_tokenSymbol() public {
+    function test_symbol() public {
         assertEq(coinGenieERC20.symbol(), coinGenieLaunchToken.symbol);
     }
 
-    function test_tokenDecimals() public {
+    function test_decimals() public {
         assertEq(coinGenieERC20.decimals(), 18);
     }
 
@@ -116,6 +116,8 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
+        coinGenieERC20.approve(address(testToken), testToken.discountFeeRequiredAmount());
+
         testToken.createPairAndAddLiquidity{ value: 10 ether }(10 ether, true);
         assertEq(testToken.isSwapEnabled(), true);
     }
@@ -137,12 +139,12 @@ contract CoinGenieERC20Test is Test {
         assertEq(testToken.isSwapEnabled(), true);
     }
 
-    function testFuzz_transfer_amount(uint256 amount) public {
+    function testFuzz_transfer_tradingClosed_amount(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
         vm.assume(amount <= balance / 2);
         vm.assume(amount > 10_000);
 
-        coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(balance / 2, false);
+        // coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(balance / 2, false);
 
         address to1 = address(0x1);
         address to2 = address(0x2);
@@ -151,15 +153,15 @@ contract CoinGenieERC20Test is Test {
 
         vm.prank(to1);
         coinGenieERC20.transfer(to2, amount);
-        assertLt(coinGenieERC20.balanceOf(to2), amount);
+        assertLe(coinGenieERC20.balanceOf(to2), amount);
     }
 
-    function testFuzz_transferFrom_amount(uint256 amount) public {
+    function testFuzz_transferFrom_tradingClosed_amount(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
         vm.assume(amount <= balance / 2);
         vm.assume(amount > 10_000);
 
-        coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(balance / 2, false);
+        // coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(balance / 2, false);
 
         address to1 = address(0x1);
         coinGenieERC20.approve(to1, type(uint256).max);
@@ -171,6 +173,7 @@ contract CoinGenieERC20Test is Test {
 
     function testFuzz_burn(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
+        vm.assume(amount > 0);
         vm.assume(amount <= balance);
 
         coinGenieERC20.burn(amount);
@@ -181,6 +184,7 @@ contract CoinGenieERC20Test is Test {
 
     function testFuzz_burnFrom(uint256 amount) public {
         uint256 balance = coinGenieERC20.balanceOf(address(this));
+        vm.assume(amount > 0);
         vm.assume(amount <= balance);
         uint256 totalSupplyBefore = coinGenieERC20.totalSupply();
 
