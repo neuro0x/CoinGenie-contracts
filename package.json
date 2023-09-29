@@ -27,7 +27,7 @@
     "test:watch": "forge test --fork-url localhost -vvv --watch",
     "clean": "rm -rf cache out",
     "compile": "hardhat compile",
-    "deploy": "hardhat deploy &&",
+    "deploy": "hardhat deploy",
     "verify": "hardhat etherscan-verify",
     "lint": "yarn lint:sol && yarn prettier:check",
     "lint:sol": "yarn solhint {script,src}/**/*.sol",

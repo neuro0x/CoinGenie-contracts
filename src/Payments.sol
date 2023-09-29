@@ -8,6 +8,13 @@ import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.s
 
 import { ICoinGenieERC20 } from "./interfaces/ICoinGenieERC20.sol";
 
+import { SafeTransfer } from "./lib/SafeTransfer.sol";
+
+/**
+ * @title Payments
+ * @author @neuro_0x
+ * @dev This contract is used to split payments between multiple parties, and track and affiliate fees.
+ */
 abstract contract Payments is Ownable {
     using SafeMath for uint256;
 
@@ -41,6 +48,7 @@ abstract contract Payments is Ownable {
     event PaymentReceived(address from, uint256 amount);
 
     error NoPayees();
+    error PaymentFailed();
     error SharesAreZero();
     error GenieAlreadySet();
     error AccountIsZeroAddress();
@@ -53,20 +61,25 @@ abstract contract Payments is Ownable {
     receive() external payable virtual {
         /**
          * Below is a sample implementation of how this function should be overridden.
-         * This is how the CoinGenie contract overrides this function.
          */
-        // uint256 amountReceived = msg.value;
-        // uint256 affiliateAmount = amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
-        // _releaseAmount += amountReceived.sub(affiliateAmount);
+        // address from = _msgSender();
+        // if (launchedTokenDetails[from].tokenAddress == from) {
+        //     address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
+        //     uint256 amountReceived = msg.value;
+        //     uint256 affiliateAmount = (amountReceived * _affiliateFeePercent) / _MAX_BPS;
 
-        // ICoinGenieERC20 tokenFeeIsFrom = ICoinGenieERC20(payable(msg.sender));
-        // address payable affiliate = tokenFeeIsFrom.affiliateFeeRecipient();
+        //     if (affiliateAmount > 0) {
+        //         _releaseAmount += amountReceived - affiliateAmount;
+        //         _amountReceivedFromAffiliate[affiliate] += amountReceived;
+        //         _amountOwedToAffiliate[affiliate] += affiliateAmount;
+        //         _amountEarnedByAffiliateByToken[affiliate][from] += affiliateAmount;
+        //     }
 
-        // _amountReceivedFromAffiliate[affiliate] += amountReceived;
-        // _amountOwedToAffiliate[affiliate] += affiliateAmount;
-
-        // _amountEarnedByAffiliateByToken[affiliate][address(tokenFeeIsFrom)] +=
-        //     amountReceived.mul(_affiliateFeePercent).div(_MAX_BPS);
+        //     emit PaymentReceived(from, amountReceived);
+        // } else {
+        //     _releaseAmount += msg.value;
+        //     emit PaymentReceived(from, msg.value);
+        // }
 
         emit PaymentReceived(_msgSender(), msg.value);
     }
@@ -130,8 +143,14 @@ abstract contract Payments is Ownable {
         _amountOwedToAffiliate[affiliate] = 0;
         _amountPaidToAffiliate[affiliate] += payment;
 
+        _releaseAmount -= payment;
+        _totalReleased += payment;
+
         if (affiliate == address(this)) {
-            affiliate.transfer(payment);
+            (bool success,) = affiliate.call{ value: payment }("");
+            if (!success) {
+                revert PaymentFailed();
+            }
         } else {
             address[] memory path = new address[](2);
             path[0] = _UNISWAP_V2_ROUTER.WETH();
@@ -158,7 +177,10 @@ abstract contract Payments is Ownable {
         _releaseAmount -= payment;
         _totalReleased += payment;
 
-        account.transfer(payment);
+        (bool success,) = account.call{ value: payment }("");
+        if (!success) {
+            revert PaymentFailed();
+        }
         emit PaymentReleased(account, payment);
     }
 
@@ -170,6 +192,7 @@ abstract contract Payments is Ownable {
 
         _totalShares = 0;
         _totalReleased = 0;
+        _releaseAmount = 0;
 
         _createSplit(payees, shares_);
     }

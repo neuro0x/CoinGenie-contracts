@@ -29,7 +29,6 @@ pragma solidity ^0.8.21;
 import { Ownable } from "openzeppelin/access/Ownable.sol";
 import { ReentrancyGuard } from "openzeppelin/security/ReentrancyGuard.sol";
 import { SafeMath } from "openzeppelin/utils/math/SafeMath.sol";
-import { IERC165 } from "openzeppelin/utils/introspection/IERC165.sol";
 
 import { IUniswapV2Pair } from "v2-core/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "v2-periphery/interfaces/IUniswapV2Router02.sol";
@@ -101,7 +100,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     error BurnFromZeroAddress();
     error TransferFromZeroAddress();
     error TradingAlreadyOpen();
-    error OnlyFeeRecipient();
+    error Unauthorized();
     error InsufficientETH(uint256 amount, uint256 minAmount);
     error ExceedsMaxAmount(uint256 amount, uint256 maxAmount);
     error InsufficientTokens(uint256 amount, uint256 minAmount);
@@ -251,16 +250,21 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function manualSwap() external {
-        if (_msgSender() != _feeTakers.feeRecipient) {
-            revert OnlyFeeRecipient();
+        address from = _msgSender();
+        if (from != _feeTakers.feeRecipient || from != owner()) {
+            revert Unauthorized();
         }
 
         uint256 contractBalance = balanceOf(address(this));
+        uint256 contractEthBalance = address(this).balance;
+        if (contractBalance == 0 && contractEthBalance == 0) {
+            revert TransferFailed(contractBalance, address(this), _feeTakers.feeRecipient);
+        }
+
         if (contractBalance > 0) {
             _swapTokensForEth(contractBalance);
         }
 
-        uint256 contractEthBalance = address(this).balance;
         if (contractEthBalance > 0) {
             _sendEthToFee(contractEthBalance);
         }
@@ -273,7 +277,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         external
         payable
         onlyOwner
-        nonReentrant
         returns (address)
     {
         uint256 value = msg.value;
@@ -286,7 +289,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
         uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
         if (payInGenie) {
-            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            ethAmountToTreasury = ethAmountToTreasury.div(2);
             genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
@@ -325,7 +328,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
 
         if (payInGenie) {
-            ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE.div(2)).div(_MAX_BPS);
+            ethAmountToTreasury = ethAmountToTreasury.div(2);
             genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
@@ -337,7 +340,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         );
 
         if (ethAmountToTreasury > 0) {
-            _feeTakers.coinGenie.transfer(ethAmountToTreasury);
+            (bool success,) = _feeTakers.coinGenie.call{ value: ethAmountToTreasury }("");
+            if (!success) {
+                revert TransferFailed(ethAmountToTreasury, address(this), _feeTakers.coinGenie);
+            }
         }
     }
 
@@ -507,11 +513,16 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function _sendEthToFee(uint256 amount) private {
-        uint256 ownerFee = amount.mul(_feePercentages.taxPercent).div(_MAX_BPS);
-        uint256 coinGenieFee = amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS);
+        (bool successCoinGenie,) = _feeTakers.coinGenie.call{ value: amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS) }("");
+        if (!successCoinGenie) {
+            revert TransferFailed(amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS), address(this), _feeTakers.coinGenie);
+        }
 
-        _feeTakers.coinGenie.transfer(coinGenieFee);
-        _feeTakers.feeRecipient.transfer(ownerFee);
+        (bool successFeeRecipient,) =
+            _feeTakers.feeRecipient.call{ value: amount.mul(_feePercentages.taxPercent).div(_MAX_BPS) }("");
+        if (!successFeeRecipient) {
+            revert TransferFailed(amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS), address(this), _feeTakers.coinGenie);
+        }
     }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {

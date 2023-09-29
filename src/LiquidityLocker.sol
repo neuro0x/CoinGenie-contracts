@@ -52,14 +52,15 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
     uint256 public fee;
     address public feeRecipient;
 
-    error InvalidAmount();
-    error InvalidRecipient();
-    error InvalidLockDate();
     error LockMismatch();
-    error BeforeUnlockDate();
-    error OwnerAlreadySet();
+    error InvalidAmount();
     error MigratorNotSet();
+    error InvalidLockDate();
+    error OwnerAlreadySet();
+    error InvalidRecipient();
+    error BeforeUnlockDate();
     error NotUniPair(address lpToken);
+    error TransferFailed(uint256 amount, address from, address to);
 
     IUniswapV2Factory private constant _UNISWAP_V2_FACTORY =
         IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
@@ -179,7 +180,10 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
         uint256[] storage userLocks = user.locksForToken[address(lpToken)];
         userLocks.push(tokenLock.lockID);
 
-        payable(feeRecipient).transfer(msg.value);
+        (bool success,) = feeRecipient.call{ value: msg.value }("");
+        if (!success) {
+            revert TransferFailed(msg.value, address(this), feeRecipient);
+        }
 
         emit OnDeposit(address(lpToken), _msgSender(), tokenLock.amount, tokenLock.lockDate, tokenLock.unlockDate);
     }

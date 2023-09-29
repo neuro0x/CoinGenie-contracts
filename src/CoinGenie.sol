@@ -178,6 +178,9 @@ contract CoinGenie is Payments, ReentrancyGuard {
             }
 
             emit PaymentReceived(from, amountReceived);
+        } else {
+            _releaseAmount += msg.value;
+            emit PaymentReceived(from, msg.value);
         }
     }
 

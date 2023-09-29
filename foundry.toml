@@ -10,7 +10,7 @@
   gas_reports = ["*"]
   libs = ["lib"]
   via_ir = true
-  optimizer = true
+    optimizer = true
   optimizer_runs = 10_000
   out = "out"
   script = "script"
