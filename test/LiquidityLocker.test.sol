@@ -8,8 +8,7 @@ import { LiquidityLocker } from "../src/LiquidityLocker.sol";
 import { CoinGenie } from "../src/CoinGenie.sol";
 import { ERC20Factory } from "../src/ERC20Factory.sol";
 import { AirdropERC20ClaimableFactory } from "../src/AirdropERC20ClaimableFactory.sol";
-import { CoinGenieERC20 } from "../src/CoinGenieERC20.sol";
-import { Common } from "../src/lib/Common.sol";
+import { ICoinGenieERC20 } from "../src/interfaces/ICoinGenieERC20.sol";
 
 import { IUniswapV2Router02 } from "../lib/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Pair } from "../lib/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
@@ -19,70 +18,64 @@ import { MockERC20 } from "./mocks/ERC20.mock.sol";
 import { IERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract LiquidityLockerTest is Test {
+    uint256 public constant MAX_TOKEN_SUPPLY = 100_000_000_000 ether;
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
     LiquidityLocker public liquidityLocker;
     IERC20 public token;
     IUniswapV2Pair public lpToken;
     CoinGenie public coinGenie;
-    CoinGenieERC20 public coinGenieERC20;
-    CoinGenieLaunchToken public coinGenieLaunchToken;
+    ICoinGenieERC20 public coinGenieERC20;
     ERC20Factory public erc20Factory;
-    Common.TokenConfigProperties public tokenConfigProps;
     MockERC20 public mockERC20;
 
-    struct CoinGenieLaunchToken {
+    struct LaunchToken {
         string name;
         string symbol;
-        uint256 initialSupply;
-        address tokenOwner;
-        Common.TokenConfigProperties customConfigProps;
-        uint256 maxPerWallet;
-        address affiliateFeeRecipient;
-        address feeRecipient;
-        uint256 feePercentage;
-        uint256 burnPercentage;
+        uint256 totalSupply;
+        address payable feeRecipient;
+        address payable affiliateFeeRecipient;
+        uint256 taxPercent;
+        uint256 deflationPercent;
+        uint256 maxBuyPercent;
+        uint256 maxWalletPercent;
     }
+
+    LaunchToken public coinGenieLaunchToken = LaunchToken({
+        name: "Genie",
+        symbol: "GENIE",
+        totalSupply: MAX_TOKEN_SUPPLY,
+        feeRecipient: payable(address(this)),
+        affiliateFeeRecipient: payable(address(this)),
+        taxPercent: 1000,
+        deflationPercent: 1000,
+        maxBuyPercent: 500,
+        maxWalletPercent: 500
+    });
 
     function setUp() public {
         mockERC20 = new MockERC20("TEST", "TEST", 18);
         mockERC20.mint(address(this), 100_000_000 ether);
-        tokenConfigProps = Common.TokenConfigProperties({ isBurnable: true, isPausable: true, isDeflationary: true });
-        coinGenieLaunchToken = CoinGenieLaunchToken({
-            name: "Genie",
-            symbol: "GENIE",
-            initialSupply: 100_000_000_000 ether,
-            tokenOwner: address(this),
-            customConfigProps: tokenConfigProps,
-            maxPerWallet: 100_000_000_000 ether,
-            affiliateFeeRecipient: address(this),
-            feeRecipient: address(this),
-            feePercentage: 200,
-            burnPercentage: 50
-        });
         erc20Factory = new ERC20Factory();
-        coinGenie = new CoinGenie(address(new ERC20Factory()), address(new AirdropERC20ClaimableFactory()));
+        coinGenie = new CoinGenie(address(erc20Factory), address(new AirdropERC20ClaimableFactory()));
         liquidityLocker = new LiquidityLocker(0.01 ether, address(coinGenie));
-        coinGenieERC20 = CoinGenieERC20(
-            payable(
-                coinGenie.launchToken(
-                    coinGenieLaunchToken.name,
-                    coinGenieLaunchToken.symbol,
-                    coinGenieLaunchToken.initialSupply,
-                    coinGenieLaunchToken.tokenOwner,
-                    coinGenieLaunchToken.customConfigProps,
-                    coinGenieLaunchToken.maxPerWallet,
-                    coinGenieLaunchToken.affiliateFeeRecipient,
-                    coinGenieLaunchToken.feeRecipient,
-                    coinGenieLaunchToken.feePercentage,
-                    coinGenieLaunchToken.burnPercentage
-                )
-            )
+        coinGenieERC20 = coinGenie.launchToken(
+            coinGenieLaunchToken.name,
+            coinGenieLaunchToken.symbol,
+            coinGenieLaunchToken.totalSupply,
+            coinGenieLaunchToken.feeRecipient,
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
 
         erc20Factory.setGenie(address(coinGenieERC20));
-        coinGenieERC20.setGenie(address(coinGenieERC20));
-        lpToken = coinGenieERC20.openTrading{ value: 10 ether }(coinGenieERC20.balanceOf(address(this)), false);
+        coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
+        lpToken = IUniswapV2Pair(
+            coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(coinGenieERC20.balanceOf(address(this)), false)
+        );
     }
 
     function testFuzz_setMigrator(IUniswapV2Migrator migrator) public {

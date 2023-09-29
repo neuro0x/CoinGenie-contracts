@@ -7,7 +7,7 @@ import "../lib/forge-std/src/Test.sol";
 import { IUniswapV2Pair } from "../lib/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
 import { CoinGenie } from "../src/CoinGenie.sol";
-import { CoinGenieERC20 } from "../src/CoinGenieERC20.sol";
+import { ICoinGenieERC20 } from "../src/interfaces/ICoinGenieERC20.sol";
 import { ERC20Factory } from "../src/ERC20Factory.sol";
 import { AirdropERC20ClaimableFactory } from "../src/AirdropERC20ClaimableFactory.sol";
 
@@ -20,22 +20,33 @@ contract CoinGenieTest is Test {
 
     CoinGenie public coinGenie;
     MockERC20 public mockERC20;
+    ICoinGenieERC20 public coinGenieERC20;
+    ERC20Factory public coinGenieERC20Factory;
+    AirdropERC20ClaimableFactory public coinGenieAirdropFactory;
 
-    struct CoinGenieLaunchToken {
+    struct LaunchToken {
         string name;
         string symbol;
-        uint256 initialSupply;
-        address tokenOwner;
-        Common.TokenConfigProperties customConfigProps;
-        uint256 maxPerWallet;
-        address affiliateFeeRecipient;
-        address feeRecipient;
-        uint256 feePercentage;
-        uint256 burnPercentage;
+        uint256 totalSupply;
+        address payable feeRecipient;
+        address payable affiliateFeeRecipient;
+        uint256 taxPercent;
+        uint256 deflationPercent;
+        uint256 maxBuyPercent;
+        uint256 maxWalletPercent;
     }
 
-    CoinGenieLaunchToken public coinGenieLaunchToken;
-    Common.TokenConfigProperties public tokenConfigProps;
+    LaunchToken public coinGenieLaunchToken = LaunchToken({
+        name: "Genie",
+        symbol: "GENIE",
+        totalSupply: MAX_TOKEN_SUPPLY,
+        feeRecipient: payable(address(this)),
+        affiliateFeeRecipient: payable(address(this)),
+        taxPercent: 1000,
+        deflationPercent: 1000,
+        maxBuyPercent: 500,
+        maxWalletPercent: 500
+    });
 
     struct CoinGenieClaimableAirdrop {
         address airdropAddress;
@@ -61,39 +72,39 @@ contract CoinGenieTest is Test {
     receive() external payable { }
 
     function setUp() public {
-        coinGenie = new CoinGenie(address(new ERC20Factory()), address(new AirdropERC20ClaimableFactory()));
-        mockERC20 = new MockERC20("Mock", "MOCK", 18);
-
-        tokenConfigProps = Common.TokenConfigProperties({ isBurnable: true, isPausable: true, isDeflationary: true });
-
-        coinGenieLaunchToken = CoinGenieLaunchToken({
-            name: "Genie",
-            symbol: "GENIE",
-            initialSupply: 100_000_000_000 ether,
-            tokenOwner: address(this),
-            customConfigProps: tokenConfigProps,
-            maxPerWallet: 100_000_000_000 ether,
-            affiliateFeeRecipient: address(this),
-            feeRecipient: address(this),
-            feePercentage: 200,
-            burnPercentage: 50
-        });
-
+        mockERC20 = new MockERC20("MockERC20", "MOCK", 18);
         mockERC20.mint(address(this), MAX_TOKEN_SUPPLY);
+
+        coinGenieERC20Factory = new ERC20Factory();
+        coinGenieAirdropFactory = new AirdropERC20ClaimableFactory();
+        coinGenie = new CoinGenie(address(coinGenieERC20Factory), address(coinGenieAirdropFactory));
+        coinGenieERC20 = coinGenie.launchToken(
+            coinGenieLaunchToken.name,
+            coinGenieLaunchToken.symbol,
+            coinGenieLaunchToken.totalSupply,
+            coinGenieLaunchToken.feeRecipient,
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
+        );
+
+        coinGenieERC20Factory.setGenie(address(coinGenieERC20));
+        coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
     }
 
     function testFuzz_launchToken_name(string memory name) public {
         coinGenie.launchToken(
             name,
             coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
@@ -101,271 +112,139 @@ contract CoinGenieTest is Test {
         coinGenie.launchToken(
             coinGenieLaunchToken.name,
             symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function testFuzz_launchToken_initialSupply(uint256 initialSupply) public {
-        vm.assume(initialSupply <= MAX_TOKEN_SUPPLY);
+    function testFuzz_launchToken_symbol(uint256 totalSupply) public {
+        vm.assume(totalSupply > 0);
+        vm.assume(totalSupply <= MAX_TOKEN_SUPPLY);
 
         coinGenie.launchToken(
             coinGenieLaunchToken.name,
             coinGenieLaunchToken.symbol,
-            initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function testFuzz_launchToken_tokenOwner(address tokenOwner) public {
-        vm.assume(tokenOwner != address(0));
-
+    function testFuzz_launchToken_feeRecipient(address payable feeRecipient) public {
         coinGenie.launchToken(
             coinGenieLaunchToken.name,
             coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
-        );
-    }
-
-    function testFuzz_launchToken_maxTokenAmount(uint256 maxPerWallet) public {
-        vm.assume(maxPerWallet <= MAX_TOKEN_SUPPLY);
-        vm.assume(maxPerWallet > 0);
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
-        );
-    }
-
-    function testFuzz_launchToken_autoWithdrawThreshold(uint256 autoWithdrawThreshold) public {
-        vm.assume(autoWithdrawThreshold <= 1000);
-        vm.assume(autoWithdrawThreshold > 0);
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
-        );
-    }
-
-    function testFuzz_launchToken_maxTaxSwap(uint256 maxTaxSwap) public {
-        vm.assume(maxTaxSwap <= MAX_TOKEN_SUPPLY);
-        vm.assume(maxTaxSwap > 0);
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
-        );
-    }
-
-    function testFuzz_launchToken_affiliateFeeRecipient(address affiliateFeeRecipient) public {
-        vm.assume(affiliateFeeRecipient != address(0));
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            affiliateFeeRecipient,
-            coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
-        );
-    }
-
-    function testFuzz_launchToken_feeRecipient(address feeRecipient) public {
-        vm.assume(feeRecipient != address(0));
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function testFuzz_launchToken_feePercentage(uint256 feePercentage) public {
-        vm.assume(feePercentage <= MAX_TAX);
+    function testFuzz_launchToken_affiliateFeeRecipient(address payable affiliateFeeRecipient) public {
+        coinGenie.launchToken(
+            coinGenieLaunchToken.name,
+            coinGenieLaunchToken.symbol,
+            coinGenieLaunchToken.totalSupply,
+            coinGenieLaunchToken.feeRecipient,
+            affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
+        );
+    }
+
+    function testFuzz_launchToken_taxPercent(uint256 taxPercent) public {
+        vm.assume(taxPercent <= MAX_TAX);
 
         coinGenie.launchToken(
             coinGenieLaunchToken.name,
             coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function testFuzz_launchToken_burnPercentage(uint256 burnPercentage) public {
-        vm.assume(burnPercentage <= MAX_TAX);
+    function testFuzz_launchToken_deflationPercent(uint256 deflationPercent) public {
+        vm.assume(deflationPercent <= MAX_TAX);
 
         coinGenie.launchToken(
             coinGenieLaunchToken.name,
             coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function testFuzz_createClaimableAirdrop_airdropAmount(
-        uint256 airdropAmount,
-        uint8 maxWalletClaimCount,
-        bytes32 merkleRoot
-    )
-        public
-    {
-        vm.assume(airdropAmount > 0);
-        vm.assume(airdropAmount <= MAX_TOKEN_SUPPLY);
-
-        coinGenie.createClaimableAirdrop(
-            address(this), address(mockERC20), airdropAmount, block.timestamp + 1 days, maxWalletClaimCount, merkleRoot
+    function testFuzz_launchToken_maxBuyPercent(uint256 maxBuyPercent) public {
+        coinGenie.launchToken(
+            coinGenieLaunchToken.name,
+            coinGenieLaunchToken.symbol,
+            coinGenieLaunchToken.totalSupply,
+            coinGenieLaunchToken.feeRecipient,
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
     }
 
-    function test_updatePayout() public {
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Treasury, payable(address(this)), 2000);
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Dev, payable(address(this)), 5000);
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Legal, payable(address(this)), 1500);
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Marketing, payable(address(this)), 1500);
-
-        assertEq(coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Treasury), address(this));
-        assertEq(coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Dev), address(this));
-        assertEq(coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Legal), address(this));
-        assertEq(coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Marketing), address(this));
-
-        assertEq(coinGenie.getPayoutShare(CoinGenie.PayoutCategory.Treasury), 2000);
-        assertEq(coinGenie.getPayoutShare(CoinGenie.PayoutCategory.Dev), 5000);
-        assertEq(coinGenie.getPayoutShare(CoinGenie.PayoutCategory.Legal), 1500);
-        assertEq(coinGenie.getPayoutShare(CoinGenie.PayoutCategory.Marketing), 1500);
-    }
-
-    function testFail_updatePayout_Treasury() public {
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Treasury, payable(address(this)), 2001);
-    }
-
-    function testFail_updatePayout_Dev() public {
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Dev, payable(address(this)), 5001);
-    }
-
-    function testFail_updatePayout_Legal() public {
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Legal, payable(address(this)), 1501);
-    }
-
-    function testFail_updatePayout_Marketing() public {
-        coinGenie.updatePayout(CoinGenie.PayoutCategory.Marketing, payable(address(this)), 1501);
-    }
-
-    function test_withdraw() public {
-        vm.deal(address(this), 1 ether);
-        vm.deal(address(coinGenie), 1 ether);
-
-        address treasuryAddress = coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Treasury);
-        address devAddress = coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Dev);
-        address legalAddress = coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Legal);
-        address marketingAddress = coinGenie.getPayoutAddress(CoinGenie.PayoutCategory.Marketing);
-
-        uint256 coinGenieBalanceBefore = address(coinGenie).balance;
-        uint256 treasuryBalanceBefore = treasuryAddress.balance;
-        uint256 devBalanceBefore = devAddress.balance;
-        uint256 legalBalanceBefore = legalAddress.balance;
-        uint256 marketingBalanceBefore = marketingAddress.balance;
-
-        coinGenie.withdraw();
-
-        assertLt(address(coinGenie).balance, coinGenieBalanceBefore);
-        assertEq(treasuryAddress.balance, treasuryBalanceBefore + (1 ether * 2000) / 10_000);
-        assertEq(devAddress.balance, devBalanceBefore + (1 ether * 5000) / 10_000);
-        assertEq(legalAddress.balance, legalBalanceBefore + (1 ether * 1500) / 10_000);
-        assertEq(marketingAddress.balance, marketingBalanceBefore + (1 ether * 1500) / 10_000);
-    }
-
-    function testFuzz_setQuoteThreshold(uint256 quoteThreshold) public {
-        assertEq(coinGenie.quoteThreshold(), 0.1 ether);
-        coinGenie.setQuoteThreshold(quoteThreshold);
-        assertEq(coinGenie.quoteThreshold(), quoteThreshold);
+    function testFuzz_launchToken_maxWalletPercent(uint256 maxWalletPercent) public {
+        coinGenie.launchToken(
+            coinGenieLaunchToken.name,
+            coinGenieLaunchToken.symbol,
+            coinGenieLaunchToken.totalSupply,
+            coinGenieLaunchToken.feeRecipient,
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            maxWalletPercent
+        );
     }
 
     function test_getLaunchedTokensForAddress() public {
-        address launchedToken = coinGenie.launchToken(
+        ICoinGenieERC20 launchedToken = coinGenie.launchToken(
             coinGenieLaunchToken.name,
             coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.initialSupply,
-            coinGenieLaunchToken.tokenOwner,
-            coinGenieLaunchToken.customConfigProps,
-            coinGenieLaunchToken.maxPerWallet,
-            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.feeRecipient,
-            coinGenieLaunchToken.feePercentage,
-            coinGenieLaunchToken.burnPercentage
+            coinGenieLaunchToken.affiliateFeeRecipient,
+            coinGenieLaunchToken.taxPercent,
+            coinGenieLaunchToken.deflationPercent,
+            coinGenieLaunchToken.maxBuyPercent,
+            coinGenieLaunchToken.maxWalletPercent
         );
 
-        CoinGenie.LaunchedToken[] memory launchedTokenStruct =
-            coinGenie.getLaunchedTokensForAddress(coinGenieLaunchToken.tokenOwner);
+        CoinGenie.LaunchedToken[] memory launchedTokenStruct = coinGenie.getLaunchedTokensForAddress(address(this));
         uint256 launchedTokenStructLength = launchedTokenStruct.length;
         CoinGenie.LaunchedToken memory launchedTokenStructLast = launchedTokenStruct[launchedTokenStructLength - 1];
 
-        assertEq(launchedTokenStructLast.tokenAddress, launchedToken);
+        assertEq(launchedTokenStructLast.tokenAddress, address(launchedToken));
     }
 
     function test_getClaimableAirdropsForAddress() public {
