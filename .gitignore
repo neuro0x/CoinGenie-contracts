@@ -1,6 +1,6 @@
 # directories
 cache
-cache_hardhat
+forge-cache
 coverage
 node_modules
 out
