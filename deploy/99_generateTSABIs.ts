@@ -41,11 +41,11 @@ function getContractNames(path: string) {
     .map((dirent) => dirent.name.split(".")[0]);
 }
 
-const SOURCE_PATH = "./artifacts/src";
+const SOURCE_PATH = "./artifacts/contracts";
 const DESTINATION_PATH = "../app/generated/abi";
 const DEPLOYMENTS_DIR = "./deployments";
-const ABI_DIR_ERC20 = "./artifacts/src/CoinGenieERC20.sol";
-const ABI_UNISWAP_V2_ROUTER_02 = "./artifacts/lib/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+const ABI_DIR_ERC20 = "./artifacts/contracts/token/CoinGenieERC20.sol";
+const ABI_UNISWAP_V2_ROUTER_02 = "./artifacts/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 function getContractDataFromDeployments() {
   if (!fs.existsSync(DEPLOYMENTS_DIR)) {

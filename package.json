@@ -20,7 +20,7 @@
   },
   "scripts": {
     "json": "hardhat solidity-json",
-    "json:copy": "hardhat solidity-json && cp ./artifacts/solidity-json/src/CoinGenieERC20.sol.json ../app/generated/CoinGenieERC20.sol.json",
+    "json:copy": "hardhat solidity-json && cp ./artifacts/solidity-json/contracts/token/CoinGenieERC20.sol.json ../app/generated/CoinGenieERC20.sol.json",
     "docs": "rm -rf docs && forge doc",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "test": "hardhat test",
