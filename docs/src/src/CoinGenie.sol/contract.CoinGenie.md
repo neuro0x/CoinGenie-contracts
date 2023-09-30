@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/cc654405de7170336e1abc0519c0d927187e3b5c/src/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d8bee914b8a99824df320bdd6c913bdc58e77f03/src/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/src/Payments.sol/abstract.Payments.md), ReentrancyGuard
@@ -133,7 +133,6 @@ function launchToken(
     string memory name,
     string memory symbol,
     uint256 totalSupply,
-    address payable feeRecipient,
     address payable affiliateFeeRecipient,
     uint256 taxPercent,
     uint256 deflationPercent,
@@ -150,7 +149,6 @@ function launchToken(
 |`name`|`string`|- the name of the token|
 |`symbol`|`string`|- the ticker symbol of the token|
 |`totalSupply`|`uint256`|- the totalSupply of the token|
-|`feeRecipient`|`address payable`|- the address that will be the owner of the token and receive fees|
 |`affiliateFeeRecipient`|`address payable`|- the address to receive the affiliate fee|
 |`taxPercent`|`uint256`|- the percent in basis points to use as a tax|
 |`deflationPercent`|`uint256`|- the percent in basis points to use as a deflation|

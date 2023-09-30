@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/cc654405de7170336e1abc0519c0d927187e3b5c/src/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d8bee914b8a99824df320bdd6c913bdc58e77f03/src/ERC20Factory.sol)
 
 **Inherits:**
 Ownable
@@ -46,8 +46,7 @@ function launchToken(
     uint256 taxPercent,
     uint256 deflationPercent,
     uint256 maxBuyPercent,
-    uint256 maxWalletPercent,
-    address tokenOwner
+    uint256 maxWalletPercent
 )
     external
     returns (ICoinGenieERC20 coinGenieERC20);
@@ -66,7 +65,6 @@ function launchToken(
 |`deflationPercent`|`uint256`|- the percent in basis points to use as a deflation|
 |`maxBuyPercent`|`uint256`|- amount of tokens allowed to be transferred in one tx as a percent of the total supply|
 |`maxWalletPercent`|`uint256`|- amount of tokens allowed to be held in one wallet as a percent of the total supply|
-|`tokenOwner`|`address`|- the address that will be the owner of the token|
 
 **Returns**
 

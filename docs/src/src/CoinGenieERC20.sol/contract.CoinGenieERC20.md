@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/cc654405de7170336e1abc0519c0d927187e3b5c/src/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d8bee914b8a99824df320bdd6c913bdc58e77f03/src/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/src/interfaces/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -183,8 +183,7 @@ constructor(
     uint256 deflationPercent_,
     uint256 maxBuyPercent_,
     uint256 maxWalletPercent_,
-    uint256 discountFeeRequiredAmount_,
-    address tokenOwner_
+    uint256 discountFeeRequiredAmount_
 );
 ```
 
@@ -398,13 +397,6 @@ function removeLiquidity(uint256 amountToRemove) external;
 function setGenie(address payable genie_) external;
 ```
 
-### setFeeRecipient
-
-
-```solidity
-function setFeeRecipient(address payable feeRecipient_) external onlyOwner;
-```
-
 ### setTaxPercent
 
 
@@ -431,6 +423,13 @@ function setMaxBuyPercent(uint256 maxBuyPercent_) external onlyOwner;
 
 ```solidity
 function setMaxWalletPercent(uint256 maxWalletPercent_) external onlyOwner;
+```
+
+### setFeeRecipient
+
+
+```solidity
+function setFeeRecipient(address payable feeRecipient_) external onlyOwner;
 ```
 
 ### _approve

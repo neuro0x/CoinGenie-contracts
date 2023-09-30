@@ -97,7 +97,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
       "GENIE",
       parseEther("1000000000"),
       coinGenie.address,
-      coinGenie.address,
       100,
       10,
       500,

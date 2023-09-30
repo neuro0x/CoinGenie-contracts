@@ -194,7 +194,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
      * @param name - the name of the token
      * @param symbol - the ticker symbol of the token
      * @param totalSupply - the totalSupply of the token
-     * @param feeRecipient - the address that will be the owner of the token and receive fees
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param taxPercent - the percent in basis points to use as a tax
      * @param deflationPercent - the percent in basis points to use as a deflation
@@ -207,7 +206,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
         string memory name,
         string memory symbol,
         uint256 totalSupply,
-        address payable feeRecipient,
         address payable affiliateFeeRecipient,
         uint256 taxPercent,
         uint256 deflationPercent,
@@ -217,7 +215,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
         external
         returns (ICoinGenieERC20 newToken)
     {
-        address tokenOwner = msg.sender;
+        address payable feeRecipient = payable(msg.sender);
 
         // Deploy the token contract
         newToken = _erc20Factory.launchToken(
@@ -230,8 +228,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
             taxPercent,
             deflationPercent,
             maxBuyPercent,
-            maxWalletPercent,
-            tokenOwner
+            maxWalletPercent
         );
 
         launchedTokens.push(address(newToken));
@@ -249,7 +246,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
             maxWalletPercent: maxWalletPercent
         });
 
-        tokensLaunchedBy[tokenOwner].push(launchedToken);
+        tokensLaunchedBy[feeRecipient].push(launchedToken);
         launchedTokenDetails[address(newToken)] = launchedToken;
 
         // Emit the event

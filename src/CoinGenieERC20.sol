@@ -124,8 +124,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         uint256 deflationPercent_,
         uint256 maxBuyPercent_,
         uint256 maxWalletPercent_,
-        uint256 discountFeeRequiredAmount_,
-        address tokenOwner_
+        uint256 discountFeeRequiredAmount_
     ) {
         _setERC20Properties(name_, symbol_, totalSupply_);
         _setFeeRecipients(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
@@ -134,7 +133,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         );
         _setWhitelist(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
 
-        _balances[tokenOwner_] = totalSupply_;
+        _balances[feeRecipient_] = totalSupply_;
         emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
@@ -363,11 +362,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _genie = CoinGenieERC20(genie_);
     }
 
-    function setFeeRecipient(address payable feeRecipient_) external onlyOwner {
-        SafeTransfer.validateAddress(feeRecipient_);
-        _feeTakers.feeRecipient = feeRecipient_;
-    }
-
     function setTaxPercent(uint256 taxPercent_) external onlyOwner {
         if (taxPercent_ > _MAX_TAX) {
             revert ExceedsMaxAmount(taxPercent_, _MAX_TAX);
@@ -390,6 +384,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     function setMaxWalletPercent(uint256 maxWalletPercent_) external onlyOwner {
         _feePercentages.maxWalletPercent = maxWalletPercent_;
+    }
+
+    function setFeeRecipient(address payable feeRecipient_) external onlyOwner {
+        SafeTransfer.validateAddress(feeRecipient_);
+        _feeTakers.feeRecipient = feeRecipient_;
+        transferOwnership(feeRecipient_);
     }
 
     function _approve(address owner, address spender, uint256 amount) private {

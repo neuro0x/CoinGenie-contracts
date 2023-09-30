@@ -61,7 +61,6 @@ contract ERC20Factory is Ownable {
      * @param deflationPercent - the percent in basis points to use as a deflation
      * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
      * @param maxWalletPercent - amount of tokens allowed to be held in one wallet as a percent of the total supply
-     * @param tokenOwner - the address that will be the owner of the token
      *
      * @return coinGenieERC20 - the CoinGenieERC20 token that was created
      */
@@ -75,8 +74,7 @@ contract ERC20Factory is Ownable {
         uint256 taxPercent,
         uint256 deflationPercent,
         uint256 maxBuyPercent,
-        uint256 maxWalletPercent,
-        address tokenOwner
+        uint256 maxWalletPercent
     )
         external
         returns (ICoinGenieERC20 coinGenieERC20)
@@ -92,12 +90,11 @@ contract ERC20Factory is Ownable {
             deflationPercent,
             maxBuyPercent,
             maxWalletPercent,
-            _discountFeeRequiredAmount,
-            tokenOwner
+            _discountFeeRequiredAmount
         );
 
         coinGenieERC20.setGenie(payable(_genie));
-        Ownable(address(coinGenieERC20)).transferOwnership(tokenOwner);
+        Ownable(address(coinGenieERC20)).transferOwnership(feeRecipient);
 
         return coinGenieERC20;
     }
