@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/bd977fdfffc287f4a43d59a33a95b2ed3672e438/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffc3ef50de0c400c11764979a5d358cf0ee7b768/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
