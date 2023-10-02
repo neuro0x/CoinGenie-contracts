@@ -397,7 +397,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
         uint256 contractAmount;
         uint256 toAmount = amount;
-        bool isExcludedFromFee = !_whitelist[from] && !_whitelist[to];
+        bool isExcludedFromFee = _whitelist[from] || _whitelist[to];
         if (_isSwapEnabled && !isExcludedFromFee) {
             uint256 _taxPercent = _feePercentages.taxPercent;
             uint256 _deflationPercent = _feePercentages.deflationPercent;
