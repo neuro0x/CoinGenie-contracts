@@ -28,13 +28,8 @@ pragma solidity ^0.8.21;
 
  */
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import { ERC165Checker } from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
-import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
-import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import { Payments } from "./abstract/Payments.sol";
@@ -52,20 +47,19 @@ import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
  * @dev The orchestrator contract for the CoinGenie ecosystem.
  */
 contract CoinGenie is Payments, ReentrancyGuard {
-    using SafeMath for uint256;
-
     uint256 private constant _MAX_BPS = 10_000;
 
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     struct LaunchedToken {
-        address tokenAddress;
         string name;
         string symbol;
-        uint256 totalSupply;
+        address tokenAddress;
         address payable feeRecipient;
         address payable affiliateFeeRecipient;
+        uint256 index;
+        uint256 totalSupply;
         uint256 taxPercent;
         uint256 deflationPercent;
         uint256 maxBuyPercent;
@@ -231,9 +225,11 @@ contract CoinGenie is Payments, ReentrancyGuard {
             maxWalletPercent
         );
 
+        // Add the token address to the array of launched token addresses
         launchedTokens.push(address(newToken));
-
+        // Create a new LaunchedToken struct
         LaunchedToken memory launchedToken = LaunchedToken({
+            index: launchedTokens.length - 1,
             tokenAddress: address(newToken),
             name: name,
             symbol: symbol,
@@ -246,7 +242,16 @@ contract CoinGenie is Payments, ReentrancyGuard {
             maxWalletPercent: maxWalletPercent
         });
 
-        tokensLaunchedBy[feeRecipient].push(launchedToken);
+        if (tokensLaunchedBy[feeRecipient].length == 0) {
+            // If the token is a new user, add the token to the array of tokens launched by the user
+            tokensLaunchedBy[feeRecipient].push(launchedToken);
+        } else {
+            // If the token is not a new user, update the affiliateFeeRecipient to be their first ne
+            launchedToken.affiliateFeeRecipient = tokensLaunchedBy[feeRecipient][0].affiliateFeeRecipient;
+            tokensLaunchedBy[feeRecipient].push(launchedToken);
+        }
+
+        // Add the token details to the mapping of launched tokens
         launchedTokenDetails[address(newToken)] = launchedToken;
 
         // Emit the event

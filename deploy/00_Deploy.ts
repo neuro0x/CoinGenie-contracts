@@ -113,7 +113,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     logToFile(`- Max/Wallet: ${(50_000_000).toLocaleString()}`);
     logToFile(`- Tax Wallet: ${deployer}`);
 
-    await coinGenieContract.setGenie(genieAddress);
     await genieContract.setGenie(genieAddress);
     await erc20FactoryContract.setGenie(genieAddress);
 

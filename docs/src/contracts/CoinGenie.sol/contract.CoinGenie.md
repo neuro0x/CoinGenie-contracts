@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/23e9975ccf154969f8aabc50637080b24f12bd6c/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/bd977fdfffc287f4a43d59a33a95b2ed3672e438/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md), ReentrancyGuard
@@ -293,12 +293,13 @@ error ApprovalFailed();
 
 ```solidity
 struct LaunchedToken {
-    address tokenAddress;
     string name;
     string symbol;
-    uint256 totalSupply;
+    address tokenAddress;
     address payable feeRecipient;
     address payable affiliateFeeRecipient;
+    uint256 index;
+    uint256 totalSupply;
     uint256 taxPercent;
     uint256 deflationPercent;
     uint256 maxBuyPercent;
