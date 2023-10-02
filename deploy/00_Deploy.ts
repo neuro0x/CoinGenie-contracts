@@ -88,7 +88,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
       parseEther("1000000000"),
       coinGenie.address,
       100,
-      10,
       500,
       500,
     );
@@ -115,6 +114,11 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     await genieContract.setGenie(genieAddress);
     await erc20FactoryContract.setGenie(genieAddress);
+
+    // TODO: Airdrop Genie
+    // TODO: Open trading on Genie
+    // TODO: Set Fee Recipient to Coin Genie
+    // TODO: Check for renounce ownership/fee recipient issues
 
     const contracts = [
       { name: "ERC20Factory", address: erc20Factory.address },

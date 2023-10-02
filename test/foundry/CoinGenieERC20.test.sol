@@ -34,7 +34,6 @@ contract CoinGenieERC20Test is Test {
         address payable feeRecipient;
         address payable affiliateFeeRecipient;
         uint256 taxPercent;
-        uint256 deflationPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
     }
@@ -46,7 +45,6 @@ contract CoinGenieERC20Test is Test {
         feeRecipient: payable(address(this)),
         affiliateFeeRecipient: payable(address(this)),
         taxPercent: 1000,
-        deflationPercent: 1000,
         maxBuyPercent: 500,
         maxWalletPercent: 500
     });
@@ -61,7 +59,6 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -102,10 +99,6 @@ contract CoinGenieERC20Test is Test {
         assertEq(coinGenieERC20.taxPercent(), coinGenieLaunchToken.taxPercent);
     }
 
-    function test_deflationPercentage() public {
-        assertEq(coinGenieERC20.deflationPercent(), coinGenieLaunchToken.deflationPercent);
-    }
-
     function test_openTrading_payInGenie() public {
         ICoinGenieERC20 testToken = coinGenie.launchToken(
             coinGenieLaunchToken.name,
@@ -113,7 +106,6 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -131,7 +123,6 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );

@@ -49,6 +49,10 @@ contract ERC20Factory is Ownable {
     /// @notice Error thrown when the genie is already set.
     error GenieAlreadySet();
 
+    function genie() public view returns (address) {
+        return _genie;
+    }
+
     /**
      * @dev Creates a new instance of the CoinGenieERC20 contract
      * @param name - the name of the token
@@ -58,7 +62,6 @@ contract ERC20Factory is Ownable {
      * @param coinGenie - the address of the CoinGenie contract
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param taxPercent - the percent in basis points to use as a tax
-     * @param deflationPercent - the percent in basis points to use as a deflation
      * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
      * @param maxWalletPercent - amount of tokens allowed to be held in one wallet as a percent of the total supply
      *
@@ -72,7 +75,6 @@ contract ERC20Factory is Ownable {
         address payable coinGenie,
         address payable affiliateFeeRecipient,
         uint256 taxPercent,
-        uint256 deflationPercent,
         uint256 maxBuyPercent,
         uint256 maxWalletPercent
     )
@@ -87,7 +89,6 @@ contract ERC20Factory is Ownable {
             coinGenie,
             affiliateFeeRecipient,
             taxPercent,
-            deflationPercent,
             maxBuyPercent,
             maxWalletPercent,
             _discountFeeRequiredAmount
@@ -109,13 +110,13 @@ contract ERC20Factory is Ownable {
 
     /**
      * @dev Sets the address of the genie token
-     * @param genie - the address of the genie token
+     * @param genie_ - the address of the genie token
      */
-    function setGenie(address genie) external onlyOwner {
+    function setGenie(address genie_) external onlyOwner {
         if (_genie != address(0)) {
             revert GenieAlreadySet();
         }
 
-        _genie = genie;
+        _genie = genie_;
     }
 }

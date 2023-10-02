@@ -33,7 +33,6 @@ contract CoinGenieTest is Test {
         address payable feeRecipient;
         address payable affiliateFeeRecipient;
         uint256 taxPercent;
-        uint256 deflationPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
     }
@@ -45,7 +44,6 @@ contract CoinGenieTest is Test {
         feeRecipient: payable(address(this)),
         affiliateFeeRecipient: payable(address(this)),
         taxPercent: 1000,
-        deflationPercent: 1000,
         maxBuyPercent: 500,
         maxWalletPercent: 500
     });
@@ -86,7 +84,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -102,7 +99,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -115,7 +111,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -131,7 +126,6 @@ contract CoinGenieTest is Test {
             totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -144,7 +138,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -159,22 +152,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             taxPercent,
-            coinGenieLaunchToken.deflationPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
-    }
-
-    function testFuzz_launchToken_deflationPercent(uint256 deflationPercent) public {
-        vm.assume(deflationPercent <= MAX_TAX);
-
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -187,7 +164,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -200,7 +176,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             maxWalletPercent
         );
@@ -213,7 +188,6 @@ contract CoinGenieTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );

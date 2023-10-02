@@ -27,7 +27,6 @@ contract ERC20FactoryTest is Test {
         address payable feeRecipient;
         address payable affiliateFeeRecipient;
         uint256 taxPercent;
-        uint256 deflationPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
     }
@@ -39,7 +38,6 @@ contract ERC20FactoryTest is Test {
         feeRecipient: payable(address(this)),
         affiliateFeeRecipient: payable(address(this)),
         taxPercent: 1000,
-        deflationPercent: 1000,
         maxBuyPercent: 500,
         maxWalletPercent: 500
     });
@@ -56,7 +54,6 @@ contract ERC20FactoryTest is Test {
             coinGenieLaunchToken.totalSupply,
             coinGenieLaunchToken.affiliateFeeRecipient,
             coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.deflationPercent,
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
@@ -72,7 +69,6 @@ contract ERC20FactoryTest is Test {
         assertEq(coinGenieERC20.feeRecipient(), coinGenieLaunchToken.feeRecipient);
         assertEq(coinGenieERC20.affiliateFeeRecipient(), coinGenieLaunchToken.affiliateFeeRecipient);
         assertEq(coinGenieERC20.taxPercent(), coinGenieLaunchToken.taxPercent);
-        assertEq(coinGenieERC20.deflationPercent(), coinGenieLaunchToken.deflationPercent);
         assertEq(coinGenieERC20.maxBuyPercent(), coinGenieLaunchToken.maxBuyPercent);
         assertEq(coinGenieERC20.maxWalletPercent(), coinGenieLaunchToken.maxWalletPercent);
     }

@@ -51,7 +51,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     struct FeePercentages {
         uint256 taxPercent;
-        uint256 deflationPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
         uint256 discountFeeRequiredAmount;
@@ -117,16 +116,13 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         address payable coinGenie_,
         address payable affiliateFeeRecipient_,
         uint256 taxPercent_,
-        uint256 deflationPercent_,
         uint256 maxBuyPercent_,
         uint256 maxWalletPercent_,
         uint256 discountFeeRequiredAmount_
     ) {
         _setERC20Properties(name_, symbol_, totalSupply_);
         _setFeeRecipients(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
-        _setFeePercentages(
-            taxPercent_, deflationPercent_, maxBuyPercent_, maxWalletPercent_, discountFeeRequiredAmount_
-        );
+        _setFeePercentages(taxPercent_, maxBuyPercent_, maxWalletPercent_, discountFeeRequiredAmount_);
         _setWhitelist(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
 
         _balances[feeRecipient_] = totalSupply_;
@@ -176,16 +172,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         return _isSwapEnabled;
     }
 
-    function isDeflationary() public view returns (bool) {
-        return _feePercentages.deflationPercent > 0;
-    }
-
     function taxPercent() public view returns (uint256) {
         return _feePercentages.taxPercent;
-    }
-
-    function deflationPercent() public view returns (uint256) {
-        return _feePercentages.deflationPercent;
     }
 
     function maxBuyPercent() public view returns (uint256) {
@@ -362,14 +350,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _feePercentages.taxPercent = taxPercent_;
     }
 
-    function setDeflationPercent(uint256 deflationPercent_) external onlyOwner {
-        if (deflationPercent_ > _MAX_TAX) {
-            revert ExceedsMaxAmount(deflationPercent_, _MAX_TAX);
-        }
-
-        _feePercentages.deflationPercent = deflationPercent_;
-    }
-
     function setMaxBuyPercent(uint256 maxBuyPercent_) external onlyOwner {
         _feePercentages.maxBuyPercent = maxBuyPercent_;
     }
@@ -400,16 +380,9 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         bool isExcludedFromFee = _whitelist[from] || _whitelist[to];
         if (_isSwapEnabled && !isExcludedFromFee) {
             uint256 _taxPercent = _feePercentages.taxPercent;
-            uint256 _deflationPercent = _feePercentages.deflationPercent;
             uint256 totalFeePercent = _taxPercent + _COIN_GENIE_FEE;
             contractAmount += (amount * totalFeePercent) / _MAX_BPS;
             toAmount = amount - contractAmount;
-
-            if (_deflationPercent > 0) {
-                uint256 burnAmount = (amount * _deflationPercent) / _MAX_BPS;
-                toAmount -= burnAmount;
-                _burn(from, burnAmount);
-            }
 
             if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
                 _checkBuyRestrictions(to, toAmount);
@@ -548,7 +521,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     function _setFeePercentages(
         uint256 taxPercent_,
-        uint256 deflationPercent_,
         uint256 maxBuyPercent_,
         uint256 maxWalletPercent_,
         uint256 discountFeeRequiredAmount_
@@ -556,7 +528,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         private
     {
         _feePercentages.taxPercent = taxPercent_;
-        _feePercentages.deflationPercent = deflationPercent_;
         _feePercentages.maxBuyPercent = maxBuyPercent_;
         _feePercentages.maxWalletPercent = maxWalletPercent_;
         _feePercentages.discountFeeRequiredAmount = discountFeeRequiredAmount_;

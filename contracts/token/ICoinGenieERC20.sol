@@ -14,9 +14,7 @@ interface ICoinGenieERC20 is IERC20 {
     function affiliateFeeRecipient() external view returns (address payable);
     function isTradingOpen() external view returns (bool);
     function isSwapEnabled() external view returns (bool);
-    function isDeflationary() external view returns (bool);
     function taxPercent() external view returns (uint256);
-    function deflationPercent() external view returns (uint256);
     function maxBuyPercent() external view returns (uint256);
     function maxWalletPercent() external view returns (uint256);
     function discountFeeRequiredAmount() external view returns (uint256);
@@ -35,7 +33,6 @@ interface ICoinGenieERC20 is IERC20 {
     function setGenie(address payable genie_) external;
     function setFeeRecipient(address payable feeRecipient_) external;
     function setTaxPercent(uint256 taxPercent_) external;
-    function setDeflationPercent(uint256 deflationPercent_) external;
     function setMaxBuyPercent(uint256 maxBuyPercent_) external;
     function setMaxWalletPercent(uint256 maxWalletPercent_) external;
 }

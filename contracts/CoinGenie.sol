@@ -61,7 +61,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
         uint256 index;
         uint256 totalSupply;
         uint256 taxPercent;
-        uint256 deflationPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
     }
@@ -190,7 +189,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
      * @param totalSupply - the totalSupply of the token
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param taxPercent - the percent in basis points to use as a tax
-     * @param deflationPercent - the percent in basis points to use as a deflation
      * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
      * @param maxWalletPercent - amount of tokens allowed to be held in one wallet as a percent of the total supply
      *
@@ -202,7 +200,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
         uint256 totalSupply,
         address payable affiliateFeeRecipient,
         uint256 taxPercent,
-        uint256 deflationPercent,
         uint256 maxBuyPercent,
         uint256 maxWalletPercent
     )
@@ -210,6 +207,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
         returns (ICoinGenieERC20 newToken)
     {
         address payable feeRecipient = payable(msg.sender);
+        affiliateFeeRecipient = affiliateFeeRecipient == address(0) ? payable(address(this)) : affiliateFeeRecipient;
 
         // Deploy the token contract
         newToken = _erc20Factory.launchToken(
@@ -220,7 +218,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
             payable(address(this)),
             affiliateFeeRecipient,
             taxPercent,
-            deflationPercent,
             maxBuyPercent,
             maxWalletPercent
         );
@@ -237,7 +234,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
             feeRecipient: feeRecipient,
             affiliateFeeRecipient: affiliateFeeRecipient,
             taxPercent: taxPercent,
-            deflationPercent: deflationPercent,
             maxBuyPercent: maxBuyPercent,
             maxWalletPercent: maxWalletPercent
         });
