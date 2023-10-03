@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0c8f662a1aad349d0ba70cbfd08e8576ed5fb128/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/698fd66f744ca5be777c1f89be44bdade9f16a54/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -358,14 +358,22 @@ function manualSwap() external;
 
 
 ```solidity
-function createPairAndAddLiquidity(uint256 amountToLP, bool payInGenie) external payable onlyOwner returns (address);
+function createPairAndAddLiquidity(
+    uint256 amountToLP,
+    bool payInGenie
+)
+    external
+    payable
+    onlyOwner
+    nonReentrant
+    returns (address);
 ```
 
 ### addLiquidity
 
 
 ```solidity
-function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant;
+function addLiquidity(uint256 amountToLP, bool payInGenie) external payable onlyOwner nonReentrant;
 ```
 
 ### removeLiquidity
@@ -429,6 +437,13 @@ function _transfer(address from, address to, uint256 amount) private;
 
 ```solidity
 function _burn(address from, uint256 amount) private;
+```
+
+### _addLiquidityChecks
+
+
+```solidity
+function _addLiquidityChecks(uint256 amountToLP, uint256 value, address from) private view;
 ```
 
 ### _openTradingChecks
@@ -520,28 +535,22 @@ event TradingOpened(address indexed pair);
 ```
 
 ## Errors
+### Unauthorized
+
+```solidity
+error Unauthorized();
+```
+
+### TradingNotOpen
+
+```solidity
+error TradingNotOpen();
+```
+
 ### GenieAlreadySet
 
 ```solidity
 error GenieAlreadySet();
-```
-
-### ApproveFromZeroAddress
-
-```solidity
-error ApproveFromZeroAddress();
-```
-
-### BurnFromZeroAddress
-
-```solidity
-error BurnFromZeroAddress();
-```
-
-### TransferFromZeroAddress
-
-```solidity
-error TransferFromZeroAddress();
 ```
 
 ### TradingAlreadyOpen
@@ -550,10 +559,22 @@ error TransferFromZeroAddress();
 error TradingAlreadyOpen();
 ```
 
-### Unauthorized
+### BurnFromZeroAddress
 
 ```solidity
-error Unauthorized();
+error BurnFromZeroAddress();
+```
+
+### ApproveFromZeroAddress
+
+```solidity
+error ApproveFromZeroAddress();
+```
+
+### TransferFromZeroAddress
+
+```solidity
+error TransferFromZeroAddress();
 ```
 
 ### InsufficientETH

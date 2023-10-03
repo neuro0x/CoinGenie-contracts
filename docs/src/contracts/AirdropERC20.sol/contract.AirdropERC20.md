@@ -1,5 +1,5 @@
 # AirdropERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0c8f662a1aad349d0ba70cbfd08e8576ed5fb128/contracts/AirdropERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/698fd66f744ca5be777c1f89be44bdade9f16a54/contracts/AirdropERC20.sol)
 
 **Inherits:**
 ReentrancyGuard

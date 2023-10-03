@@ -28,12 +28,15 @@ pragma solidity ^0.8.21;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
+
+import "hardhat/console.sol";
 
 /**
  * @title CoinGenieERC20
@@ -43,6 +46,8 @@ import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
  * @notice THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
  */
 contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
+    using SafeMath for uint256;
+
     struct FeeTakers {
         address payable feeRecipient;
         address payable coinGenie;
@@ -59,11 +64,11 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint8 private constant _DECIMALS = 18;
 
     uint256 private constant _MAX_BPS = 10_000;
-    uint256 private constant _MAX_TAX = 2000; // 20%
+    uint256 private constant _MAX_TAX = 2000;
     uint256 private constant _MIN_LIQUIDITY_ETH = 0.5 ether;
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
-    uint256 private constant _COIN_GENIE_FEE = 100; // 1%;
-    uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%;
+    uint256 private constant _COIN_GENIE_FEE = 100;
+    uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100;
 
     IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
@@ -90,12 +95,13 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     event TradingOpened(address indexed pair);
 
-    error GenieAlreadySet();
-    error ApproveFromZeroAddress();
-    error BurnFromZeroAddress();
-    error TransferFromZeroAddress();
-    error TradingAlreadyOpen();
     error Unauthorized();
+    error TradingNotOpen();
+    error GenieAlreadySet();
+    error TradingAlreadyOpen();
+    error BurnFromZeroAddress();
+    error ApproveFromZeroAddress();
+    error TransferFromZeroAddress();
     error InsufficientETH(uint256 amount, uint256 minAmount);
     error ExceedsMaxAmount(uint256 amount, uint256 maxAmount);
     error InsufficientTokens(uint256 amount, uint256 minAmount);
@@ -230,14 +236,13 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function manualSwap() external {
-        address from = _msgSender();
-        if (from != _feeTakers.feeRecipient || from != owner()) {
+        if (msg.sender != _feeTakers.feeRecipient) {
             revert Unauthorized();
         }
 
-        uint256 contractBalance = balanceOf(address(this));
-        if (contractBalance > 0) {
-            _swapTokensForEth(contractBalance);
+        uint256 contractTokenBalance = _balances[address(this)];
+        if (contractTokenBalance > 0) {
+            _swapTokensForEth(contractTokenBalance);
         }
 
         uint256 contractEthBalance = address(this).balance;
@@ -253,6 +258,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         external
         payable
         onlyOwner
+        nonReentrant
         returns (address)
     {
         uint256 value = msg.value;
@@ -263,13 +269,13 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
 
         CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
-        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
+        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
         if (payInGenie) {
-            ethAmountToTreasury = (ethAmountToTreasury * 2) / 4;
+            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
             genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
-        uint256 ethAmountToLP = value - ethAmountToTreasury;
+        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
         _uniswapV2Pair =
             IUniswapV2Factory(_UNISWAP_V2_ROUTER.factory()).createPair(address(this), _UNISWAP_V2_ROUTER.WETH());
 
@@ -294,24 +300,26 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         return _uniswapV2Pair;
     }
 
-    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant {
+    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable onlyOwner nonReentrant {
         uint256 value = msg.value;
-        address from = _msgSender();
+        address from = owner();
+
+        _addLiquidityChecks(amountToLP, value, from);
 
         transfer(address(this), amountToLP);
-        _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
+        _approve(address(this), address(_UNISWAP_V2_ROUTER), amountToLP);
         CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
-        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
+        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
 
         if (payInGenie) {
-            ethAmountToTreasury = (ethAmountToTreasury * 2) / 4;
+            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
             genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
-        uint256 ethAmountToLP = value - ethAmountToTreasury;
+        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
         ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
         _UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
-            address(this), balanceOf(address(this)), 0, 0, from, block.timestamp
+            address(this), amountToLP, 0, 0, from, block.timestamp
         );
 
         if (ethAmountToTreasury > 0) {
@@ -372,19 +380,19 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _checkTransferRestrictions(from, to, amount);
 
         uint256 taxAmount;
-        if (from != owner() && to != owner()) {
-            taxAmount = (amount * (_feePercentages.taxPercent + _COIN_GENIE_FEE)) / _MAX_BPS;
+        if (!_whitelist[from] && !_whitelist[to]) {
+            taxAmount = amount.mul(_feePercentages.taxPercent).div(_MAX_BPS);
 
-            if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER) && !_whitelist[to]) {
+            if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
                 _checkBuyRestrictions(to, amount);
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
             if (
                 !_inSwap && to == _uniswapV2Pair && _isTradingOpen
-                    && contractTokenBalance >= (_totalSupply * 20) / _MAX_BPS
+                    && contractTokenBalance >= _totalSupply.mul(20).div(_MAX_BPS)
             ) {
-                _swapTokensForEth(_min(amount, _min((_totalSupply * 50) / _MAX_BPS, contractTokenBalance)));
+                _swapTokensForEth(_min(amount, _min(_totalSupply.mul(50).div(_MAX_BPS), contractTokenBalance)));
 
                 uint256 contractBalance = address(this).balance;
                 if (contractBalance > 0.005 ether) {
@@ -394,19 +402,13 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         if (taxAmount > 0) {
-            unchecked {
-                _balances[address(this)] += taxAmount;
-            }
-
+            _balances[address(this)] = _balances[address(this)].add(taxAmount);
             emit Transfer(from, address(this), taxAmount);
         }
 
-        uint256 toAmount = amount - taxAmount;
-        unchecked {
-            _balances[from] -= amount;
-            _balances[to] += toAmount;
-        }
-
+        uint256 toAmount = amount.sub(taxAmount);
+        _balances[from] = _balances[from].sub(amount);
+        _balances[to] = _balances[to].add(toAmount);
         emit Transfer(from, to, toAmount);
     }
 
@@ -426,6 +428,20 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         emit Transfer(from, address(0), amount);
+    }
+
+    function _addLiquidityChecks(uint256 amountToLP, uint256 value, address from) private view {
+        if (!_isSwapEnabled || !_isTradingOpen) {
+            revert TradingNotOpen();
+        }
+
+        if (amountToLP < _MIN_LIQUIDITY_TOKEN || _balances[from] < amountToLP) {
+            revert InsufficientTokens(amountToLP, _MIN_LIQUIDITY_TOKEN);
+        }
+
+        if (value < _MIN_LIQUIDITY_ETH) {
+            revert InsufficientETH(value, _MIN_LIQUIDITY_ETH);
+        }
     }
 
     function _openTradingChecks(uint256 amountToLP, uint256 value) private view {
@@ -466,6 +482,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function _swapTokensForEth(uint256 tokenAmount) private lockTheSwap {
+        console.log("-> ~ _swapTokensForEth ~ tokenAmount:", tokenAmount);
         address[] memory path = new address[](2);
         path[0] = address(this);
         path[1] = _UNISWAP_V2_ROUTER.WETH();
