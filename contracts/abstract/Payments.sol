@@ -25,7 +25,8 @@ abstract contract Payments is Ownable {
 
     uint256 internal _totalShares;
     uint256 internal _totalReleased;
-    uint256 internal _releaseAmount;
+
+    uint256 internal _affiliatePayoutOwed;
     uint256 internal _affiliateFeePercent = 2000;
 
     mapping(address payee => uint256 shares) internal _shares;
@@ -57,28 +58,6 @@ abstract contract Payments is Ownable {
     error PayeeShareLengthMisMatch(uint256 payeesLength, uint256 sharesLength);
 
     receive() external payable virtual {
-        /**
-         * Below is a sample implementation of how this function should be overridden.
-         */
-        // address from = _msgSender();
-        // if (launchedTokenDetails[from].tokenAddress == from) {
-        //     address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
-        //     uint256 amountReceived = msg.value;
-        //     uint256 affiliateAmount = (amountReceived * _affiliateFeePercent) / _MAX_BPS;
-
-        //     if (affiliateAmount > 0) {
-        //         _releaseAmount += amountReceived - affiliateAmount;
-        //         _amountReceivedFromAffiliate[affiliate] += amountReceived;
-        //         _amountOwedToAffiliate[affiliate] += affiliateAmount;
-        //         _amountEarnedByAffiliateByToken[affiliate][from] += affiliateAmount;
-        //     }
-
-        //     emit PaymentReceived(from, amountReceived);
-        // } else {
-        //     _releaseAmount += msg.value;
-        //     emit PaymentReceived(from, msg.value);
-        // }
-
         emit PaymentReceived(_msgSender(), msg.value);
     }
 
@@ -110,6 +89,10 @@ abstract contract Payments is Ownable {
         return _payees.length;
     }
 
+    function amountOwedToAllAffiliates() public view returns (uint256) {
+        return _affiliatePayoutOwed;
+    }
+
     function amountOwedToAffiliate(address account) public view returns (uint256) {
         return _amountOwedToAffiliate[account];
     }
@@ -131,18 +114,16 @@ abstract contract Payments is Ownable {
     }
 
     function affiliateRelease(address payable affiliate) external {
-        uint256 amountOwed = _amountOwedToAffiliate[affiliate];
+        uint256 payment = _amountOwedToAffiliate[affiliate];
 
-        if (amountOwed == 0) {
+        if (payment == 0) {
             revert NoAmountOwedToAffiliate();
         }
 
-        uint256 payment = amountOwed;
         _amountOwedToAffiliate[affiliate] = 0;
         _amountPaidToAffiliate[affiliate] += payment;
 
-        _releaseAmount -= payment;
-        _totalReleased += payment;
+        _affiliatePayoutOwed -= payment;
 
         if (affiliate == address(this)) {
             (bool success,) = affiliate.call{ value: payment }("");
@@ -164,7 +145,7 @@ abstract contract Payments is Ownable {
             revert ZeroSharesForAccount(account);
         }
 
-        uint256 totalReceived = _releaseAmount + _totalReleased;
+        uint256 totalReceived = address(this).balance - _affiliatePayoutOwed + _totalReleased;
         uint256 payment = _pendingPayment(account, totalReceived, released(account));
 
         if (payment == 0) {
@@ -172,7 +153,6 @@ abstract contract Payments is Ownable {
         }
 
         _released[account] += payment;
-        _releaseAmount -= payment;
         _totalReleased += payment;
 
         (bool success,) = account.call{ value: payment }("");
@@ -190,7 +170,6 @@ abstract contract Payments is Ownable {
 
         _totalShares = 0;
         _totalReleased = 0;
-        _releaseAmount = 0;
 
         _createSplit(payees, shares_);
     }

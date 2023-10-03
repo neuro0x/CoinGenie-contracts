@@ -158,21 +158,20 @@ contract CoinGenie is Payments, ReentrancyGuard {
 
     receive() external payable override {
         address from = _msgSender();
+        // If we are receiving ETH from a Coin Genie token, then we need to send the affiliate fee
         if (launchedTokenDetails[from].tokenAddress == from) {
             address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
-            uint256 amountReceived = msg.value;
-            uint256 affiliateAmount = (amountReceived * _affiliateFeePercent) / _MAX_BPS;
+            uint256 affiliateAmount = (msg.value * _affiliateFeePercent) / _MAX_BPS;
 
             if (affiliateAmount > 0) {
-                _releaseAmount += amountReceived - affiliateAmount;
-                _amountReceivedFromAffiliate[affiliate] += amountReceived;
+                _affiliatePayoutOwed += affiliateAmount;
+                _amountReceivedFromAffiliate[affiliate] += msg.value;
                 _amountOwedToAffiliate[affiliate] += affiliateAmount;
                 _amountEarnedByAffiliateByToken[affiliate][from] += affiliateAmount;
             }
 
-            emit PaymentReceived(from, amountReceived);
+            emit PaymentReceived(from, msg.value);
         } else {
-            _releaseAmount += msg.value;
             emit PaymentReceived(from, msg.value);
         }
     }

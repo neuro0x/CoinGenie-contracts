@@ -1,5 +1,5 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3fadbaa79ac3dff191f856d9b10c409c16a350c4/contracts/factory/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0c8f662a1aad349d0ba70cbfd08e8576ed5fb128/contracts/factory/ERC20Factory.sol)
 
 **Inherits:**
 Ownable

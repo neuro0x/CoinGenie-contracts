@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3fadbaa79ac3dff191f856d9b10c409c16a350c4/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0c8f662a1aad349d0ba70cbfd08e8576ed5fb128/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
@@ -46,10 +46,10 @@ uint256 internal _totalReleased;
 ```
 
 
-### _releaseAmount
+### _affiliatePayoutOwed
 
 ```solidity
-uint256 internal _releaseAmount;
+uint256 internal _affiliatePayoutOwed;
 ```
 
 
@@ -141,8 +141,6 @@ receive() external payable virtual;
 
 ### genie
 
-Below is a sample implementation of how this function should be overridden.
-
 
 ```solidity
 function genie() public view virtual returns (address payable);
@@ -188,6 +186,13 @@ function payee(uint256 index) public view returns (address);
 
 ```solidity
 function payeeCount() public view returns (uint256);
+```
+
+### amountOwedToAllAffiliates
+
+
+```solidity
+function amountOwedToAllAffiliates() public view returns (uint256);
 ```
 
 ### amountOwedToAffiliate
