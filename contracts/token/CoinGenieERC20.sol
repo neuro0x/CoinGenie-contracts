@@ -236,15 +236,11 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         uint256 contractBalance = balanceOf(address(this));
-        uint256 contractEthBalance = address(this).balance;
-        if (contractBalance == 0 && contractEthBalance == 0) {
-            revert TransferFailed(contractBalance, address(this), _feeTakers.feeRecipient);
-        }
-
         if (contractBalance > 0) {
             _swapTokensForEth(contractBalance);
         }
 
+        uint256 contractEthBalance = address(this).balance;
         if (contractEthBalance > 0) {
             _sendEthToFee(contractEthBalance);
         }
@@ -375,19 +371,20 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     function _transfer(address from, address to, uint256 amount) private {
         _checkTransferRestrictions(from, to, amount);
 
-        uint256 contractAmount;
-        uint256 toAmount = amount;
-        if (_isSwapEnabled && from != owner() && to != owner()) {
-            contractAmount = (amount * (_feePercentages.taxPercent + _COIN_GENIE_FEE)) / _MAX_BPS;
-            toAmount = amount - contractAmount;
+        uint256 taxAmount;
+        if (from != owner() && to != owner()) {
+            taxAmount = (amount * (_feePercentages.taxPercent + _COIN_GENIE_FEE)) / _MAX_BPS;
 
-            if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
-                _checkBuyRestrictions(to, toAmount);
+            if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER) && !_whitelist[to]) {
+                _checkBuyRestrictions(to, amount);
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            if (!_inSwap && to == _uniswapV2Pair && contractTokenBalance >= (_totalSupply * 50) / _MAX_BPS) {
-                _swapTokensForEth(_min(amount, contractTokenBalance));
+            if (
+                !_inSwap && to == _uniswapV2Pair && _isTradingOpen
+                    && contractTokenBalance >= (_totalSupply * 20) / _MAX_BPS
+            ) {
+                _swapTokensForEth(_min(amount, _min((_totalSupply * 50) / _MAX_BPS, contractTokenBalance)));
 
                 uint256 contractBalance = address(this).balance;
                 if (contractBalance > 0.005 ether) {
@@ -396,14 +393,15 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
         }
 
-        if (contractAmount > 0) {
+        if (taxAmount > 0) {
             unchecked {
-                _balances[address(this)] += contractAmount;
+                _balances[address(this)] += taxAmount;
             }
 
-            emit Transfer(from, address(this), contractAmount);
+            emit Transfer(from, address(this), taxAmount);
         }
 
+        uint256 toAmount = amount - taxAmount;
         unchecked {
             _balances[from] -= amount;
             _balances[to] += toAmount;
