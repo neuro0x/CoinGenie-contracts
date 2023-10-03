@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffc3ef50de0c400c11764979a5d358cf0ee7b768/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/345c861dc2dc752ffa35ce5007dbda913554c958/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -180,7 +180,6 @@ constructor(
     address payable coinGenie_,
     address payable affiliateFeeRecipient_,
     uint256 taxPercent_,
-    uint256 deflationPercent_,
     uint256 maxBuyPercent_,
     uint256 maxWalletPercent_,
     uint256 discountFeeRequiredAmount_
@@ -264,25 +263,11 @@ function isTradingOpen() public view returns (bool);
 function isSwapEnabled() public view returns (bool);
 ```
 
-### isDeflationary
-
-
-```solidity
-function isDeflationary() public view returns (bool);
-```
-
 ### taxPercent
 
 
 ```solidity
 function taxPercent() public view returns (uint256);
-```
-
-### deflationPercent
-
-
-```solidity
-function deflationPercent() public view returns (uint256);
 ```
 
 ### maxBuyPercent
@@ -404,13 +389,6 @@ function setGenie(address payable genie_) external;
 function setTaxPercent(uint256 taxPercent_) external onlyOwner;
 ```
 
-### setDeflationPercent
-
-
-```solidity
-function setDeflationPercent(uint256 deflationPercent_) external onlyOwner;
-```
-
 ### setMaxBuyPercent
 
 
@@ -520,7 +498,6 @@ function _setFeeRecipients(
 ```solidity
 function _setFeePercentages(
     uint256 taxPercent_,
-    uint256 deflationPercent_,
     uint256 maxBuyPercent_,
     uint256 maxWalletPercent_,
     uint256 discountFeeRequiredAmount_
@@ -625,7 +602,6 @@ struct FeeTakers {
 ```solidity
 struct FeePercentages {
     uint256 taxPercent;
-    uint256 deflationPercent;
     uint256 maxBuyPercent;
     uint256 maxWalletPercent;
     uint256 discountFeeRequiredAmount;

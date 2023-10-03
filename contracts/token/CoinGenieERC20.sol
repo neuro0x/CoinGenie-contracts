@@ -377,11 +377,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
         uint256 contractAmount;
         uint256 toAmount = amount;
-        bool isExcludedFromFee = _whitelist[from] || _whitelist[to];
-        if (_isSwapEnabled && !isExcludedFromFee) {
-            uint256 _taxPercent = _feePercentages.taxPercent;
-            uint256 totalFeePercent = _taxPercent + _COIN_GENIE_FEE;
-            contractAmount += (amount * totalFeePercent) / _MAX_BPS;
+        if (_isSwapEnabled && from != owner() && to != owner()) {
+            contractAmount = (amount * (_feePercentages.taxPercent + _COIN_GENIE_FEE)) / _MAX_BPS;
             toAmount = amount - contractAmount;
 
             if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
@@ -390,8 +387,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
             uint256 contractTokenBalance = _balances[address(this)];
             if (!_inSwap && to == _uniswapV2Pair && contractTokenBalance >= (_totalSupply * 50) / _MAX_BPS) {
-                _swapTokensForEth(_min(toAmount, contractTokenBalance));
-                _sendEthToFee(address(this).balance);
+                _swapTokensForEth(_min(amount, contractTokenBalance));
+
+                uint256 contractBalance = address(this).balance;
+                if (contractBalance > 0.005 ether) {
+                    _sendEthToFee(contractBalance);
+                }
             }
         }
 

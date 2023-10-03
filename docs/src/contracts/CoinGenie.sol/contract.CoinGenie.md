@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffc3ef50de0c400c11764979a5d358cf0ee7b768/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/345c861dc2dc752ffa35ce5007dbda913554c958/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md), ReentrancyGuard
@@ -135,7 +135,6 @@ function launchToken(
     uint256 totalSupply,
     address payable affiliateFeeRecipient,
     uint256 taxPercent,
-    uint256 deflationPercent,
     uint256 maxBuyPercent,
     uint256 maxWalletPercent
 )
@@ -151,7 +150,6 @@ function launchToken(
 |`totalSupply`|`uint256`|- the totalSupply of the token|
 |`affiliateFeeRecipient`|`address payable`|- the address to receive the affiliate fee|
 |`taxPercent`|`uint256`|- the percent in basis points to use as a tax|
-|`deflationPercent`|`uint256`|- the percent in basis points to use as a deflation|
 |`maxBuyPercent`|`uint256`|- amount of tokens allowed to be transferred in one tx as a percent of the total supply|
 |`maxWalletPercent`|`uint256`|- amount of tokens allowed to be held in one wallet as a percent of the total supply|
 
@@ -301,7 +299,6 @@ struct LaunchedToken {
     uint256 index;
     uint256 totalSupply;
     uint256 taxPercent;
-    uint256 deflationPercent;
     uint256 maxBuyPercent;
     uint256 maxWalletPercent;
 }

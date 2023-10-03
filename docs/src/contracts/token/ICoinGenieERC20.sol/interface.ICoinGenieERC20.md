@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffc3ef50de0c400c11764979a5d358cf0ee7b768/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/345c861dc2dc752ffa35ce5007dbda913554c958/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -76,25 +76,11 @@ function isTradingOpen() external view returns (bool);
 function isSwapEnabled() external view returns (bool);
 ```
 
-### isDeflationary
-
-
-```solidity
-function isDeflationary() external view returns (bool);
-```
-
 ### taxPercent
 
 
 ```solidity
 function taxPercent() external view returns (uint256);
-```
-
-### deflationPercent
-
-
-```solidity
-function deflationPercent() external view returns (uint256);
 ```
 
 ### maxBuyPercent
@@ -221,13 +207,6 @@ function setFeeRecipient(address payable feeRecipient_) external;
 
 ```solidity
 function setTaxPercent(uint256 taxPercent_) external;
-```
-
-### setDeflationPercent
-
-
-```solidity
-function setDeflationPercent(uint256 deflationPercent_) external;
 ```
 
 ### setMaxBuyPercent
