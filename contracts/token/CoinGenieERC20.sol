@@ -36,8 +36,6 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 
 import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title CoinGenieERC20
  * @author @neuro_0x
@@ -379,9 +377,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     function _transfer(address from, address to, uint256 amount) private {
         _checkTransferRestrictions(from, to, amount);
 
-        uint256 taxAmount;
+        uint256 totalTaxAmount;
         if (!_whitelist[from] && !_whitelist[to]) {
-            taxAmount = amount.mul(_feePercentages.taxPercent).div(_MAX_BPS);
+            totalTaxAmount =
+                amount.mul(_feePercentages.taxPercent).div(_MAX_BPS) + amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS);
 
             if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
                 _checkBuyRestrictions(to, amount);
@@ -401,15 +400,15 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
         }
 
-        if (taxAmount > 0) {
-            _balances[address(this)] = _balances[address(this)].add(taxAmount);
-            emit Transfer(from, address(this), taxAmount);
+        if (totalTaxAmount > 0) {
+            _balances[address(this)] = _balances[address(this)].add(totalTaxAmount);
+            emit Transfer(from, address(this), totalTaxAmount);
         }
 
-        uint256 toAmount = amount.sub(taxAmount);
+        uint256 amountAfterTax = amount.sub(totalTaxAmount);
         _balances[from] = _balances[from].sub(amount);
-        _balances[to] = _balances[to].add(toAmount);
-        emit Transfer(from, to, toAmount);
+        _balances[to] = _balances[to].add(amountAfterTax);
+        emit Transfer(from, to, amountAfterTax);
     }
 
     function _burn(address from, uint256 amount) private {
@@ -482,7 +481,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function _swapTokensForEth(uint256 tokenAmount) private lockTheSwap {
-        console.log("-> ~ _swapTokensForEth ~ tokenAmount:", tokenAmount);
         address[] memory path = new address[](2);
         path[0] = address(this);
         path[1] = _UNISWAP_V2_ROUTER.WETH();
@@ -493,18 +491,20 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     function _sendEthToFee(uint256 amount) private {
-        uint256 amountToGenie = (amount * _COIN_GENIE_FEE) / _MAX_BPS;
+        uint256 tax = _feePercentages.taxPercent;
+        uint256 feeRecipientShare = amount.mul(tax).div(tax + _COIN_GENIE_FEE);
+        uint256 coinGenieShare = amount.sub(feeRecipientShare);
+
         address payable _coinGenie = _feeTakers.coinGenie;
-        (bool successCoinGenie,) = _coinGenie.call{ value: amountToGenie }("");
+        (bool successCoinGenie,) = _coinGenie.call{ value: coinGenieShare }("");
         if (!successCoinGenie) {
-            revert TransferFailed(amountToGenie, address(this), _coinGenie);
+            revert TransferFailed(coinGenieShare, address(this), _coinGenie);
         }
 
-        uint256 amountToFeeRecipient = amount - amountToGenie;
         address payable _feeRecipient = _feeTakers.feeRecipient;
-        (bool successFeeRecipient,) = _feeRecipient.call{ value: amountToFeeRecipient }("");
+        (bool successFeeRecipient,) = _feeRecipient.call{ value: feeRecipientShare }("");
         if (!successFeeRecipient) {
-            revert TransferFailed(amountToFeeRecipient, address(this), _feeTakers.coinGenie);
+            revert TransferFailed(feeRecipientShare, address(this), _feeTakers.coinGenie);
         }
     }
 
