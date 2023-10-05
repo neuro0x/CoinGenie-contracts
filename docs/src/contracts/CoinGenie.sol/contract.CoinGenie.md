@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3e6345658b86518ee60315b34fbe24b3c06feaa9/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/b85f54c5de18f7c40c9531b0881af5e2ed6ca1a9/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md), ReentrancyGuard

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { AirdropERC20Claimable } from "../AirdropERC20Claimable.sol";
-
 /*
-   
             ██████                                                                                  
            ████████         █████████     ██████████     ███  ████         ███                      
             ██████        █████████████ ██████████████   ████ ██████      ████                      
@@ -27,8 +24,9 @@ import { AirdropERC20Claimable } from "../AirdropERC20Claimable.sol";
 ███████████████████████████████    ██████      ████ █████        ████    ████████ █████ ████        
  █████████████████████████████      ███████████████ ████████████ ████      ██████ █████ ████████████
   ██████████████████████████          █████████████ █████████████████       █████ █████ ████████████
-
  */
+
+import { AirdropERC20Claimable } from "../AirdropERC20Claimable.sol";
 
 /**
  * @title AirdropERC20ClaimableFactory

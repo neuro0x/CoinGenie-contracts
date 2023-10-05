@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-
 /*
-   
             ██████                                                                                  
            ████████         █████████     ██████████     ███  ████         ███                      
             ██████        █████████████ ██████████████   ████ ██████      ████                      
@@ -28,8 +24,10 @@ import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerklePr
 ███████████████████████████████    ██████      ████ █████        ████    ████████ █████ ████        
  █████████████████████████████      ███████████████ ████████████ ████      ██████ █████ ████████████
   ██████████████████████████          █████████████ █████████████████       █████ █████ ████████████
-
  */
+
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
  * @title AirdropERC20Claimable
