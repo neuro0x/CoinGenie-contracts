@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d7177c9b390c971aed9434d4d8230177af374a97/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5700803e3199b4d78069745637b02102ce77d61e/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md), ReentrancyGuard
@@ -244,7 +244,7 @@ function getClaimableAirdropsForAddress(address _address) external view returns 
 ### ERC20Launched
 
 ```solidity
-event ERC20Launched(address indexed newTokenAddress);
+event ERC20Launched(address indexed newTokenAddress, address indexed tokenOwner);
 ```
 
 ### ClaimableAirdropCreated

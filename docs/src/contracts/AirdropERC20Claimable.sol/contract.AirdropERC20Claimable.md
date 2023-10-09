@@ -1,5 +1,5 @@
 # AirdropERC20Claimable
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d7177c9b390c971aed9434d4d8230177af374a97/contracts/AirdropERC20Claimable.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5700803e3199b4d78069745637b02102ce77d61e/contracts/AirdropERC20Claimable.sol)
 
 **Author:**
 @neuro_0x

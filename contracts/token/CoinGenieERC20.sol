@@ -344,14 +344,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _genie = CoinGenieERC20(genie_);
     }
 
-    function setTaxPercent(uint256 taxPercent_) external onlyOwner {
-        if (taxPercent_ > _MAX_TAX) {
-            revert ExceedsMaxAmount(taxPercent_, _MAX_TAX);
-        }
-
-        _feePercentages.taxPercent = taxPercent_;
-    }
-
     function setMaxBuyPercent(uint256 maxBuyPercent_) external onlyOwner {
         _feePercentages.maxBuyPercent = maxBuyPercent_;
     }

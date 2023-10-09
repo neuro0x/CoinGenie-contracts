@@ -102,7 +102,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
     error NotTeamMember(address caller);
     error ApprovalFailed();
 
-    event ERC20Launched(address indexed newTokenAddress);
+    event ERC20Launched(address indexed newTokenAddress, address indexed tokenOwner);
     event ClaimableAirdropCreated(
         address indexed airdropAddress,
         address tokenOwner,
@@ -248,7 +248,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
         launchedTokenDetails[address(newToken)] = launchedToken;
 
         // Emit the event
-        emit ERC20Launched(address(newToken));
+        emit ERC20Launched(address(newToken), msg.sender);
 
         return newToken;
     }

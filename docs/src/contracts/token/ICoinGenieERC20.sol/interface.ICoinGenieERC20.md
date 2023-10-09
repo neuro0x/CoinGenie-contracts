@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d7177c9b390c971aed9434d4d8230177af374a97/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5700803e3199b4d78069745637b02102ce77d61e/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -200,13 +200,6 @@ function setGenie(address payable genie_) external;
 
 ```solidity
 function setFeeRecipient(address payable feeRecipient_) external;
-```
-
-### setTaxPercent
-
-
-```solidity
-function setTaxPercent(uint256 taxPercent_) external;
 ```
 
 ### setMaxBuyPercent

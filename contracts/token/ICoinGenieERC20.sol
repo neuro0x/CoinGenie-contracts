@@ -32,7 +32,6 @@ interface ICoinGenieERC20 is IERC20 {
     function removeLiquidity(uint256 amountToRemove) external;
     function setGenie(address payable genie_) external;
     function setFeeRecipient(address payable feeRecipient_) external;
-    function setTaxPercent(uint256 taxPercent_) external;
     function setMaxBuyPercent(uint256 maxBuyPercent_) external;
     function setMaxWalletPercent(uint256 maxWalletPercent_) external;
 }
