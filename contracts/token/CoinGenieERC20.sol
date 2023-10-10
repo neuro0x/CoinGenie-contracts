@@ -62,7 +62,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint8 private constant _DECIMALS = 18;
 
     uint256 private constant _MAX_BPS = 10_000;
-    uint256 private constant _MAX_TAX = 2000;
+    uint256 private constant _MAX_TAX = 500;
     uint256 private constant _MIN_LIQUIDITY_ETH = 0.5 ether;
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
     uint256 private constant _COIN_GENIE_FEE = 100;
@@ -386,9 +386,9 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             uint256 contractTokenBalance = _balances[address(this)];
             if (
                 !_inSwap && to == _uniswapV2Pair && _isTradingOpen
-                    && contractTokenBalance >= _totalSupply.mul(10).div(_MAX_BPS)
+                    && contractTokenBalance >= _totalSupply.mul(20).div(_MAX_BPS)
             ) {
-                _swapTokensForEth(_min(amount, contractTokenBalance));
+                _swapTokensForEth(_min(amount, _min(_totalSupply.mul(50).div(_MAX_BPS), contractTokenBalance)));
 
                 uint256 contractBalance = address(this).balance;
                 if (contractBalance > 0.005 ether) {

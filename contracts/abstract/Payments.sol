@@ -79,10 +79,6 @@ abstract contract Payments is Ownable {
 
     /// @dev The array of payees
     address[] private _payees;
-    /// @dev The array of affiliates
-    address[] private _affiliates;
-    /// @dev The array of affiliate tokens
-    address[] private _affiliateTokens;
 
     /// @dev The event emitted when a payee is added
     /// @param account the payee account
@@ -223,36 +219,6 @@ abstract contract Payments is Ownable {
      */
     function amountEarnedByAffiliateByToken(address account, address tokenAddress) public view returns (uint256) {
         return _amountEarnedByAffiliateByToken[account][tokenAddress];
-    }
-
-    /**
-     * @return the total number of affiliates
-     */
-    function affiliateCount() public view returns (uint256) {
-        return _affiliates.length;
-    }
-
-    /**
-     * @param index the index of the affiliate to get
-     * @return the address of the affiliate
-     */
-    function affiliate(uint256 index) public view returns (address) {
-        return _affiliates[index];
-    }
-
-    /**
-     * @return the total number of affiliate tokens
-     */
-    function affiliateTokenCount() public view returns (uint256) {
-        return _affiliateTokens.length;
-    }
-
-    /**
-     * @param index the index of the affiliate token to get
-     * @return the address of the affiliate token
-     */
-    function affiliateToken(uint256 index) public view returns (address) {
-        return _affiliateTokens[index];
     }
 
     /**

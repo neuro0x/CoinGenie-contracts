@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/59262fc3d9352b4f67064a8c4f0471498486479b/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0a4117b89b05711142389773fc9d7b3a6af367f1/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
@@ -144,24 +144,6 @@ mapping(address affiliate => mapping(address tokenAddress => uint256 amountOwed)
 
 ```solidity
 address[] private _payees;
-```
-
-
-### _affiliates
-*The array of affiliates*
-
-
-```solidity
-address[] private _affiliates;
-```
-
-
-### _affiliateTokens
-*The array of affiliate tokens*
-
-
-```solidity
-address[] private _affiliateTokens;
 ```
 
 
@@ -372,70 +354,6 @@ function amountEarnedByAffiliateByToken(address account, address tokenAddress) p
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|the amount earned from an affiliate for a token|
-
-
-### affiliateCount
-
-
-```solidity
-function affiliateCount() public view returns (uint256);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|the total number of affiliates|
-
-
-### affiliate
-
-
-```solidity
-function affiliate(uint256 index) public view returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`index`|`uint256`|the index of the affiliate to get|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|the address of the affiliate|
-
-
-### affiliateTokenCount
-
-
-```solidity
-function affiliateTokenCount() public view returns (uint256);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|the total number of affiliate tokens|
-
-
-### affiliateToken
-
-
-```solidity
-function affiliateToken(uint256 index) public view returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`index`|`uint256`|the index of the affiliate token to get|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|the address of the affiliate token|
 
 
 ### affiliateFeePercent
