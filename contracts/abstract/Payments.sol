@@ -66,13 +66,15 @@ abstract contract Payments is Ownable {
     /// @dev The mapping of released payments for each payee
     mapping(address payee => uint256 released) internal _released;
     /// @dev The mapping of amount received from each affiliate
-    mapping(address affiliate => uint256 receivedFrom) internal _amountReceivedFromAffiliate;
+    mapping(address affiliate => uint256 amountReceived) internal _amountReceivedFromAffiliate;
     /// @dev The mapping of amount paid to each affiliate
     mapping(address affiliate => uint256 amountPaid) internal _amountPaidToAffiliate;
     /// @dev The mapping of amount owed to each affiliate
     mapping(address affiliate => uint256 amountOwed) internal _amountOwedToAffiliate;
     /// @dev The mapping of tokens referred by each affiliate
     mapping(address affiliate => address[] tokensReferred) internal _tokensReferredByAffiliate;
+    /// @dev The mapping of tokens referred by each affiliate
+    mapping(address affiliate => mapping(address tokenAddress => bool)) internal _isTokenReferredByAffiliate;
     /// @dev The mapping of amount earned by each affiliate for each token
     mapping(address affiliate => mapping(address tokenAddress => uint256 amountOwed)) internal
         _amountEarnedByAffiliateByToken;
@@ -202,6 +204,14 @@ abstract contract Payments is Ownable {
      */
     function amountPaidToAffiliate(address account) public view returns (uint256) {
         return _amountPaidToAffiliate[account];
+    }
+
+    /**
+     * @param account the affiliate account to get the tokens referred by
+     * @return the tokens referred by an affiliate
+     */
+    function getTokensReferredByAffiliate(address account) public view returns (address[] memory) {
+        return _tokensReferredByAffiliate[account];
     }
 
     /**

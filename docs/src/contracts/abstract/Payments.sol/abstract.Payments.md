@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/49359d99c10dd827532a13a800cae35d3199747a/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/4ee4fd85a4a00aa287d53777414b31a00c780780/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
@@ -97,7 +97,7 @@ mapping(address payee => uint256 released) internal _released;
 
 
 ```solidity
-mapping(address affiliate => uint256 receivedFrom) internal _amountReceivedFromAffiliate;
+mapping(address affiliate => uint256 amountReceived) internal _amountReceivedFromAffiliate;
 ```
 
 
@@ -125,6 +125,15 @@ mapping(address affiliate => uint256 amountOwed) internal _amountOwedToAffiliate
 
 ```solidity
 mapping(address affiliate => address[] tokensReferred) internal _tokensReferredByAffiliate;
+```
+
+
+### _isTokenReferredByAffiliate
+*The mapping of tokens referred by each affiliate*
+
+
+```solidity
+mapping(address affiliate => mapping(address tokenAddress => bool)) internal _isTokenReferredByAffiliate;
 ```
 
 
@@ -315,6 +324,25 @@ function amountPaidToAffiliate(address account) public view returns (uint256);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|the total amount paid to an affiliate|
+
+
+### getTokensReferredByAffiliate
+
+
+```solidity
+function getTokensReferredByAffiliate(address account) public view returns (address[] memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`account`|`address`|the affiliate account to get the tokens referred by|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address[]`|the tokens referred by an affiliate|
 
 
 ### amountEarnedByAffiliateByToken

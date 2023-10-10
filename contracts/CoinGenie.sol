@@ -166,6 +166,11 @@ contract CoinGenie is Payments, ReentrancyGuard {
                 _amountReceivedFromAffiliate[affiliate] += msg.value;
                 _amountOwedToAffiliate[affiliate] += affiliateAmount;
                 _amountEarnedByAffiliateByToken[affiliate][from] += affiliateAmount;
+
+                if (!_isTokenReferredByAffiliate[affiliate][from]) {
+                    _isTokenReferredByAffiliate[affiliate][from] = true;
+                    _tokensReferredByAffiliate[affiliate].push(from);
+                }
             }
 
             emit PaymentReceived(from, msg.value);
