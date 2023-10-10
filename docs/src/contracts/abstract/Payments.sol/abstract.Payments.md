@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0a4117b89b05711142389773fc9d7b3a6af367f1/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/49359d99c10dd827532a13a800cae35d3199747a/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
@@ -315,25 +315,6 @@ function amountPaidToAffiliate(address account) public view returns (uint256);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|the total amount paid to an affiliate|
-
-
-### getTokensOfAffiliate
-
-
-```solidity
-function getTokensOfAffiliate(address account) public view returns (address[] memory);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`account`|`address`|the affiliate account to get the tokens of|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address[]`|the array of tokens received from an affiliate|
 
 
 ### amountEarnedByAffiliateByToken

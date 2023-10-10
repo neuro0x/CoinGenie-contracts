@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/0a4117b89b05711142389773fc9d7b3a6af367f1/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/49359d99c10dd827532a13a800cae35d3199747a/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard

@@ -205,14 +205,6 @@ abstract contract Payments is Ownable {
     }
 
     /**
-     * @param account the affiliate account to get the tokens of
-     * @return the array of tokens received from an affiliate
-     */
-    function getTokensOfAffiliate(address account) public view returns (address[] memory) {
-        return _tokensReferredByAffiliate[account];
-    }
-
-    /**
      * @param account the affiliate account to get the amount earned from
      * @param tokenAddress the token address to get the amount earned from
      * @return the amount earned from an affiliate for a token
@@ -251,7 +243,7 @@ abstract contract Payments is Ownable {
         } else {
             address[] memory path = new address[](2);
             path[0] = _UNISWAP_V2_ROUTER.WETH();
-            path[1] = address(this);
+            path[1] = address(_genie);
             _UNISWAP_V2_ROUTER.swapExactETHForTokensSupportingFeeOnTransferTokens{ value: payment }(
                 0, path, account, block.timestamp
             );
