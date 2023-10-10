@@ -384,15 +384,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            if (
-                !_inSwap && to == _uniswapV2Pair && _isTradingOpen
-                    && contractTokenBalance >= _totalSupply.mul(20).div(_MAX_BPS)
-            ) {
+            if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen) {
                 _swapTokensForEth(_min(amount, _min(_totalSupply.mul(50).div(_MAX_BPS), contractTokenBalance)));
 
-                uint256 contractBalance = address(this).balance;
-                if (contractBalance > 0.005 ether) {
-                    _sendEthToFee(contractBalance);
+                uint256 contractEthBalance = address(this).balance;
+                if (contractEthBalance > 0) {
+                    _sendEthToFee(contractEthBalance);
                 }
             }
         }
