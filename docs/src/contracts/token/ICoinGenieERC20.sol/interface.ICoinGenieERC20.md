@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5700803e3199b4d78069745637b02102ce77d61e/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/59262fc3d9352b4f67064a8c4f0471498486479b/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -116,6 +116,13 @@ function lpToken() external view returns (address);
 
 ```solidity
 function balanceOf(address account) external view returns (uint256);
+```
+
+### amountEthReceived
+
+
+```solidity
+function amountEthReceived(address feeRecipient_) external view returns (uint256);
 ```
 
 ### burn

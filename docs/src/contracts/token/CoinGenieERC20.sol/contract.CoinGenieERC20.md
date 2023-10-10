@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5700803e3199b4d78069745637b02102ce77d61e/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/59262fc3d9352b4f67064a8c4f0471498486479b/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -87,6 +87,13 @@ mapping(address holder => mapping(address spender => uint256 allowance)) private
 
 ```solidity
 mapping(address holder => bool isWhiteListed) private _whitelist;
+```
+
+
+### _ethReceived
+
+```solidity
+mapping(address feeRecipient => uint256 amountEthReceived) private _ethReceived;
 ```
 
 
@@ -296,6 +303,13 @@ function discountFeeRequiredAmount() public view returns (uint256);
 
 ```solidity
 function lpToken() public view returns (address);
+```
+
+### amountEthReceived
+
+
+```solidity
+function amountEthReceived(address feeRecipient_) public view returns (uint256);
 ```
 
 ### balanceOf

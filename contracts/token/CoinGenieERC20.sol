@@ -74,6 +74,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     mapping(address holder => uint256 balance) private _balances;
     mapping(address holder => mapping(address spender => uint256 allowance)) private _allowances;
     mapping(address holder => bool isWhiteListed) private _whitelist;
+    mapping(address feeRecipient => uint256 amountEthReceived) private _ethReceived;
 
     FeeTakers private _feeTakers;
     FeePercentages private _feePercentages;
@@ -194,6 +195,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     function lpToken() public view returns (address) {
         return _uniswapV2Pair;
+    }
+
+    function amountEthReceived(address feeRecipient_) public view returns (uint256) {
+        return _ethReceived[feeRecipient_];
     }
 
     function balanceOf(address account) public view override returns (uint256) {
@@ -381,9 +386,9 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             uint256 contractTokenBalance = _balances[address(this)];
             if (
                 !_inSwap && to == _uniswapV2Pair && _isTradingOpen
-                    && contractTokenBalance >= _totalSupply.mul(20).div(_MAX_BPS)
+                    && contractTokenBalance >= _totalSupply.mul(10).div(_MAX_BPS)
             ) {
-                _swapTokensForEth(_min(amount, _min(_totalSupply.mul(50).div(_MAX_BPS), contractTokenBalance)));
+                _swapTokensForEth(_min(amount, contractTokenBalance));
 
                 uint256 contractBalance = address(this).balance;
                 if (contractBalance > 0.005 ether) {
@@ -495,6 +500,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
         address payable _feeRecipient = _feeTakers.feeRecipient;
         (bool successFeeRecipient,) = _feeRecipient.call{ value: feeRecipientShare }("");
+        _ethReceived[_feeRecipient] += feeRecipientShare;
         if (!successFeeRecipient) {
             revert TransferFailed(feeRecipientShare, address(this), _feeTakers.coinGenie);
         }

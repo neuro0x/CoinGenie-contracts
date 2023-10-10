@@ -20,6 +20,7 @@ interface ICoinGenieERC20 is IERC20 {
     function discountFeeRequiredAmount() external view returns (uint256);
     function lpToken() external view returns (address);
     function balanceOf(address account) external view returns (uint256);
+    function amountEthReceived(address feeRecipient_) external view returns (uint256);
     function burn(uint256 amount) external;
     function burnFrom(address from, uint256 amount) external;
     function transfer(address recipient, uint256 amount) external returns (bool);
