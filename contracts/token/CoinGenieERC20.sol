@@ -36,6 +36,8 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 
 import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title CoinGenieERC20
  * @author @neuro_0x
@@ -383,9 +385,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
                 _checkBuyRestrictions(to, amount);
             }
 
-            uint256 contractTokenBalance = _balances[address(this)];
-            if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen) {
-                _swapTokensForEth(contractTokenBalance);
+            if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount > 0) {
+                _swapTokensForEth(totalTaxAmount);
 
                 uint256 contractEthBalance = address(this).balance;
                 if (contractEthBalance > 0) {
