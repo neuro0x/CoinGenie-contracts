@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/1fa785fe6b8f767a0fab24b91459ac51bf918d0a/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable
@@ -26,15 +26,6 @@ uint256 private constant _MAX_BPS = 10_000;
 
 ```solidity
 IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-```
-
-
-### _genie
-*The address of the CoinGenie ERC20 $GENIE token*
-
-
-```solidity
-address payable internal _genie;
 ```
 
 
@@ -165,19 +156,6 @@ address[] private _payees;
 ```solidity
 receive() external payable virtual;
 ```
-
-### genie
-
-
-```solidity
-function genie() public view virtual returns (address payable);
-```
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address payable`|the address of the CoinGenie ERC20 $GENIE token|
-
 
 ### totalShares
 
@@ -382,13 +360,14 @@ function affiliateFeePercent() public view returns (uint256);
 
 
 ```solidity
-function affiliateRelease(address payable account) external;
+function affiliateRelease(address payable account, address genie_) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`account`|`address payable`|the affiliate to release payment to|
+|`genie_`|`address`|the address of the CoinGenie ERC20 $GENIE token|
 
 
 ### setAffiliatePercent
@@ -437,21 +416,6 @@ function resetSplit(address[] memory payees, uint256[] memory shares_) external 
 |----|----|-----------|
 |`payees`|`address[]`|the array of payees|
 |`shares_`|`uint256[]`|the array of shares|
-
-
-### setGenie
-
-*Called on contract creation by the extending contract to set token address*
-
-
-```solidity
-function setGenie(address payable genie_) external onlyOwner;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`genie_`|`address payable`|the address of the CoinGenie ERC20 $GENIE token|
 
 
 ### _createSplit

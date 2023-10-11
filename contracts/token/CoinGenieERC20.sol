@@ -385,8 +385,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
                 _checkBuyRestrictions(to, amount);
             }
 
-            if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount > 0) {
-                _swapTokensForEth(totalTaxAmount);
+            uint256 contractTokenBalance = _balances[address(this)];
+            if (
+                !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount > 0
+                    && contractTokenBalance >= totalTaxAmount
+            ) {
+                _swapTokensForEth(_min(amount, contractTokenBalance));
 
                 uint256 contractEthBalance = address(this).balance;
                 if (contractEthBalance > 0) {

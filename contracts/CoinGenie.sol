@@ -161,7 +161,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
             address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
             uint256 affiliateAmount = (msg.value * _affiliateFeePercent) / _MAX_BPS;
 
-            if (affiliateAmount > 0) {
+            if (affiliateAmount > 0 && affiliate != address(0) && affiliate != address(this)) {
                 _affiliatePayoutOwed += affiliateAmount;
                 _amountReceivedFromAffiliate[affiliate] += msg.value;
                 _amountOwedToAffiliate[affiliate] += affiliateAmount;
@@ -179,7 +179,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
         }
     }
 
-    function genie() public view override(Payments) returns (address payable) {
+    function genie() public view returns (address payable) {
         return payable(launchedTokens[0]);
     }
 

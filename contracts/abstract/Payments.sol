@@ -48,9 +48,6 @@ abstract contract Payments is Ownable {
     IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    /// @dev The address of the CoinGenie ERC20 $GENIE token
-    address payable internal _genie;
-
     /// @dev The total amount of shares
     uint256 internal _totalShares;
     /// @dev The total amount of released payments
@@ -129,13 +126,6 @@ abstract contract Payments is Ownable {
      */
     receive() external payable virtual {
         emit PaymentReceived(_msgSender(), msg.value);
-    }
-
-    /**
-     * @return the address of the CoinGenie ERC20 $GENIE token
-     */
-    function genie() public view virtual returns (address payable) {
-        return _genie;
     }
 
     /**
@@ -232,8 +222,9 @@ abstract contract Payments is Ownable {
 
     /**
      * @param account the affiliate to release payment to
+     * @param genie_ the address of the CoinGenie ERC20 $GENIE token
      */
-    function affiliateRelease(address payable account) external {
+    function affiliateRelease(address payable account, address genie_) external {
         uint256 payment = _amountOwedToAffiliate[account];
 
         if (payment == 0) {
@@ -253,7 +244,7 @@ abstract contract Payments is Ownable {
         } else {
             address[] memory path = new address[](2);
             path[0] = _UNISWAP_V2_ROUTER.WETH();
-            path[1] = address(_genie);
+            path[1] = genie_;
             _UNISWAP_V2_ROUTER.swapExactETHForTokensSupportingFeeOnTransferTokens{ value: payment }(
                 0, path, account, block.timestamp
             );
@@ -315,18 +306,6 @@ abstract contract Payments is Ownable {
         _totalReleased = 0;
 
         _createSplit(payees, shares_);
-    }
-
-    /**
-     * @dev Called on contract creation by the extending contract to set token address
-     * @param genie_ the address of the CoinGenie ERC20 $GENIE token
-     */
-    function setGenie(address payable genie_) external onlyOwner {
-        if (_genie != address(0)) {
-            revert GenieAlreadySet();
-        }
-
-        _genie = genie_;
     }
 
     /**
