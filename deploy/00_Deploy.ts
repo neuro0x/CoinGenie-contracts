@@ -80,6 +80,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     );
 
     const erc20FactoryContract = await hre.ethers.getContractAt("ERC20Factory", erc20Factory.address);
+    await erc20FactoryContract.setCoinGenie(coinGenie.address);
 
     const coinGenieContract = await hre.ethers.getContractAt("CoinGenie", coinGenie.address);
     const genie = await coinGenieContract.launchToken(

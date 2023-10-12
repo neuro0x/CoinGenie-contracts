@@ -3,11 +3,11 @@ pragma solidity 0.8.21;
 
 import "forge-std/Test.sol";
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import {AirdropERC20} from "../../contracts/AirdropERC20.sol";
+import { AirdropERC20 } from "../../contracts/AirdropERC20.sol";
 
-import {MockERC20} from "./mocks/ERC20.mock.sol";
+import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
 contract AirdropERC20Test is Test {
     using SafeMath for uint256;
@@ -33,22 +33,34 @@ contract AirdropERC20Test is Test {
 
         uint256 totalAmount = 0;
         uint256[] memory amounts = new uint256[](recipients.length);
-        for (uint256 i = 0; i < recipients.length; i++) {
+        for (uint256 i = 0; i < recipients.length;) {
             totalAmount = totalAmount.add(MAX_TOKEN_SUPPLY.div(recipients.length));
             amounts[i] = MAX_TOKEN_SUPPLY.div(recipients.length);
             balances[recipients[i]] = balances[recipients[i]].add(amounts[i]);
+
+            unchecked {
+                i = i + 1;
+            }
         }
 
         AirdropERC20.AirdropContent[] memory contents = new AirdropERC20.AirdropContent[](recipients.length);
-        for (uint256 i = 0; i < recipients.length; i++) {
-            contents[i] = AirdropERC20.AirdropContent({recipient: recipients[i], amount: amounts[i]});
+        for (uint256 i = 0; i < recipients.length;) {
+            contents[i] = AirdropERC20.AirdropContent({ recipient: recipients[i], amount: amounts[i] });
+
+            unchecked {
+                i = i + 1;
+            }
         }
 
         mockERC20.approve(address(airdropContract), totalAmount);
-        airdropContract.airdrop{value: minEthFee}(address(mockERC20), address(this), contents);
+        airdropContract.airdrop{ value: minEthFee }(address(mockERC20), address(this), contents);
 
-        for (uint256 i = 0; i < contents.length; i++) {
+        for (uint256 i = 0; i < contents.length;) {
             assertLe(mockERC20.balanceOf(contents[i].recipient), balances[contents[i].recipient], "balanceOf");
+
+            unchecked {
+                i = i + 1;
+            }
         }
     }
 }

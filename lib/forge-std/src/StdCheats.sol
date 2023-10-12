@@ -212,7 +212,7 @@ abstract contract StdCheatsSafe {
         assembly {
             tokenCodeSize := extcodesize(token)
         }
-        require(tokenCodeSize > 0, "StdCheats assumeNotBlacklisted(address,address): Token address is not a contract.");
+        require(tokenCodeSize != 0, "StdCheats assumeNotBlacklisted(address,address): Token address is not a contract.");
 
         bool success;
         bytes memory returnData;

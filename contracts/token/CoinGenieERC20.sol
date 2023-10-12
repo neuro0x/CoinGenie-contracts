@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
+
+// Payment ID: CPHJ7GDDEPJMHNRCUEEANPYJGA
+// Verification Code: 2efcddaf22bf68584dd4f40923d05aa5 (save in case there are any issues with your payment)
 
 /*
             ██████                                                                                  
@@ -28,15 +31,12 @@ pragma solidity ^0.8.21;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title CoinGenieERC20
@@ -46,7 +46,7 @@ import "hardhat/console.sol";
  * @notice THIS ERC20 SHOULD ONLY BE DEPLOYED FROM THE COINGENIE ERC20 FACTORY
  */
 contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
+    using SafeERC20 for ICoinGenieERC20;
 
     struct FeeTakers {
         address payable feeRecipient;
@@ -94,7 +94,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     uint256 private _totalSupply;
 
+    event GenieSet(address indexed genie);
     event TradingOpened(address indexed pair);
+    event MaxBuyPercentSet(uint256 indexed maxBuyPercent);
+    event FeeRecipientSet(address indexed feeRecipient);
+    event MaxWalletPercentSet(uint256 indexed maxWalletPercent);
+    event EthSentToFee(uint256 indexed feeRecipientShare, uint256 indexed coinGenieShare);
 
     error Unauthorized();
     error TradingNotOpen();
@@ -126,7 +131,9 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         uint256 maxBuyPercent_,
         uint256 maxWalletPercent_,
         uint256 discountFeeRequiredAmount_
-    ) {
+    )
+        payable
+    {
         _setERC20Properties(name_, symbol_, totalSupply_);
         _setFeeRecipients(feeRecipient_, coinGenie_, affiliateFeeRecipient_);
         _setFeePercentages(taxPercent_, maxBuyPercent_, maxWalletPercent_, discountFeeRequiredAmount_);
@@ -207,16 +214,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         return _balances[account];
     }
 
-    function burn(uint256 amount) public {
+    function burn(uint256 amount) external {
         _burn(msg.sender, amount);
-    }
-
-    function burnFrom(address from, uint256 amount) public {
-        if (amount > _allowances[from][msg.sender]) {
-            revert InsufficientAllowance(amount, _allowances[from][msg.sender]);
-        }
-
-        _burn(from, amount);
     }
 
     function transfer(address recipient, uint256 amount) public override returns (bool) {
@@ -246,12 +245,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         uint256 contractTokenBalance = _balances[address(this)];
-        if (contractTokenBalance > 0) {
+        if (contractTokenBalance != 0) {
             _swapTokensForEth(contractTokenBalance);
         }
 
         uint256 contractEthBalance = address(this).balance;
-        if (contractEthBalance > 0) {
+        if (contractEthBalance != 0) {
             _sendEthToFee(contractEthBalance);
         }
     }
@@ -273,14 +272,14 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         transfer(address(this), amountToLP);
         _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
 
-        CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
-        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
+        ICoinGenieERC20 genieToken = ICoinGenieERC20(_genie);
+        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
         if (payInGenie) {
-            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
-            genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
+            ethAmountToTreasury = (ethAmountToTreasury * 2) / 4;
+            genieToken.safeTransferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
-        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
+        uint256 ethAmountToLP = value - ethAmountToTreasury;
         _uniswapV2Pair =
             IUniswapV2Factory(_UNISWAP_V2_ROUTER.factory()).createPair(address(this), _UNISWAP_V2_ROUTER.WETH());
 
@@ -288,12 +287,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             address(this), balanceOf(address(this)), 0, 0, from, block.timestamp
         );
 
-        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
+        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), amountToLP);
 
         _isSwapEnabled = true;
         _isTradingOpen = true;
 
-        if (ethAmountToTreasury > 0) {
+        if (ethAmountToTreasury != 0) {
             (bool success,) = _feeTakers.coinGenie.call{ value: ethAmountToTreasury }("");
             if (!success) {
                 revert TransferFailed(ethAmountToTreasury, address(this), _feeTakers.coinGenie);
@@ -313,21 +312,21 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
         transfer(address(this), amountToLP);
         _approve(address(this), address(_UNISWAP_V2_ROUTER), amountToLP);
-        CoinGenieERC20 genieToken = CoinGenieERC20(_genie);
-        uint256 ethAmountToTreasury = value.mul(_LP_ETH_FEE_PERCENTAGE).div(_MAX_BPS);
+        ICoinGenieERC20 genieToken = ICoinGenieERC20(_genie);
+        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
 
         if (payInGenie) {
-            ethAmountToTreasury = ethAmountToTreasury.mul(2).div(4);
-            genieToken.transferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
+            ethAmountToTreasury = (ethAmountToTreasury * 2) / 4;
+            genieToken.safeTransferFrom(from, _feeTakers.coinGenie, _feePercentages.discountFeeRequiredAmount);
         }
 
-        uint256 ethAmountToLP = value.sub(ethAmountToTreasury);
+        uint256 ethAmountToLP = value - ethAmountToTreasury;
         ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
         _UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
             address(this), amountToLP, 0, 0, from, block.timestamp
         );
 
-        if (ethAmountToTreasury > 0) {
+        if (ethAmountToTreasury != 0) {
             (bool success,) = _feeTakers.coinGenie.call{ value: ethAmountToTreasury }("");
             if (!success) {
                 revert TransferFailed(ethAmountToTreasury, address(this), _feeTakers.coinGenie);
@@ -335,9 +334,9 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    function removeLiquidity(uint256 amountToRemove) external {
+    function removeLiquidity(uint256 amountToRemove) external onlyOwner nonReentrant {
         address from = _msgSender();
-        ICoinGenieERC20(_uniswapV2Pair).transferFrom(from, address(this), amountToRemove);
+        ICoinGenieERC20(_uniswapV2Pair).safeTransferFrom(from, address(this), amountToRemove);
         _UNISWAP_V2_ROUTER.removeLiquidityETHSupportingFeeOnTransferTokens(
             address(this), amountToRemove, 0, 0, from, block.timestamp
         );
@@ -349,19 +348,23 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         _genie = CoinGenieERC20(genie_);
+        emit GenieSet(genie_);
     }
 
     function setMaxBuyPercent(uint256 maxBuyPercent_) external onlyOwner {
         _feePercentages.maxBuyPercent = maxBuyPercent_;
+        emit MaxBuyPercentSet(maxBuyPercent_);
     }
 
     function setMaxWalletPercent(uint256 maxWalletPercent_) external onlyOwner {
         _feePercentages.maxWalletPercent = maxWalletPercent_;
+        emit MaxWalletPercentSet(maxWalletPercent_);
     }
 
     function setFeeRecipient(address payable feeRecipient_) external onlyOwner {
         _feeTakers.feeRecipient = feeRecipient_;
         transferOwnership(feeRecipient_);
+        emit FeeRecipientSet(feeRecipient_);
     }
 
     function _approve(address owner, address spender, uint256 amount) private {
@@ -378,8 +381,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
         uint256 totalTaxAmount;
         if (!_whitelist[from] && !_whitelist[to]) {
-            totalTaxAmount =
-                amount.mul(_feePercentages.taxPercent).div(_MAX_BPS) + amount.mul(_COIN_GENIE_FEE).div(_MAX_BPS);
+            totalTaxAmount = (amount * _feePercentages.taxPercent) / _MAX_BPS + (amount * _COIN_GENIE_FEE) / _MAX_BPS;
 
             if (from == _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
                 _checkBuyRestrictions(to, amount);
@@ -387,26 +389,26 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
             uint256 contractTokenBalance = _balances[address(this)];
             if (
-                !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount > 0
+                !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount != 0
                     && contractTokenBalance >= totalTaxAmount
             ) {
                 _swapTokensForEth(_min(amount, contractTokenBalance));
 
                 uint256 contractEthBalance = address(this).balance;
-                if (contractEthBalance > 0) {
+                if (contractEthBalance != 0) {
                     _sendEthToFee(contractEthBalance);
                 }
             }
         }
 
-        if (totalTaxAmount > 0) {
-            _balances[address(this)] = _balances[address(this)].add(totalTaxAmount);
+        if (totalTaxAmount != 0) {
+            _balances[address(this)] += totalTaxAmount;
             emit Transfer(from, address(this), totalTaxAmount);
         }
 
-        uint256 amountAfterTax = amount.sub(totalTaxAmount);
-        _balances[from] = _balances[from].sub(amount);
-        _balances[to] = _balances[to].add(amountAfterTax);
+        uint256 amountAfterTax = amount - totalTaxAmount;
+        _balances[from] -= amount;
+        _balances[to] += amountAfterTax;
         emit Transfer(from, to, amountAfterTax);
     }
 
@@ -491,8 +493,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
 
     function _sendEthToFee(uint256 amount) private {
         uint256 tax = _feePercentages.taxPercent;
-        uint256 feeRecipientShare = amount.mul(tax).div(tax + _COIN_GENIE_FEE);
-        uint256 coinGenieShare = amount.sub(feeRecipientShare);
+        uint256 feeRecipientShare = (amount * tax) / (tax + _COIN_GENIE_FEE);
+        uint256 coinGenieShare = amount - feeRecipientShare;
 
         address payable _coinGenie = _feeTakers.coinGenie;
         (bool successCoinGenie,) = _coinGenie.call{ value: coinGenieShare }("");
@@ -506,6 +508,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         if (!successFeeRecipient) {
             revert TransferFailed(feeRecipientShare, address(this), _feeTakers.coinGenie);
         }
+
+        emit EthSentToFee(feeRecipientShare, coinGenieShare);
     }
 
     function _min(uint256 a, uint256 b) private pure returns (uint256) {

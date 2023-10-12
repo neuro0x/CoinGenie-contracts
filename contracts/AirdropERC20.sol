@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -36,14 +36,14 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @dev A contract for distributing ERC20 tokens to a list of recipients.
  */
 contract AirdropERC20 is ReentrancyGuard {
-    error NoRecipients();
-    error TokenAddressZero();
-    error NotERC20();
-    error InsufficientBalance();
-    error InsufficientAllowance();
-
     /// @dev The address of the native token (ETH).
     address public constant NATIVE_TOKEN = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
+    error NotERC20();
+    error NoRecipients();
+    error TokenAddressZero();
+    error InsufficientBalance();
+    error InsufficientAllowance();
 
     /// @dev Emitted when an failed airdrop occurs.
     event AirdropFailed(
@@ -103,7 +103,7 @@ contract AirdropERC20 is ReentrancyGuard {
 
             // Increment the counter
             unchecked {
-                i += 1;
+                i = i + 1;
             }
         }
     }
@@ -131,27 +131,22 @@ contract AirdropERC20 is ReentrancyGuard {
             return success;
         }
 
-        // Attempt to transfer if the currency is the native token (ETH)
-        if (_currency == NATIVE_TOKEN) {
-            (success,) = _to.call{ value: _amount }("");
-        } else {
-            // Attempt to transfer if the currency is an ERC20 token
-            (bool success_, bytes memory data_) = // solhint-disable-next-line avoid-low-level-calls
-             _currency.call(abi.encodeWithSelector(IERC20.transferFrom.selector, _from, _to, _amount));
+        // Attempt to transfer if the currency is an ERC20 token
+        (bool success_, bytes memory data_) = // solhint-disable-next-line avoid-low-level-calls
+         _currency.call(abi.encodeWithSelector(IERC20.transferFrom.selector, _from, _to, _amount));
 
-            success = success_;
+        success = success_;
 
-            // If the transfer failed, check the allowance and balance
-            if (!success || (data_.length > 0 && !abi.decode(data_, (bool)))) {
-                success = false;
+        // If the transfer failed, check the allowance and balance
+        if (!success || (data_.length != 0 && !abi.decode(data_, (bool)))) {
+            success = false;
 
-                if (IERC20(_currency).balanceOf(_from) < _amount) {
-                    revert InsufficientBalance();
-                }
+            if (IERC20(_currency).balanceOf(_from) < _amount) {
+                revert InsufficientBalance();
+            }
 
-                if (IERC20(_currency).allowance(_from, address(this)) < _amount) {
-                    revert InsufficientAllowance();
-                }
+            if (IERC20(_currency).allowance(_from, address(this)) < _amount) {
+                revert InsufficientAllowance();
             }
         }
     }

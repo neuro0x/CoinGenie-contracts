@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -27,20 +27,16 @@ pragma solidity ^0.8.21;
  */
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-
-import { ICoinGenieERC20 } from "../token/ICoinGenieERC20.sol";
 
 /**
  * @title Payments
  * @author @neuro_0x
  * @dev This contract is used to split payments between multiple parties, and track and affiliates and their fees.
  */
-abstract contract Payments is Ownable {
-    using SafeMath for uint256;
-
+abstract contract Payments is Ownable, ReentrancyGuard {
     /// @dev The maximum amount of basis points
     uint256 private constant _MAX_BPS = 10_000;
 
@@ -82,15 +78,15 @@ abstract contract Payments is Ownable {
     /// @dev The event emitted when a payee is added
     /// @param account the payee account
     /// @param shares the amount of shares for the payee
-    event PayeeAdded(address account, uint256 shares);
+    event PayeeAdded(address indexed account, uint256 indexed shares);
     /// @dev The event emitted when a payment is released
     /// @param to the account to release payment to
     /// @param amount the amount of payment released
-    event PaymentReleased(address to, uint256 amount);
+    event PaymentReleased(address indexed to, uint256 indexed amount);
     /// @dev The event emitted when a payment is received
     /// @param from the account that sent the payment
     /// @param amount the amount of payment received
-    event PaymentReceived(address from, uint256 amount);
+    event PaymentReceived(address indexed from, uint256 indexed amount);
 
     /// @dev The error emitted when there are no payees
     error NoPayees();
@@ -224,7 +220,7 @@ abstract contract Payments is Ownable {
      * @param account the affiliate to release payment to
      * @param genie_ the address of the CoinGenie ERC20 $GENIE token
      */
-    function affiliateRelease(address payable account, address genie_) external {
+    function affiliateRelease(address payable account, address genie_) external nonReentrant {
         uint256 payment = _amountOwedToAffiliate[account];
 
         if (payment == 0) {
@@ -249,6 +245,8 @@ abstract contract Payments is Ownable {
                 0, path, account, block.timestamp
             );
         }
+
+        emit PaymentReleased(account, payment);
     }
 
     /**
@@ -267,7 +265,7 @@ abstract contract Payments is Ownable {
      * @dev Pay a team member
      * @param account the account to release payment to
      */
-    function release(address payable account) public virtual {
+    function release(address payable account) external virtual nonReentrant {
         if (_shares[account] == 0) {
             revert ZeroSharesForAccount(account);
         }
@@ -286,6 +284,7 @@ abstract contract Payments is Ownable {
         if (!success) {
             revert PaymentFailed();
         }
+
         emit PaymentReleased(account, payment);
     }
 
@@ -297,9 +296,14 @@ abstract contract Payments is Ownable {
      * @notice all payees should be paid before calling this function
      */
     function resetSplit(address[] memory payees, uint256[] memory shares_) external onlyOwner {
-        for (uint256 i = 0; i < _payees.length; i++) {
+        uint256 len = _payees.length;
+        for (uint256 i = 0; i < len;) {
             _released[_payees[i]] = 0;
             _shares[_payees[i]] = 0;
+
+            unchecked {
+                i = i + 1;
+            }
         }
 
         _totalShares = 0;
@@ -314,16 +318,21 @@ abstract contract Payments is Ownable {
      * @param shares_ the array of shares
      */
     function _createSplit(address[] memory payees, uint256[] memory shares_) internal {
-        if (payees.length != shares_.length) {
-            revert PayeeShareLengthMisMatch(payees.length, shares_.length);
+        uint256 len = payees.length;
+        if (len != shares_.length) {
+            revert PayeeShareLengthMisMatch(len, shares_.length);
         }
 
-        if (payees.length == 0) {
+        if (len == 0) {
             revert NoPayees();
         }
 
-        for (uint256 i = 0; i < payees.length; i++) {
+        for (uint256 i = 0; i < len;) {
             _addPayee(payees[i], shares_[i]);
+
+            unchecked {
+                i = i + 1;
+            }
         }
     }
 
@@ -359,7 +368,7 @@ abstract contract Payments is Ownable {
             revert SharesAreZero();
         }
 
-        if (_shares[account] > 0) {
+        if (_shares[account] != 0) {
             revert AccountAlreadyHasShares();
         }
 

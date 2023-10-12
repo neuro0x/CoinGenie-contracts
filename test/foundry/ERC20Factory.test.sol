@@ -58,6 +58,7 @@ contract ERC20FactoryTest is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
+        erc20Factory.setCoinGenie(payable(address(coinGenie)));
         erc20Factory.setGenie(address(coinGenieERC20));
         coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
     }

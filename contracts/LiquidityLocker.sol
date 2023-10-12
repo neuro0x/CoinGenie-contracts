@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -27,7 +27,6 @@ pragma solidity ^0.8.21;
  */
 
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
@@ -44,21 +43,10 @@ import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/I
  */
 contract LiquidityLocker is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 public fee;
     address public feeRecipient;
-
-    error LockMismatch();
-    error InvalidAmount();
-    error MigratorNotSet();
-    error InvalidLockDate();
-    error OwnerAlreadySet();
-    error InvalidRecipient();
-    error BeforeUnlockDate();
-    error NotUniPair(address lpToken);
-    error TransferFailed(uint256 amount, address from, address to);
 
     IUniswapV2Factory private constant _UNISWAP_V2_FACTORY =
         IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
@@ -84,15 +72,33 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
 
     IUniswapV2Migrator public migrator;
 
-    event OnWithdraw(address lpToken, uint256 amount);
-    event OnDeposit(address lpToken, address user, uint256 amount, uint256 lockDate, uint256 unlockDate);
+    error LockMismatch();
+    error InvalidAmount();
+    error MigratorNotSet();
+    error InvalidLockDate();
+    error OwnerAlreadySet();
+    error InvalidRecipient();
+    error BeforeUnlockDate();
+    error NotUniPair(address lpToken);
+    error TransferFailed(uint256 amount, address from, address to);
+
+    event FeeSet(uint256 indexed fee);
+    event MigratorSet(address indexed migrator);
+    event FeeRecipientSet(address indexed feeRecipient);
+    event LockOwnershipTransfered(address indexed newOwner);
+    event OnWithdraw(address indexed lpToken, uint256 indexed amount);
+    event Migrated(address indexed user, address indexed lpToken, uint256 indexed amount);
+    event OnRelock(address indexed user, address indexed lpToken, uint256 indexed unlockDate);
+    event OnDeposit(
+        address lpToken, address indexed user, uint256 amount, uint256 indexed lockDate, uint256 indexed unlockDate
+    );
 
     /**
      * @dev Creates a new LiquidityLocker contract
      * @param _fee The fee amount to use
      * @param _feeRecipient The address to send fees to
      */
-    constructor(uint256 _fee, address _feeRecipient) {
+    constructor(uint256 _fee, address _feeRecipient) payable {
         fee = _fee;
         feeRecipient = _feeRecipient;
     }
@@ -103,6 +109,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
      */
     function setFee(uint256 amount) external onlyOwner {
         fee = amount;
+        emit FeeSet(amount);
     }
 
     /**
@@ -111,14 +118,16 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
      */
     function setFeeRecipient(address feeRecipient_) external onlyOwner {
         feeRecipient = feeRecipient_;
+        emit FeeRecipientSet(feeRecipient_);
     }
 
     /**
      * @dev Set the migrator contract which allows locked lp tokens to be migrated to uniswap v3
      * @param _migrator The address of the migrator contract
      */
-    function setMigrator(IUniswapV2Migrator _migrator) public onlyOwner {
+    function setMigrator(IUniswapV2Migrator _migrator) external onlyOwner {
         migrator = _migrator;
+        emit MigratorSet(address(_migrator));
     }
 
     /**
@@ -212,6 +221,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
         }
 
         userLock.unlockDate = _unlockDate;
+        emit OnRelock(_msgSender(), address(_lpToken), _unlockDate);
     }
 
     /**
@@ -323,6 +333,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
         }
 
         transferredLock.owner = _newOwner;
+        emit LockOwnershipTransfered(_newOwner);
     }
 
     /**
@@ -358,6 +369,7 @@ contract LiquidityLocker is Ownable, ReentrancyGuard {
 
         IERC20(_lpToken).approve(address(migrator), _amount);
         migrator.migrate(address(_lpToken), _amount, userLock.unlockDate, _msgSender(), block.timestamp + 1 days);
+        emit Migrated(_msgSender(), address(_lpToken), _amount);
     }
 
     /**

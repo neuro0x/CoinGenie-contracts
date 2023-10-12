@@ -76,13 +76,18 @@ contract E2ETest is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
+        erc20Factory.setCoinGenie(payable(address(coinGenie)));
         coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
         erc20Factory.setGenie(payable(address(coinGenieERC20)));
 
         _logCoinGenieInfo();
 
-        for (uint256 i = 0; i < users.length; i++) {
+        for (uint256 i = 0; i < users.length;) {
             vm.deal(users[i], 10 ether);
+
+            unchecked {
+                i = i + 1;
+            }
         }
 
         vm.label(user1, "User 1");

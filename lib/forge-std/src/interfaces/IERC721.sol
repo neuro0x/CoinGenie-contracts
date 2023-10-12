@@ -43,7 +43,7 @@ interface IERC721 is IERC165 {
     /// operator, or the approved address for this NFT. Throws if `_from` is
     /// not the current owner. Throws if `_to` is the zero address. Throws if
     /// `_tokenId` is not a valid NFT. When transfer is complete, this function
-    /// checks if `_to` is a smart contract (code size > 0). If so, it calls
+    /// checks if `_to` is a smart contract (code size != 0). If so, it calls
     /// `onERC721Received` on `_to` and throws if the return value is not
     /// `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`.
     /// @param _from The current owner of the NFT

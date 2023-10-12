@@ -69,6 +69,7 @@ contract LiquidityLockerTest is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
+        erc20Factory.setCoinGenie(payable(address(coinGenie)));
         erc20Factory.setGenie(address(coinGenieERC20));
         coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
         lpToken = IUniswapV2Pair(
@@ -93,7 +94,7 @@ contract LiquidityLockerTest is Test {
         );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
-        for (uint256 i = 0; i < userNumLockedTokens; i++) {
+        for (uint256 i = 0; i < userNumLockedTokens;) {
             (
                 uint256 lockDate,
                 uint256 _amount,
@@ -109,6 +110,10 @@ contract LiquidityLockerTest is Test {
             assertEq(unlockDate, unlockTime);
             assertEq(lockID, i);
             assertEq(owner, address(this));
+
+            unchecked {
+                i = i + 1;
+            }
         }
     }
 
@@ -125,7 +130,7 @@ contract LiquidityLockerTest is Test {
         );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
-        for (uint256 i = 0; i < userNumLockedTokens; i++) {
+        for (uint256 i = 0; i < userNumLockedTokens;) {
             (
                 uint256 lockDate,
                 uint256 _amount,
@@ -141,6 +146,10 @@ contract LiquidityLockerTest is Test {
             assertEq(_unlockDate, unlockDate);
             assertEq(lockID, i);
             assertEq(owner, address(this));
+
+            unchecked {
+                i = i + 1;
+            }
         }
     }
 
@@ -154,7 +163,7 @@ contract LiquidityLockerTest is Test {
         );
 
         uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(withdrawer);
-        for (uint256 i = 0; i < userNumLockedTokens; i++) {
+        for (uint256 i = 0; i < userNumLockedTokens;) {
             (
                 uint256 lockDate,
                 uint256 _amount,
@@ -170,42 +179,9 @@ contract LiquidityLockerTest is Test {
             assertEq(unlockDate, block.timestamp + 1 days);
             assertEq(lockID, i);
             assertEq(owner, withdrawer);
-        }
-    }
 
-    function testFuzz_relock_unlockDate(uint256 unlockDate) public {
-        uint256 amount = lpToken.balanceOf(address(this));
-        uint256 currentLockDate = block.timestamp + 1 days;
-
-        vm.assume(unlockDate > currentLockDate);
-        vm.assume(unlockDate <= 10_000_000_000);
-
-        lpToken.approve(address(liquidityLocker), amount);
-
-        liquidityLocker.lockLPToken{ value: 0.1 ether }(
-            IERC20(address(lpToken)), amount, currentLockDate, payable(address(this))
-        );
-
-        uint256 userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
-        for (uint256 i = 0; i < userNumLockedTokens; i++) {
-            liquidityLocker.relock(IERC20(address(lpToken)), 0, 0, unlockDate);
-            userNumLockedTokens = liquidityLocker.getUserNumLockedTokens(address(this));
-            for (uint256 _i = 0; i < userNumLockedTokens; i++) {
-                (
-                    uint256 lockDate,
-                    uint256 _amount,
-                    uint256 initialAmount,
-                    uint256 _unlockDate,
-                    uint256 lockID,
-                    address owner
-                ) = liquidityLocker.getUserLockForTokenAtIndex(address(this), address(lpToken), _i);
-
-                assertEq(lockDate, block.timestamp);
-                assertEq(_amount, amount);
-                assertEq(initialAmount, amount);
-                assertEq(_unlockDate, unlockDate);
-                assertEq(lockID, _i);
-                assertEq(owner, address(this));
+            unchecked {
+                i = i + 1;
             }
         }
     }

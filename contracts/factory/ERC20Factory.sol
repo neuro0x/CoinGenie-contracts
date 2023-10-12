@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -27,6 +27,7 @@ pragma solidity ^0.8.21;
  */
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import { CoinGenieERC20 } from "../token/CoinGenieERC20.sol";
 import { ICoinGenieERC20 } from "../token/ICoinGenieERC20.sol";
@@ -36,18 +37,29 @@ import { ICoinGenieERC20 } from "../token/ICoinGenieERC20.sol";
  * @author @neuro_0x
  * @dev A factory library to deploy instances of the CoinGenieERC20 contract.
  */
-contract ERC20Factory is Ownable {
+contract ERC20Factory is Ownable, ReentrancyGuard {
     /// @dev The address of the genie token
     address private _genie;
+
+    /// @dev The address of the coin genie
+    address payable private _coinGenie;
 
     /// @dev The amount of $GENIE a person has to hold to get the discount
     uint256 private _discountFeeRequiredAmount = 100_000 ether;
 
-    /// @notice Error thrown when the genie is already set.
-    error GenieAlreadySet();
+    error GenieAlreadySet(address genieAddress);
+    error CoinGenieAlreadySet(address coinGenieAddress);
+
+    event GenieSet(address indexed genieAddress);
+    event CoinGenieSet(address indexed coinGenieAddress);
+    event DiscountFeeRequiredAmountSet(uint256 indexed amount);
 
     function genie() public view returns (address) {
         return _genie;
+    }
+
+    function coinGenie() public view returns (address) {
+        return _coinGenie;
     }
 
     /**
@@ -56,7 +68,6 @@ contract ERC20Factory is Ownable {
      * @param symbol - the ticker symbol of the token
      * @param totalSupply - the totalSupply of the token
      * @param feeRecipient - the address that will be the owner of the token and receive fees
-     * @param coinGenie - the address of the CoinGenie contract
      * @param affiliateFeeRecipient - the address to receive the affiliate fee
      * @param taxPercent - the percent in basis points to use as a tax
      * @param maxBuyPercent - amount of tokens allowed to be transferred in one tx as a percent of the total supply
@@ -69,13 +80,13 @@ contract ERC20Factory is Ownable {
         string memory symbol,
         uint256 totalSupply,
         address payable feeRecipient,
-        address payable coinGenie,
         address payable affiliateFeeRecipient,
         uint256 taxPercent,
         uint256 maxBuyPercent,
         uint256 maxWalletPercent
     )
         external
+        nonReentrant
         returns (ICoinGenieERC20 coinGenieERC20)
     {
         coinGenieERC20 = new CoinGenieERC20(
@@ -83,7 +94,7 @@ contract ERC20Factory is Ownable {
             symbol,
             totalSupply,
             feeRecipient,
-            coinGenie,
+            _coinGenie,
             affiliateFeeRecipient,
             taxPercent,
             maxBuyPercent,
@@ -93,8 +104,6 @@ contract ERC20Factory is Ownable {
 
         coinGenieERC20.setGenie(payable(_genie));
         Ownable(address(coinGenieERC20)).transferOwnership(feeRecipient);
-
-        return coinGenieERC20;
     }
 
     /**
@@ -103,6 +112,7 @@ contract ERC20Factory is Ownable {
      */
     function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
         _discountFeeRequiredAmount = amount;
+        emit DiscountFeeRequiredAmountSet(amount);
     }
 
     /**
@@ -111,9 +121,23 @@ contract ERC20Factory is Ownable {
      */
     function setGenie(address genie_) external onlyOwner {
         if (_genie != address(0)) {
-            revert GenieAlreadySet();
+            revert GenieAlreadySet(_genie);
         }
 
         _genie = genie_;
+        emit GenieSet(_genie);
+    }
+
+    /**
+     * @dev Sets the address of the coin genie
+     * @param coinGenie_ - the address of the coin genie
+     */
+    function setCoinGenie(address payable coinGenie_) external onlyOwner {
+        if (_genie != address(0)) {
+            revert CoinGenieAlreadySet(_coinGenie);
+        }
+
+        _coinGenie = coinGenie_;
+        emit CoinGenieSet(_coinGenie);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -43,28 +43,28 @@ contract AirdropERC20Claimable {
     error InvalidAirdropParameters(address tokenOwner, address airdropTokenAddress, uint256 airdropAmount);
 
     /// @dev The address of the token to be airdropped.
-    address public airdropTokenAddress;
+    address public immutable airdropTokenAddress;
 
     /// @dev The owner of the token to be airdropped.
-    address public tokenOwner;
+    address public immutable tokenOwner;
+
+    /// @dev Expiration timestamp of the airdrop.
+    uint256 public immutable expirationTimestamp;
+
+    /// @dev Maximum number of tokens that can be claimed by a wallet if not in the whitelist.
+    uint256 public immutable maxWalletClaimCount;
+
+    /// @dev Merkle root of the whitelist.
+    bytes32 public immutable merkleRoot;
 
     /// @dev The quantity of tokens available for airdrop.
     uint256 public availableAmount;
-
-    /// @dev Expiration timestamp of the airdrop.
-    uint256 public expirationTimestamp;
-
-    /// @dev Maximum number of tokens that can be claimed by a wallet if not in the whitelist.
-    uint256 public maxWalletClaimCount;
-
-    /// @dev Merkle root of the whitelist.
-    bytes32 public merkleRoot;
 
     /// @dev Mapping from address => total number of tokens a wallet has claimed.
     mapping(address claimer => uint256 amount) public totalClaimedByWallet;
 
     /// @dev Emitted when tokens are claimed
-    event TokensClaimed(address indexed claimer, uint256 quantityClaimed);
+    event TokensClaimed(address indexed claimer, uint256 indexed quantityClaimed);
 
     /**
      * @dev Initializes the contract.
@@ -82,7 +82,9 @@ contract AirdropERC20Claimable {
         uint256 _expirationTimestamp,
         uint256 _maxWalletClaimCount,
         bytes32 _merkleRoot
-    ) {
+    )
+        payable
+    {
         if (_tokenOwner == address(0) || _airdropTokenAddress == address(0) || _airdropAmount == 0) {
             revert InvalidAirdropParameters(_tokenOwner, _airdropTokenAddress, _airdropAmount);
         }

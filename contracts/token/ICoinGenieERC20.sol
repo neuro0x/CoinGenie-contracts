@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -22,7 +22,6 @@ interface ICoinGenieERC20 is IERC20 {
     function balanceOf(address account) external view returns (uint256);
     function amountEthReceived(address feeRecipient_) external view returns (uint256);
     function burn(uint256 amount) external;
-    function burnFrom(address from, uint256 amount) external;
     function transfer(address recipient, uint256 amount) external returns (bool);
     function allowance(address owner, address spender) external view returns (uint256);
     function approve(address spender, uint256 amount) external returns (bool);

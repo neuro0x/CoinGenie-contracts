@@ -63,6 +63,7 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
+        coinGenieERC20Factory.setCoinGenie(payable(address(coinGenie)));
         coinGenieERC20Factory.setGenie(address(coinGenieERC20));
         coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
     }
@@ -172,21 +173,5 @@ contract CoinGenieERC20Test is Test {
 
         assertEq(coinGenieERC20.balanceOf(address(this)), balance - amount);
         assertEq(coinGenieERC20.totalSupply(), balance - amount);
-    }
-
-    function testFuzz_burnFrom(uint256 amount) public {
-        uint256 balance = coinGenieERC20.balanceOf(address(this));
-        vm.assume(amount > 0);
-        vm.assume(amount <= balance);
-        uint256 totalSupplyBefore = coinGenieERC20.totalSupply();
-
-        address to1 = address(0x1);
-        coinGenieERC20.transfer(to1, amount);
-        vm.prank(to1);
-        coinGenieERC20.approve(address(this), amount);
-
-        coinGenieERC20.burnFrom(to1, amount);
-
-        assertEq(coinGenieERC20.totalSupply(), totalSupplyBefore - amount);
     }
 }

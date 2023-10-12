@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity 0.8.21;
 
 /*
             ██████                                                                                  
@@ -26,8 +26,6 @@ pragma solidity ^0.8.21;
   ██████████████████████████          █████████████ █████████████████       █████ █████ ████████████
  */
 
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import { Payments } from "./abstract/Payments.sol";
@@ -44,11 +42,8 @@ import { AirdropERC20Claimable } from "./AirdropERC20Claimable.sol";
  * @author @neuro_0x
  * @dev The orchestrator contract for the CoinGenie ecosystem.
  */
-contract CoinGenie is Payments, ReentrancyGuard {
+contract CoinGenie is Payments {
     uint256 private constant _MAX_BPS = 10_000;
-
-    IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
-        IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
     struct LaunchedToken {
         string name;
@@ -87,8 +82,8 @@ contract CoinGenie is Payments, ReentrancyGuard {
 
     mapping(PayoutCategory category => Payout payout) private _payouts;
 
-    ERC20Factory private _erc20Factory;
-    AirdropERC20ClaimableFactory private _airdropClaimableERC20Factory;
+    ERC20Factory private immutable _erc20Factory;
+    AirdropERC20ClaimableFactory private immutable _airdropClaimableERC20Factory;
 
     address[] public launchedTokens;
     address[] public createdClaimableAirdrops;
@@ -114,27 +109,11 @@ contract CoinGenie is Payments, ReentrancyGuard {
     );
 
     /**
-     * @notice Modifier to ensure that the caller is a team member.
-     */
-    modifier onlyTeamMember() {
-        address caller = msg.sender;
-        bool isTeamMember = caller == _payouts[PayoutCategory.Treasury].receiver
-            || caller == _payouts[PayoutCategory.Dev].receiver || caller == _payouts[PayoutCategory.Legal].receiver
-            || caller == _payouts[PayoutCategory.Marketing].receiver;
-
-        if (!isTeamMember) {
-            revert NotTeamMember(caller);
-        }
-
-        _;
-    }
-
-    /**
      * @notice Construct the CoinGenie contract.
      * @param erc20FactoryAddress The address of the ERC20Factory contract
      * @param airdropClaimableERC20FactoryAddress The address of the AirdropERC20ClaimableFactory contract
      */
-    constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress) {
+    constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress) payable {
         _erc20Factory = ERC20Factory(erc20FactoryAddress);
         _airdropClaimableERC20Factory = AirdropERC20ClaimableFactory(airdropClaimableERC20FactoryAddress);
 
@@ -161,7 +140,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
             address payable affiliate = launchedTokenDetails[from].affiliateFeeRecipient;
             uint256 affiliateAmount = (msg.value * _affiliateFeePercent) / _MAX_BPS;
 
-            if (affiliateAmount > 0 && affiliate != address(0) && affiliate != address(this)) {
+            if (affiliateAmount != 0 && affiliate != address(0) && affiliate != address(this)) {
                 _affiliatePayoutOwed += affiliateAmount;
                 _amountReceivedFromAffiliate[affiliate] += msg.value;
                 _amountOwedToAffiliate[affiliate] += affiliateAmount;
@@ -213,15 +192,7 @@ contract CoinGenie is Payments, ReentrancyGuard {
 
         // Deploy the token contract
         newToken = _erc20Factory.launchToken(
-            name,
-            symbol,
-            totalSupply,
-            feeRecipient,
-            payable(address(this)),
-            affiliateFeeRecipient,
-            taxPercent,
-            maxBuyPercent,
-            maxWalletPercent
+            name, symbol, totalSupply, feeRecipient, affiliateFeeRecipient, taxPercent, maxBuyPercent, maxWalletPercent
         );
 
         // Add the token address to the array of launched token addresses
@@ -254,8 +225,6 @@ contract CoinGenie is Payments, ReentrancyGuard {
 
         // Emit the event
         emit ERC20Launched(address(newToken), msg.sender);
-
-        return newToken;
     }
 
     /**

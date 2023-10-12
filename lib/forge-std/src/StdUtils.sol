@@ -156,7 +156,7 @@ abstract contract StdUtils {
         assembly {
             tokenCodeSize := extcodesize(token)
         }
-        require(tokenCodeSize > 0, "StdUtils getTokenBalances(address,address[]): Token address is not a contract.");
+        require(tokenCodeSize != 0, "StdUtils getTokenBalances(address,address[]): Token address is not a contract.");
 
         // ABI encode the aggregate call to Multicall3.
         uint256 length = addresses.length;
