@@ -1,8 +1,8 @@
 # ERC20Factory
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/factory/ERC20Factory.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/factory/ERC20Factory.sol)
 
 **Inherits:**
-Ownable
+Ownable, ReentrancyGuard
 
 **Author:**
 @neuro_0x
@@ -17,6 +17,15 @@ Ownable
 
 ```solidity
 address private _genie;
+```
+
+
+### _coinGenie
+*The address of the coin genie*
+
+
+```solidity
+address payable private _coinGenie;
 ```
 
 
@@ -37,6 +46,13 @@ uint256 private _discountFeeRequiredAmount = 100_000 ether;
 function genie() public view returns (address);
 ```
 
+### coinGenie
+
+
+```solidity
+function coinGenie() public view returns (address);
+```
+
 ### launchToken
 
 *Creates a new instance of the CoinGenieERC20 contract*
@@ -48,13 +64,13 @@ function launchToken(
     string memory symbol,
     uint256 totalSupply,
     address payable feeRecipient,
-    address payable coinGenie,
     address payable affiliateFeeRecipient,
     uint256 taxPercent,
     uint256 maxBuyPercent,
     uint256 maxWalletPercent
 )
     external
+    nonReentrant
     returns (ICoinGenieERC20 coinGenieERC20);
 ```
 **Parameters**
@@ -65,7 +81,6 @@ function launchToken(
 |`symbol`|`string`|- the ticker symbol of the token|
 |`totalSupply`|`uint256`|- the totalSupply of the token|
 |`feeRecipient`|`address payable`|- the address that will be the owner of the token and receive fees|
-|`coinGenie`|`address payable`|- the address of the CoinGenie contract|
 |`affiliateFeeRecipient`|`address payable`|- the address to receive the affiliate fee|
 |`taxPercent`|`uint256`|- the percent in basis points to use as a tax|
 |`maxBuyPercent`|`uint256`|- amount of tokens allowed to be transferred in one tx as a percent of the total supply|
@@ -108,12 +123,50 @@ function setGenie(address genie_) external onlyOwner;
 |`genie_`|`address`|- the address of the genie token|
 
 
-## Errors
-### GenieAlreadySet
-Error thrown when the genie is already set.
+### setCoinGenie
+
+*Sets the address of the coin genie*
 
 
 ```solidity
-error GenieAlreadySet();
+function setCoinGenie(address payable coinGenie_) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`coinGenie_`|`address payable`|- the address of the coin genie|
+
+
+## Events
+### GenieSet
+
+```solidity
+event GenieSet(address indexed genieAddress);
+```
+
+### CoinGenieSet
+
+```solidity
+event CoinGenieSet(address indexed coinGenieAddress);
+```
+
+### DiscountFeeRequiredAmountSet
+
+```solidity
+event DiscountFeeRequiredAmountSet(uint256 indexed amount);
+```
+
+## Errors
+### GenieAlreadySet
+
+```solidity
+error GenieAlreadySet(address genieAddress);
+```
+
+### CoinGenieAlreadySet
+
+```solidity
+error CoinGenieAlreadySet(address coinGenieAddress);
 ```
 

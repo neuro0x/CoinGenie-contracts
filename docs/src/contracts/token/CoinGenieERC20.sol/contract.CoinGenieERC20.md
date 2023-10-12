@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -190,7 +190,8 @@ constructor(
     uint256 maxBuyPercent_,
     uint256 maxWalletPercent_,
     uint256 discountFeeRequiredAmount_
-);
+)
+    payable;
 ```
 
 ### receive
@@ -323,14 +324,7 @@ function balanceOf(address account) public view override returns (uint256);
 
 
 ```solidity
-function burn(uint256 amount) public;
-```
-
-### burnFrom
-
-
-```solidity
-function burnFrom(address from, uint256 amount) public;
+function burn(uint256 amount) external;
 ```
 
 ### transfer
@@ -394,7 +388,7 @@ function addLiquidity(uint256 amountToLP, bool payInGenie) external payable only
 
 
 ```solidity
-function removeLiquidity(uint256 amountToRemove) external;
+function removeLiquidity(uint256 amountToRemove) external onlyOwner nonReentrant;
 ```
 
 ### setGenie
@@ -535,10 +529,40 @@ function _setWhitelist(address feeRecipient_, address coinGenie_, address affili
 ```
 
 ## Events
+### GenieSet
+
+```solidity
+event GenieSet(address indexed genie);
+```
+
 ### TradingOpened
 
 ```solidity
 event TradingOpened(address indexed pair);
+```
+
+### MaxBuyPercentSet
+
+```solidity
+event MaxBuyPercentSet(uint256 indexed maxBuyPercent);
+```
+
+### FeeRecipientSet
+
+```solidity
+event FeeRecipientSet(address indexed feeRecipient);
+```
+
+### MaxWalletPercentSet
+
+```solidity
+event MaxWalletPercentSet(uint256 indexed maxWalletPercent);
+```
+
+### EthSentToFee
+
+```solidity
+event EthSentToFee(uint256 indexed feeRecipientShare, uint256 indexed coinGenieShare);
 ```
 
 ## Errors

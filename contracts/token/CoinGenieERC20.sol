@@ -287,7 +287,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             address(this), balanceOf(address(this)), 0, 0, from, block.timestamp
         );
 
-        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), amountToLP);
+        SafeERC20.safeIncreaseAllowance(ICoinGenieERC20(_uniswapV2Pair), address(_UNISWAP_V2_ROUTER), amountToLP);
 
         _isSwapEnabled = true;
         _isTradingOpen = true;
@@ -321,7 +321,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         }
 
         uint256 ethAmountToLP = value - ethAmountToTreasury;
-        ICoinGenieERC20(_uniswapV2Pair).approve(address(_UNISWAP_V2_ROUTER), type(uint256).max);
+        SafeERC20.safeIncreaseAllowance(ICoinGenieERC20(_uniswapV2Pair), address(_UNISWAP_V2_ROUTER), amountToLP);
         _UNISWAP_V2_ROUTER.addLiquidityETH{ value: ethAmountToLP }(
             address(this), amountToLP, 0, 0, from, block.timestamp
         );

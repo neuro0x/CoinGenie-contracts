@@ -37,6 +37,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 contract AirdropERC20 is ReentrancyGuard {
     /// @dev The address of the native token (ETH).
+
     address public constant NATIVE_TOKEN = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     error NotERC20();

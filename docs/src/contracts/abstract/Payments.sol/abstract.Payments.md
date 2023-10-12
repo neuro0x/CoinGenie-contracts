@@ -1,8 +1,8 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/abstract/Payments.sol)
 
 **Inherits:**
-Ownable
+Ownable, ReentrancyGuard
 
 **Author:**
 @neuro_0x
@@ -360,7 +360,7 @@ function affiliateFeePercent() public view returns (uint256);
 
 
 ```solidity
-function affiliateRelease(address payable account, address genie_) external;
+function affiliateRelease(address payable account, address genie_) external nonReentrant;
 ```
 **Parameters**
 
@@ -391,7 +391,7 @@ function setAffiliatePercent(uint256 newAffiliatePercent) external onlyOwner;
 
 
 ```solidity
-function release(address payable account) public virtual;
+function release(address payable account) external virtual nonReentrant;
 ```
 **Parameters**
 
@@ -480,7 +480,7 @@ function _addPayee(address account, uint256 shares_) private;
 
 
 ```solidity
-event PayeeAdded(address account, uint256 shares);
+event PayeeAdded(address indexed account, uint256 indexed shares);
 ```
 
 ### PaymentReleased
@@ -488,7 +488,7 @@ event PayeeAdded(address account, uint256 shares);
 
 
 ```solidity
-event PaymentReleased(address to, uint256 amount);
+event PaymentReleased(address indexed to, uint256 indexed amount);
 ```
 
 ### PaymentReceived
@@ -496,7 +496,7 @@ event PaymentReleased(address to, uint256 amount);
 
 
 ```solidity
-event PaymentReceived(address from, uint256 amount);
+event PaymentReceived(address indexed from, uint256 indexed amount);
 ```
 
 ## Errors

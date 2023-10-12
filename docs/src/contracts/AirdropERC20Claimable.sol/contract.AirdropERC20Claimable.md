@@ -1,5 +1,5 @@
 # AirdropERC20Claimable
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/AirdropERC20Claimable.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/AirdropERC20Claimable.sol)
 
 **Author:**
 @neuro_0x
@@ -13,7 +13,7 @@
 
 
 ```solidity
-address public airdropTokenAddress;
+address public immutable airdropTokenAddress;
 ```
 
 
@@ -22,7 +22,34 @@ address public airdropTokenAddress;
 
 
 ```solidity
-address public tokenOwner;
+address public immutable tokenOwner;
+```
+
+
+### expirationTimestamp
+*Expiration timestamp of the airdrop.*
+
+
+```solidity
+uint256 public immutable expirationTimestamp;
+```
+
+
+### maxWalletClaimCount
+*Maximum number of tokens that can be claimed by a wallet if not in the whitelist.*
+
+
+```solidity
+uint256 public immutable maxWalletClaimCount;
+```
+
+
+### merkleRoot
+*Merkle root of the whitelist.*
+
+
+```solidity
+bytes32 public immutable merkleRoot;
 ```
 
 
@@ -32,33 +59,6 @@ address public tokenOwner;
 
 ```solidity
 uint256 public availableAmount;
-```
-
-
-### expirationTimestamp
-*Expiration timestamp of the airdrop.*
-
-
-```solidity
-uint256 public expirationTimestamp;
-```
-
-
-### maxWalletClaimCount
-*Maximum number of tokens that can be claimed by a wallet if not in the whitelist.*
-
-
-```solidity
-uint256 public maxWalletClaimCount;
-```
-
-
-### merkleRoot
-*Merkle root of the whitelist.*
-
-
-```solidity
-bytes32 public merkleRoot;
 ```
 
 
@@ -85,7 +85,8 @@ constructor(
     uint256 _expirationTimestamp,
     uint256 _maxWalletClaimCount,
     bytes32 _merkleRoot
-);
+)
+    payable;
 ```
 **Parameters**
 
@@ -163,7 +164,7 @@ function _transferClaimedTokens(address recipient, uint256 amount) private;
 
 
 ```solidity
-event TokensClaimed(address indexed claimer, uint256 quantityClaimed);
+event TokensClaimed(address indexed claimer, uint256 indexed quantityClaimed);
 ```
 
 ## Errors

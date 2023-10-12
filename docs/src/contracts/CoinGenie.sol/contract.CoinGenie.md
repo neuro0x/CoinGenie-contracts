@@ -1,8 +1,8 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/CoinGenie.sol)
 
 **Inherits:**
-[Payments](/contracts/abstract/Payments.sol/abstract.Payments.md), ReentrancyGuard
+[Payments](/contracts/abstract/Payments.sol/abstract.Payments.md)
 
 **Author:**
 @neuro_0x
@@ -18,13 +18,6 @@ uint256 private constant _MAX_BPS = 10_000;
 ```
 
 
-### UNISWAP_V2_ROUTER
-
-```solidity
-IUniswapV2Router02 public constant UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-```
-
-
 ### _payouts
 
 ```solidity
@@ -35,14 +28,14 @@ mapping(PayoutCategory category => Payout payout) private _payouts;
 ### _erc20Factory
 
 ```solidity
-ERC20Factory private _erc20Factory;
+ERC20Factory private immutable _erc20Factory;
 ```
 
 
 ### _airdropClaimableERC20Factory
 
 ```solidity
-AirdropERC20ClaimableFactory private _airdropClaimableERC20Factory;
+AirdropERC20ClaimableFactory private immutable _airdropClaimableERC20Factory;
 ```
 
 
@@ -82,22 +75,13 @@ mapping(address user => ClaimableAirdrop[] airdrops) public claimableAirdropCrea
 
 
 ## Functions
-### onlyTeamMember
-
-Modifier to ensure that the caller is a team member.
-
-
-```solidity
-modifier onlyTeamMember();
-```
-
 ### constructor
 
 Construct the CoinGenie contract.
 
 
 ```solidity
-constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress);
+constructor(address erc20FactoryAddress, address airdropClaimableERC20FactoryAddress) payable;
 ```
 **Parameters**
 

@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -130,13 +130,6 @@ function amountEthReceived(address feeRecipient_) external view returns (uint256
 
 ```solidity
 function burn(uint256 amount) external;
-```
-
-### burnFrom
-
-
-```solidity
-function burnFrom(address from, uint256 amount) external;
 ```
 
 ### transfer

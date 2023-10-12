@@ -1,5 +1,5 @@
 # LiquidityLocker
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/f4685b66b48912aa4b3a6318b54fa0ded8691cc2/contracts/LiquidityLocker.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/LiquidityLocker.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -67,7 +67,7 @@ IUniswapV2Migrator public migrator;
 
 
 ```solidity
-constructor(uint256 _fee, address _feeRecipient);
+constructor(uint256 _fee, address _feeRecipient) payable;
 ```
 **Parameters**
 
@@ -113,7 +113,7 @@ function setFeeRecipient(address feeRecipient_) external onlyOwner;
 
 
 ```solidity
-function setMigrator(IUniswapV2Migrator _migrator) public onlyOwner;
+function setMigrator(IUniswapV2Migrator _migrator) external onlyOwner;
 ```
 **Parameters**
 
@@ -336,16 +336,54 @@ function getUserLockForTokenAtIndex(
 
 
 ## Events
+### FeeSet
+
+```solidity
+event FeeSet(uint256 indexed fee);
+```
+
+### MigratorSet
+
+```solidity
+event MigratorSet(address indexed migrator);
+```
+
+### FeeRecipientSet
+
+```solidity
+event FeeRecipientSet(address indexed feeRecipient);
+```
+
+### LockOwnershipTransfered
+
+```solidity
+event LockOwnershipTransfered(address indexed newOwner);
+```
+
 ### OnWithdraw
 
 ```solidity
-event OnWithdraw(address lpToken, uint256 amount);
+event OnWithdraw(address indexed lpToken, uint256 indexed amount);
+```
+
+### Migrated
+
+```solidity
+event Migrated(address indexed user, address indexed lpToken, uint256 indexed amount);
+```
+
+### OnRelock
+
+```solidity
+event OnRelock(address indexed user, address indexed lpToken, uint256 indexed unlockDate);
 ```
 
 ### OnDeposit
 
 ```solidity
-event OnDeposit(address lpToken, address user, uint256 amount, uint256 lockDate, uint256 unlockDate);
+event OnDeposit(
+    address lpToken, address indexed user, uint256 amount, uint256 indexed lockDate, uint256 indexed unlockDate
+);
 ```
 
 ## Errors
