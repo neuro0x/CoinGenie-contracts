@@ -63,6 +63,10 @@ interface ICoinGenieERC20 is IERC20 {
     /// @dev Reverts when trying to transfer from the zero address
     error TransferFromZeroAddress();
 
+    /// @dev Reverts when invalid total supply
+    /// @param totalSupply - the total supply
+    error InvalidTotalSupply(uint256 totalSupply);
+
     /// @dev Reverts when trying to set an invalid max wallet percent
     /// @param maxWalletPercent - the max wallet percent
     error InvalidMaxWalletPercent(uint256 maxWalletPercent);

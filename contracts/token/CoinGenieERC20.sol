@@ -475,6 +475,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
+            totalTaxAmount = (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _COIN_GENIE_FEE) / _MAX_BPS;
             if (
                 !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount != 0
                     && contractTokenBalance >= (_totalSupply * _TAX_SWAP_THRESHOLD_PERCENT) / _MAX_BPS
@@ -630,6 +631,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     function _setERC20Properties(string memory name_, string memory symbol_, uint256 totalSupply_) private {
         _name = name_;
         _symbol = symbol_;
+
+        if (totalSupply_ < 1 ether || totalSupply_ > 100_000_000_000 ether) {
+            revert InvalidTotalSupply(totalSupply_);
+        }
         _totalSupply = totalSupply_;
     }
 

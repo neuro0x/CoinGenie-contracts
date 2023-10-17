@@ -124,8 +124,8 @@ contract CoinGenieTest is Test {
         assertEq(token.symbol(), symbol, "Symbol is not correct");
     }
 
-    function testFuzz_launchToken_symbol(uint256 totalSupply) public {
-        vm.assume(totalSupply > 0);
+    function testFuzz_launchToken_totalSupply(uint256 totalSupply) public {
+        vm.assume(totalSupply > 1 ether);
         vm.assume(totalSupply <= MAX_TOKEN_SUPPLY);
 
         ICoinGenieERC20 token = coinGenie.launchToken(
@@ -300,7 +300,6 @@ contract CoinGenieTest is Test {
 
         uint256 len = payees.length;
         for (uint256 i = 0; i < len; i++) {
-            console.log(coinGenie.shares(payees[i]));
             assertEq(coinGenie.payee(i), payees[i], "Payee not correct");
             assertEq(coinGenie.shares(payees[i]), shares[i], "Shares are not correct");
         }
