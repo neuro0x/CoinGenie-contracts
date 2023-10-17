@@ -60,10 +60,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     logToFile(`<blockquote>📅 ${displayDate}</blockquote>\n`);
     logToFile(`<blockquote>🧞‍♂️ Deployer: ${deployer}</blockquote>\n`);
     logToFile(`<blockquote>⛽️ Gas Used: ${hre.deployments.getGasUsed().toLocaleString()}</blockquote>\n`);
-    logToFile(`## 🕊️ Whitelisting`);
-    logToFile(
-      `We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.`,
-    );
 
     const coinGenieContract = await hre.ethers.getContractAt("CoinGenie", coinGenie.address);
     const genie = await coinGenieContract.launchToken(
