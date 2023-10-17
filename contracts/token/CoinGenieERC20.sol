@@ -73,9 +73,15 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     /// @dev The platform tx fee
     uint256 private constant _COIN_GENIE_FEE = 100; // 1%
     /// @dev The platform liquidity addition fee
-    uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100;
+    uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%
     /// @dev The platform liquidity addition fee
-    uint256 private constant _MIN_WALLET_PERCENT = 100;
+    uint256 private constant _MIN_WALLET_PERCENT = 100; // 1%
+    /// @dev The tax swap threshold percent
+    uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20; // 0.2%
+    /// @dev The max tax swap threshold percent
+    uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 50; // 0.5%
+    /// @dev The eth autoswap amount
+    uint256 private constant _ETH_AUTOSWAP_AMOUNT = 0.025 ether;
 
     /// @dev The address of the Uniswap V2 Router
     IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
@@ -461,9 +467,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
                 if (amount > maxBuyAmount) {
                     revert ExceedsMaxAmount(amount, maxBuyAmount);
                 }
-            }
 
-            if (to != _uniswapV2Pair && to != address(_UNISWAP_V2_ROUTER)) {
                 uint256 maxWalletAmount = (_feeAmounts.maxWalletPercent * _totalSupply) / _MAX_BPS;
                 if (_balances[to] + amount > maxWalletAmount) {
                     revert ExceedsMaxAmount(_balances[to] + amount, maxWalletAmount);
@@ -471,15 +475,18 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            totalTaxAmount = (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _COIN_GENIE_FEE) / _MAX_BPS;
             if (
                 !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount != 0
-                    && contractTokenBalance >= totalTaxAmount
+                    && contractTokenBalance >= (_totalSupply * _TAX_SWAP_THRESHOLD_PERCENT) / _MAX_BPS
             ) {
-                _swapTokensForEth(_min(amount, contractTokenBalance));
+                _swapTokensForEth(
+                    _min(
+                        amount, _min(contractTokenBalance, (_totalSupply * _MAX_TAX_SWAP_THRESHOLD_PERCENT) / _MAX_BPS)
+                    )
+                );
 
                 uint256 contractEthBalance = address(this).balance;
-                if (contractEthBalance != 0) {
+                if (contractEthBalance >= _ETH_AUTOSWAP_AMOUNT) {
                     _sendEthToFee(contractEthBalance);
                 }
             }
