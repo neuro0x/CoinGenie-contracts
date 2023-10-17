@@ -35,20 +35,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const { deployer } = await hre.getNamedAccounts();
     const { deploy } = hre.deployments;
 
-    const erc20Factory = await deploy("ERC20Factory", {
-      from: deployer,
-      args: [],
-      log: true,
-      autoMine: true,
-    });
-
-    const airdropClaimableFactory = await deploy("AirdropERC20ClaimableFactory", {
-      from: deployer,
-      args: [],
-      log: true,
-      autoMine: true,
-    });
-
     const airdropERC20 = await deploy("AirdropERC20", {
       from: deployer,
       args: [],
@@ -58,7 +44,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
     const coinGenie = await deploy("CoinGenie", {
       from: deployer,
-      args: [erc20Factory.address, airdropClaimableFactory.address],
+      args: [],
       log: true,
       autoMine: true,
     });
@@ -79,9 +65,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
       `We whitelist the coin genie contract for the airdrop contract, each of the factory contracts, and the liquidity locker contract.`,
     );
 
-    const erc20FactoryContract = await hre.ethers.getContractAt("ERC20Factory", erc20Factory.address);
-    await erc20FactoryContract.setCoinGenie(coinGenie.address);
-
     const coinGenieContract = await hre.ethers.getContractAt("CoinGenie", coinGenie.address);
     const genie = await coinGenieContract.launchToken(
       "Genie",
@@ -98,7 +81,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     // @ts-ignore
     const erc20LaunchedLog = coinGenieContract.interface.parseLog(txReceipt?.logs[txReceipt.logs.length - 1]);
     const genieAddress = erc20LaunchedLog?.args[0];
-    const genieContract = await hre.ethers.getContractAt("CoinGenieERC20", genieAddress);
 
     logToFile(`## 🧞‍♂️🪙 Creating $GENIE token`);
     logToFile(
@@ -113,17 +95,12 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     logToFile(`- Max/Wallet: ${(50_000_000).toLocaleString()}`);
     logToFile(`- Tax Wallet: ${deployer}`);
 
-    await genieContract.setGenie(genieAddress);
-    await erc20FactoryContract.setGenie(genieAddress);
-
     // TODO: Airdrop Genie
     // TODO: Open trading on Genie
     // TODO: Set Fee Recipient to Coin Genie
     // TODO: Check for renounce ownership/fee recipient issues
 
     const contracts = [
-      { name: "ERC20Factory", address: erc20Factory.address },
-      { name: "AirdropERC20ClaimableFactory", address: airdropClaimableFactory.address },
       { name: "AirdropERC20", address: airdropERC20.address },
       { name: "CoinGenie", address: coinGenie.address },
       { name: "LiquidityLocker", address: uniV2Locker.address },

@@ -12,9 +12,6 @@ import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol";
 
-import { ERC20Factory } from "../../contracts/factory/ERC20Factory.sol";
-import { AirdropERC20ClaimableFactory } from "../../contracts/factory/AirdropERC20ClaimableFactory.sol";
-
 import { ICoinGenieERC20 } from "../../contracts/token/ICoinGenieERC20.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
@@ -28,7 +25,6 @@ contract LiquidityLockerTest is Test {
     IUniswapV2Pair public lpToken;
     CoinGenie public coinGenie;
     ICoinGenieERC20 public coinGenieERC20;
-    ERC20Factory public erc20Factory;
     MockERC20 public mockERC20;
 
     struct LaunchToken {
@@ -56,8 +52,7 @@ contract LiquidityLockerTest is Test {
     function setUp() public {
         mockERC20 = new MockERC20("TEST", "TEST", 18);
         mockERC20.mint(address(this), 100_000_000 ether);
-        erc20Factory = new ERC20Factory();
-        coinGenie = new CoinGenie(address(erc20Factory), address(new AirdropERC20ClaimableFactory()));
+        coinGenie = new CoinGenie();
         liquidityLocker = new LiquidityLocker(0.01 ether, address(coinGenie));
         coinGenieERC20 = coinGenie.launchToken(
             coinGenieLaunchToken.name,
@@ -69,9 +64,6 @@ contract LiquidityLockerTest is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
-        erc20Factory.setCoinGenie(payable(address(coinGenie)));
-        erc20Factory.setGenie(address(coinGenieERC20));
-        coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
         lpToken = IUniswapV2Pair(
             coinGenieERC20.createPairAndAddLiquidity{ value: 10 ether }(coinGenieERC20.balanceOf(address(this)), false)
         );

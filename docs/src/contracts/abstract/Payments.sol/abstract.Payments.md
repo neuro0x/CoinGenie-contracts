@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5ac8010bd0c2bc36db9be7bb95e6720f4cffbcd7/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -7,7 +7,7 @@ Ownable, ReentrancyGuard
 **Author:**
 @neuro_0x
 
-*This contract is used to split payments between multiple parties, and track and affiliates and their fees.*
+This contract is used to split payments between multiple parties, and track and affiliates and their fees
 
 
 ## State Variables
@@ -17,6 +17,15 @@ Ownable, ReentrancyGuard
 
 ```solidity
 uint256 private constant _MAX_BPS = 10_000;
+```
+
+
+### _MAX_SHARES
+*The maximum shares*
+
+
+```solidity
+uint256 private constant _MAX_SHARES = 100;
 ```
 
 
@@ -400,22 +409,20 @@ function release(address payable account) external virtual nonReentrant;
 |`account`|`address payable`|the account to release payment to|
 
 
-### resetSplit
+### updateSplit
 
-all payees should be paid before calling this function
-
-*Resets the split contract without resetting the affiliate payments*
+*Update the split*
 
 
 ```solidity
-function resetSplit(address[] memory payees, uint256[] memory shares_) external onlyOwner;
+function updateSplit(address[] calldata payees_, uint256[] calldata shares_) external onlyOwner;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`payees`|`address[]`|the array of payees|
-|`shares_`|`uint256[]`|the array of shares|
+|`payees_`|`address[]`|the payees|
+|`shares_`|`uint256[]`|the shares of the payees|
 
 
 ### _createSplit
@@ -475,6 +482,14 @@ function _addPayee(address account, uint256 shares_) private;
 
 
 ## Events
+### ShareUpdated
+*The event emitted when a share is updated*
+
+
+```solidity
+event ShareUpdated(address indexed account, uint256 indexed shares);
+```
+
 ### PayeeAdded
 *The event emitted when a payee is added*
 
@@ -554,6 +569,14 @@ error NoAmountOwedToAffiliate();
 
 ```solidity
 error AccountAlreadyHasShares();
+```
+
+### InvalidShares
+*The error emitted when the shares are invalid*
+
+
+```solidity
+error InvalidShares(uint256 shares);
 ```
 
 ### AccountNotDuePayment

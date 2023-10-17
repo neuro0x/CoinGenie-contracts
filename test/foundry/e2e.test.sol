@@ -6,8 +6,6 @@ import "forge-std/Test.sol";
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import { ERC20Factory } from "../../contracts/factory/ERC20Factory.sol";
-import { AirdropERC20ClaimableFactory } from "../../contracts/factory/AirdropERC20ClaimableFactory.sol";
 import { AirdropERC20 } from "../../contracts/AirdropERC20.sol";
 import { CoinGenie } from "../../contracts/CoinGenie.sol";
 import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
@@ -40,8 +38,6 @@ contract E2ETest is Test {
         uint256 maxWalletPercent;
     }
 
-    ERC20Factory public erc20Factory;
-    AirdropERC20ClaimableFactory public airdropERC20ClaimableFactory;
     AirdropERC20 public airdropERC20;
     CoinGenie public coinGenie;
     LiquidityLocker public liquidityLocker;
@@ -60,10 +56,8 @@ contract E2ETest is Test {
     });
 
     function setUp() public {
-        erc20Factory = new ERC20Factory();
-        airdropERC20ClaimableFactory = new AirdropERC20ClaimableFactory();
         airdropERC20 = new AirdropERC20();
-        coinGenie = new CoinGenie(address(erc20Factory), address(airdropERC20ClaimableFactory));
+        coinGenie = new CoinGenie();
         liquidityLocker = new LiquidityLocker(0.0075 ether, address(coinGenie));
 
         coinGenieERC20 = coinGenie.launchToken(
@@ -76,11 +70,7 @@ contract E2ETest is Test {
             coinGenieLaunchToken.maxWalletPercent
         );
 
-        erc20Factory.setCoinGenie(payable(address(coinGenie)));
-        coinGenieERC20.setGenie(payable(address(coinGenieERC20)));
-        erc20Factory.setGenie(payable(address(coinGenieERC20)));
-
-        _logCoinGenieInfo();
+        // _logCoinGenieInfo();
 
         for (uint256 i = 0; i < users.length;) {
             vm.deal(users[i], 10 ether);
@@ -99,13 +89,11 @@ contract E2ETest is Test {
     }
 
     function test_checkInitialContractAndGenieTokenSettings() public {
-        // Check that the ERC20Factory and the Genie token have "genie" set to "GENIE" address
-        assertEq(erc20Factory.genie(), address(coinGenieERC20));
+        // Check that the Genie token have "genie" set to "GENIE" address
         assertEq(coinGenieERC20.genie(), address(coinGenieERC20));
 
         // Check that the LiquidityLocker and GENIE have the Coin Genie as the fee recipient
         assertEq(liquidityLocker.feeRecipient(), address(coinGenie));
-        // TODO: we need to set this to the Coin Genie
         assertEq(coinGenieERC20.feeRecipient(), address(this));
 
         // Check that the GENIE token has the Coin Genie as the affiliate fee recipient
@@ -174,8 +162,6 @@ contract E2ETest is Test {
 
     function _logCoinGenieInfo() private view {
         console.log("Coin Genie: %s", address(coinGenie));
-        console.log("ERC20 Factory: %s", address(erc20Factory));
-        console.log("Airdrop ERC20 Claimable Factory: %s", address(airdropERC20ClaimableFactory));
         console.log("Airdrop ERC20: %s", address(airdropERC20));
         console.log("Liquidity Locker: %s", address(liquidityLocker));
         console.log("Coin Genie ERC20: %s", address(coinGenieERC20));

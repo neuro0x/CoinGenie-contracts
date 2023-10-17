@@ -3,13 +3,9 @@
 # contracts
   - [❱ abstract](contracts/abstract/README.md)
     - [Payments](contracts/abstract/Payments.sol/abstract.Payments.md)
-  - [❱ factory](contracts/factory/README.md)
-    - [AirdropERC20ClaimableFactory](contracts/factory/AirdropERC20ClaimableFactory.sol/contract.AirdropERC20ClaimableFactory.md)
-    - [ERC20Factory](contracts/factory/ERC20Factory.sol/contract.ERC20Factory.md)
   - [❱ token](contracts/token/README.md)
     - [CoinGenieERC20](contracts/token/CoinGenieERC20.sol/contract.CoinGenieERC20.md)
     - [ICoinGenieERC20](contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md)
   - [AirdropERC20](contracts/AirdropERC20.sol/contract.AirdropERC20.md)
-  - [AirdropERC20Claimable](contracts/AirdropERC20Claimable.sol/contract.AirdropERC20Claimable.md)
   - [CoinGenie](contracts/CoinGenie.sol/contract.CoinGenie.md)
   - [LiquidityLocker](contracts/LiquidityLocker.sol/contract.LiquidityLocker.md)

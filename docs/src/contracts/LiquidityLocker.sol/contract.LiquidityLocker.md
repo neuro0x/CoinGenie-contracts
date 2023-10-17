@@ -1,5 +1,5 @@
 # LiquidityLocker
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/LiquidityLocker.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5ac8010bd0c2bc36db9be7bb95e6720f4cffbcd7/contracts/LiquidityLocker.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -7,11 +7,13 @@ Ownable, ReentrancyGuard
 **Author:**
 @neuro_0x
 
-*A contract for locking Uniswap V2 liquidity pool tokens for specified periods.*
+*A contract for locking Uniswap V2 liquidity pool tokens for specified periods*
 
 
 ## State Variables
 ### fee
+*The fee amount to use*
+
 
 ```solidity
 uint256 public fee;
@@ -19,6 +21,8 @@ uint256 public fee;
 
 
 ### feeRecipient
+*The address to send fees to*
+
 
 ```solidity
 address public feeRecipient;
@@ -26,6 +30,8 @@ address public feeRecipient;
 
 
 ### _UNISWAP_V2_FACTORY
+*The Uniswap V2 factory address*
+
 
 ```solidity
 IUniswapV2Factory private constant _UNISWAP_V2_FACTORY = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
@@ -33,6 +39,8 @@ IUniswapV2Factory private constant _UNISWAP_V2_FACTORY = IUniswapV2Factory(0x5C6
 
 
 ### _users
+*A mapping of user addresses to User structs*
+
 
 ```solidity
 mapping(address userAddress => User user) private _users;
@@ -40,6 +48,8 @@ mapping(address userAddress => User user) private _users;
 
 
 ### _lockedTokens
+*A set of all locked tokens*
+
 
 ```solidity
 EnumerableSet.AddressSet private _lockedTokens;
@@ -47,6 +57,8 @@ EnumerableSet.AddressSet private _lockedTokens;
 
 
 ### tokenLocks
+*A mapping of univ2 pair addresses to TokenLock structs*
+
 
 ```solidity
 mapping(address pair => TokenLock[] locks) public tokenLocks;
@@ -54,6 +66,8 @@ mapping(address pair => TokenLock[] locks) public tokenLocks;
 
 
 ### migrator
+*The migrator contract which allows locked lp tokens to be migrated to uniswap v3*
+
 
 ```solidity
 IUniswapV2Migrator public migrator;
@@ -148,11 +162,17 @@ function lockLPToken(
 |`unlockDate`|`uint256`|the unix timestamp (in seconds) until unlock|
 |`withdrawer`|`address payable`|the user who can withdraw liquidity once the lock expires|
 
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`tokenLock`|`TokenLock`|- the token lock object created|
+
 
 ### relock
 
-*extend a lock with a new unlock date, _index and _lockID ensure the correct lock is changed
-this prevents errors when a user performs multiple tx per block possibly with varying gas prices*
+*extend a lock with a new unlock date, _index and _lockID ensure the correct lock is changed this prevents
+errors when a user performs multiple tx per block possibly with varying gas prices*
 
 
 ```solidity
@@ -170,13 +190,22 @@ function relock(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _unloc
 
 ### withdraw
 
-*withdraw a specified amount from a lock. _index and _lockID ensure the correct lock is changed
-this prevents errors when a user performs multiple tx per block possibly with varying gas prices*
+*withdraw a specified amount from a lock. _index and _lockID ensure the correct lock is changed this
+prevents errors when a user performs multiple tx per block possibly with varying gas prices*
 
 
 ```solidity
 function withdraw(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _amount) external nonReentrant;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_lpToken`|`IERC20`|the univ2 token address|
+|`_index`|`uint256`|the index of the lock for the token|
+|`_lockID`|`uint256`|the lockID of the lock for the token|
+|`_amount`|`uint256`|the amount to withdraw|
+
 
 ### incrementLock
 
@@ -195,6 +224,21 @@ function incrementLock(
     nonReentrant
     returns (TokenLock memory _userLock);
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_lpToken`|`IERC20`|the univ2 token address|
+|`_index`|`uint256`|the index of the lock for the token|
+|`_lockID`|`uint256`|the lockID of the lock for the token|
+|`_amount`|`uint256`|the amount to increment the lock by|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_userLock`|`TokenLock`|- the token lock object updated|
+
 
 ### transferLockOwnership
 
@@ -204,6 +248,15 @@ function incrementLock(
 ```solidity
 function transferLockOwnership(address _lpToken, uint256 _index, uint256 _lockID, address payable _newOwner) external;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_lpToken`|`address`|the univ2 token address|
+|`_index`|`uint256`|the index of the lock for the token|
+|`_lockID`|`uint256`|the lockID of the lock for the token|
+|`_newOwner`|`address payable`|the address of the new owner|
+
 
 ### migrate
 
@@ -213,6 +266,15 @@ function transferLockOwnership(address _lpToken, uint256 _index, uint256 _lockID
 ```solidity
 function migrate(IERC20 _lpToken, uint256 _index, uint256 _lockID, uint256 _amount) external nonReentrant;
 ```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_lpToken`|`IERC20`|the univ2 token address|
+|`_index`|`uint256`|the index of the lock for the token|
+|`_lockID`|`uint256`|the lockID of the lock for the token|
+|`_amount`|`uint256`|the amount to migrate|
+
 
 ### getNumLocksForToken
 
@@ -337,48 +399,64 @@ function getUserLockForTokenAtIndex(
 
 ## Events
 ### FeeSet
+Emitted when the fee is set
+
 
 ```solidity
 event FeeSet(uint256 indexed fee);
 ```
 
 ### MigratorSet
+Emitted when the migrator is set
+
 
 ```solidity
 event MigratorSet(address indexed migrator);
 ```
 
 ### FeeRecipientSet
+Emitted when the fee recipient is set
+
 
 ```solidity
 event FeeRecipientSet(address indexed feeRecipient);
 ```
 
 ### LockOwnershipTransfered
+Emitted when the lock ownership is transferred
+
 
 ```solidity
 event LockOwnershipTransfered(address indexed newOwner);
 ```
 
 ### OnWithdraw
+Emitted when tokens are withdrawn
+
 
 ```solidity
 event OnWithdraw(address indexed lpToken, uint256 indexed amount);
 ```
 
 ### Migrated
+Emitted when tokens are migrated
+
 
 ```solidity
 event Migrated(address indexed user, address indexed lpToken, uint256 indexed amount);
 ```
 
 ### OnRelock
+Emitted when the lock is relocked
+
 
 ```solidity
 event OnRelock(address indexed user, address indexed lpToken, uint256 indexed unlockDate);
 ```
 
 ### OnDeposit
+Emitted when tokens are deposited
+
 
 ```solidity
 event OnDeposit(
@@ -388,54 +466,72 @@ event OnDeposit(
 
 ## Errors
 ### LockMismatch
+Reverts when the lock is a mismatch
+
 
 ```solidity
 error LockMismatch();
 ```
 
 ### InvalidAmount
+Reverts when the amount is invalid
+
 
 ```solidity
 error InvalidAmount();
 ```
 
 ### MigratorNotSet
+Reverts when the migrator is not set
+
 
 ```solidity
 error MigratorNotSet();
 ```
 
 ### InvalidLockDate
+Reverts when the lock date is invalid
+
 
 ```solidity
 error InvalidLockDate();
 ```
 
 ### OwnerAlreadySet
+Reverts when the owner is already set
+
 
 ```solidity
 error OwnerAlreadySet();
 ```
 
 ### InvalidRecipient
+Reverts when the recipient is already set
+
 
 ```solidity
 error InvalidRecipient();
 ```
 
 ### BeforeUnlockDate
+Reverts when the lock is before the unlock date
+
 
 ```solidity
 error BeforeUnlockDate();
 ```
 
 ### NotUniPair
+Reverts when the LP Token is not a univ2 pair
+
 
 ```solidity
 error NotUniPair(address lpToken);
 ```
 
 ### TransferFailed
+Reverts when the transfer fails
+
 
 ```solidity
 error TransferFailed(uint256 amount, address from, address to);
@@ -443,6 +539,8 @@ error TransferFailed(uint256 amount, address from, address to);
 
 ## Structs
 ### User
+*The user struct records all the locked tokens for a user*
+
 
 ```solidity
 struct User {
@@ -452,6 +550,8 @@ struct User {
 ```
 
 ### TokenLock
+*The token lock struct records all the data for a lock*
+
 
 ```solidity
 struct TokenLock {

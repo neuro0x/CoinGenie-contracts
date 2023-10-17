@@ -1,5 +1,5 @@
 # AirdropERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/05843ace75c27defbf1e70d42b8feb05c0e88219/contracts/AirdropERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5ac8010bd0c2bc36db9be7bb95e6720f4cffbcd7/contracts/AirdropERC20.sol)
 
 **Inherits:**
 ReentrancyGuard
@@ -109,30 +109,40 @@ event AirdropFailed(
 
 ## Errors
 ### NotERC20
+Reverts when the token is not an ERC20 token.
+
 
 ```solidity
 error NotERC20();
 ```
 
 ### NoRecipients
+Reverts when there are no recipients.
+
 
 ```solidity
 error NoRecipients();
 ```
 
 ### TokenAddressZero
+Reverts when the token address is zero.
+
 
 ```solidity
 error TokenAddressZero();
 ```
 
 ### InsufficientBalance
+Reverts when the sender does not have enough balance.
+
 
 ```solidity
 error InsufficientBalance();
 ```
 
 ### InsufficientAllowance
+Reverts when the sender does not have enough allowance.
+
 
 ```solidity
 error InsufficientAllowance();
