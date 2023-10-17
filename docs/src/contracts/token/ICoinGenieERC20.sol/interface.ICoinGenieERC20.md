@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/d01cd920506e28664161ecf3805c4304b163d26d/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3e04c02ba6c1b1a1fedd401fc45b7feb1520774c/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
