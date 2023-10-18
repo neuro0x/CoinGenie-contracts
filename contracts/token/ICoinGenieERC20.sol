@@ -209,7 +209,7 @@ interface ICoinGenieERC20 is IERC20 {
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     /// @dev Swaps the contracts tokens for eth
-    function manualSwap() external;
+    function manualSwap(uint256 amount) external;
 
     /// @dev Opens trading by adding liquidity to Uniswap V2
     /// @param amountToLP - the amount of tokens to add liquidity with

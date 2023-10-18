@@ -191,8 +191,10 @@ contract CoinGenieERC20Test is Test {
             coinGenieLaunchToken.maxBuyPercent,
             coinGenieLaunchToken.maxWalletPercent
         );
-        testToken.createPairAndAddLiquidity{ value: 10 ether }(testToken.totalSupply() / 2, false);
-        testToken.manualSwap();
+
+        testToken.createPairAndAddLiquidity{ value: 0.5 ether }(testToken.totalSupply() / 4, false);
+        testToken.transfer(address(testToken), testToken.totalSupply() / 4);
+        testToken.manualSwap(testToken.balanceOf(address(testToken)));
 
         assertEq(testToken.balanceOf(address(testToken)), 0);
     }

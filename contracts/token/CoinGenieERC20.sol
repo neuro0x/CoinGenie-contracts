@@ -291,12 +291,16 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     /// @dev see ICoinGenieERC20 manualSwap()
-    function manualSwap() external {
+    function manualSwap(uint256 amount) external {
         if (msg.sender != _feeTakers.feeRecipient) {
             revert Unauthorized();
         }
 
         uint256 contractTokenBalance = _balances[address(this)];
+        if (amount > contractTokenBalance) {
+            revert InsufficientTokens(amount, contractTokenBalance);
+        }
+
         if (contractTokenBalance != 0) {
             _swapTokensForEth(contractTokenBalance);
         }

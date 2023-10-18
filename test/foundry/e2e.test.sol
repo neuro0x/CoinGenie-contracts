@@ -156,7 +156,7 @@ contract E2ETest is Test {
         assertGt(user1LpToken.balanceOf(user1), user1LpTokenBalanceBefore);
 
         vm.startPrank(user1);
-        user1Token.manualSwap();
+        user1Token.manualSwap(user1Token.balanceOf(address(user1Token)) / 2);
         vm.stopPrank();
     }
 
