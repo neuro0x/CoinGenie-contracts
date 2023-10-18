@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3e04c02ba6c1b1a1fedd401fc45b7feb1520774c/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -403,7 +403,7 @@ function transferFrom(address sender, address recipient, uint256 amount) externa
 
 
 ```solidity
-function manualSwap() external;
+function manualSwap(uint256 amount) external;
 ```
 
 ### createPairAndAddLiquidity
@@ -623,6 +623,14 @@ error ApproveFromZeroAddress();
 
 ```solidity
 error TransferFromZeroAddress();
+```
+
+### InvalidTotalSupply
+*Reverts when invalid total supply*
+
+
+```solidity
+error InvalidTotalSupply(uint256 totalSupply);
 ```
 
 ### InvalidMaxWalletPercent

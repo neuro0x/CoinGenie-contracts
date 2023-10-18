@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/3e04c02ba6c1b1a1fedd401fc45b7feb1520774c/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -82,6 +82,33 @@ uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100;
 
 ```solidity
 uint256 private constant _MIN_WALLET_PERCENT = 100;
+```
+
+
+### _TAX_SWAP_THRESHOLD_PERCENT
+*The tax swap threshold percent*
+
+
+```solidity
+uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20;
+```
+
+
+### _MAX_TAX_SWAP_THRESHOLD_PERCENT
+*The max tax swap threshold percent*
+
+
+```solidity
+uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 50;
+```
+
+
+### _ETH_AUTOSWAP_AMOUNT
+*The eth autoswap amount*
+
+
+```solidity
+uint256 private constant _ETH_AUTOSWAP_AMOUNT = 0.025 ether;
 ```
 
 
@@ -486,7 +513,7 @@ function transferFrom(address sender, address recipient, uint256 amount) public 
 
 
 ```solidity
-function manualSwap() external;
+function manualSwap(uint256 amount) external;
 ```
 
 ### createPairAndAddLiquidity
