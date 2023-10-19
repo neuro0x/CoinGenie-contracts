@@ -87,6 +87,9 @@ abstract contract Payments is Ownable, ReentrancyGuard {
     /// @dev The array of payees
     address[] private _payees;
 
+    /// @dev The array of affiliates
+    address[] public affiliates;
+
     /////////////////////////////////////////////////////////////////
     //                          Events                             //
     /////////////////////////////////////////////////////////////////
@@ -215,6 +218,16 @@ abstract contract Payments is Ownable, ReentrancyGuard {
     /// @return the total amount paid to an affiliate
     function amountPaidToAffiliate(address account) public view returns (uint256) {
         return _amountPaidToAffiliate[account];
+    }
+
+    /// @return the array of affiliates
+    function getAffiliates() public view returns (address[] memory) {
+        return affiliates;
+    }
+
+    /// @return the number of affiliates
+    function getNumberOfAffiliates() public view returns (uint256) {
+        return affiliates.length;
     }
 
     /// @param account the affiliate account to get the tokens referred by

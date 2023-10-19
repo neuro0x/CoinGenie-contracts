@@ -16,6 +16,7 @@ contract CoinGenieTest is Test {
     uint256 public constant MAX_TOKEN_SUPPLY = 100_000_000_000 ether;
     uint256 public constant MAX_TAX = 2000;
     uint256 public constant MAX_BPS = 10_000;
+    uint256 public constant COIN_GENIE_FEE = 100;
 
     CoinGenie public coinGenie;
     MockERC20 public mockERC20;
@@ -303,5 +304,13 @@ contract CoinGenieTest is Test {
             assertEq(coinGenie.payee(i), payees[i], "Payee not correct");
             assertEq(coinGenie.shares(payees[i]), shares[i], "Shares are not correct");
         }
+    }
+
+    function test_swapGenieForEth() public {
+        uint256 amount = coinGenieERC20.balanceOf(address(this)) / 2;
+        coinGenieERC20.createPairAndAddLiquidity{ value: 0.5 ether }(amount, false);
+        coinGenieERC20.transfer(address(coinGenie), amount);
+        coinGenie.swapGenieForEth(amount);
+        assertEq(coinGenieERC20.balanceOf(address(coinGenie)), 0, "Balance is not correct");
     }
 }

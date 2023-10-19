@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e0a4bc3965fb3bf295a77ef5df6f448c83ec3a3f/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -519,6 +519,21 @@ function setMaxWalletPercent(uint256 maxWalletPercent_) external;
 |`maxWalletPercent_`|`uint256`|- the max wallet percent|
 
 
+### setCoinGenieFeePercent
+
+Sets the Coin Genie fee percentage.
+
+
+```solidity
+function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`coinGenieFeePercent_`|`uint256`|The Coin Genie fee percentage.|
+
+
 ## Events
 ### GenieSet
 *Emits when Genie is set*
@@ -623,6 +638,22 @@ error ApproveFromZeroAddress();
 
 ```solidity
 error TransferFromZeroAddress();
+```
+
+### CoinGenieFeePercentAlreadySet
+*Reverts when coin genie fee is already set*
+
+
+```solidity
+error CoinGenieFeePercentAlreadySet();
+```
+
+### InvalidCoinGenieFeePercent
+*Reverts when invalid coin genie fee percent*
+
+
+```solidity
+error InvalidCoinGenieFeePercent();
 ```
 
 ### InvalidTotalSupply

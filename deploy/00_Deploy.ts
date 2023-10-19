@@ -35,15 +35,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     });
 
     const coinGenieContract = await hre.ethers.getContractAt("CoinGenie", coinGenie.address);
-    await coinGenieContract.launchToken(
-      "Genie",
-      "GENIE",
-      parseEther("1000000000"),
-      coinGenie.address,
-      100,
-      10_000,
-      10_000,
-    );
+    await coinGenieContract.launchToken("Genie", "GENIE", parseEther("1000000000"), coinGenie.address, 0, 500, 500);
   } catch (error) {
     console.error(error);
     process.exit(1);

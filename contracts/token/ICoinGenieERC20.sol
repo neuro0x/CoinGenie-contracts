@@ -63,6 +63,12 @@ interface ICoinGenieERC20 is IERC20 {
     /// @dev Reverts when trying to transfer from the zero address
     error TransferFromZeroAddress();
 
+    /// @dev Reverts when coin genie fee is already set
+    error CoinGenieFeePercentAlreadySet();
+
+    /// @dev Reverts when invalid coin genie fee percent
+    error InvalidCoinGenieFeePercent();
+
     /// @dev Reverts when invalid total supply
     /// @param totalSupply - the total supply
     error InvalidTotalSupply(uint256 totalSupply);
@@ -241,4 +247,8 @@ interface ICoinGenieERC20 is IERC20 {
     /// @dev Sets the max amount of tokens a wallet can hold as a percent of the total supply
     /// @param maxWalletPercent_ - the max wallet percent
     function setMaxWalletPercent(uint256 maxWalletPercent_) external;
+
+    /// @notice Sets the Coin Genie fee percentage.
+    /// @param coinGenieFeePercent_ The Coin Genie fee percentage.
+    function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external;
 }

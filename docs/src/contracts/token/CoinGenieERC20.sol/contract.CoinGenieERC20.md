@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e0a4bc3965fb3bf295a77ef5df6f448c83ec3a3f/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -58,15 +58,6 @@ uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
 ```
 
 
-### _COIN_GENIE_FEE
-*The platform tx fee*
-
-
-```solidity
-uint256 private constant _COIN_GENIE_FEE = 100;
-```
-
-
 ### _LP_ETH_FEE_PERCENTAGE
 *The platform liquidity addition fee*
 
@@ -99,7 +90,7 @@ uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20;
 
 
 ```solidity
-uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 50;
+uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 2000;
 ```
 
 
@@ -190,6 +181,15 @@ CoinGenieERC20 private _genie;
 
 ```solidity
 address private _uniswapV2Pair;
+```
+
+
+### _isFeeSet
+*The coin genie fee is set*
+
+
+```solidity
+bool private _isFeeSet;
 ```
 
 
@@ -587,6 +587,15 @@ function setMaxWalletPercent(uint256 maxWalletPercent_) external onlyOwner;
 function setFeeRecipient(address payable feeRecipient_) external onlyOwner;
 ```
 
+### setCoinGenieFeePercent
+
+*see ICoinGenieERC20 setCoinGenieFeePercent()*
+
+
+```solidity
+function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external onlyOwner;
+```
+
 ### _approve
 
 Approves a given amount for the spender.
@@ -869,6 +878,7 @@ struct FeePercentages {
     uint256 maxWalletPercent;
     uint256 discountFeeRequiredAmount;
     uint256 discountPercent;
+    uint256 coinGenieFeePercent;
 }
 ```
 

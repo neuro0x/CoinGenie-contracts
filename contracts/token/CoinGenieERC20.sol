@@ -58,6 +58,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         uint256 maxWalletPercent;
         uint256 discountFeeRequiredAmount;
         uint256 discountPercent;
+        uint256 coinGenieFeePercent;
     }
 
     /// @dev The decimals for the contract
@@ -70,8 +71,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint256 private constant _MIN_LIQUIDITY_ETH = 0.5 ether;
     /// @dev The min amount of this token required to open trading
     uint256 private constant _MIN_LIQUIDITY_TOKEN = 1 ether;
-    /// @dev The platform tx fee
-    uint256 private constant _COIN_GENIE_FEE = 100; // 1%
     /// @dev The platform liquidity addition fee
     uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%
     /// @dev The platform liquidity addition fee
@@ -79,7 +78,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     /// @dev The tax swap threshold percent
     uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20; // 0.2%
     /// @dev The max tax swap threshold percent
-    uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 50; // 0.5%
+    uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 2000; // 20%
     /// @dev The eth autoswap amount
     uint256 private constant _ETH_AUTOSWAP_AMOUNT = 0.025 ether;
 
@@ -107,6 +106,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     /// @dev The address of the Uniswap V2 Pair
     address private _uniswapV2Pair;
 
+    /// @dev The coin genie fee is set
+    bool private _isFeeSet;
     /// @dev The trading status of the contract
     bool private _isTradingOpen;
     /// @dev The current swap status of the contract, used for reentrancy checks
@@ -436,6 +437,20 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         emit FeeRecipientSet(feeRecipient_);
     }
 
+    /// @dev see ICoinGenieERC20 setCoinGenieFeePercent()
+    function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external onlyOwner {
+        if (coinGenieFeePercent_ > _MAX_BPS) {
+            revert InvalidCoinGenieFeePercent();
+        }
+
+        if (_isFeeSet) {
+            revert CoinGenieFeePercentAlreadySet();
+        }
+
+        _isFeeSet = true;
+        _feeAmounts.coinGenieFeePercent = coinGenieFeePercent_;
+    }
+
     /////////////////////////////////////////////////////////////////
     //                     Private/Internal                        //
     /////////////////////////////////////////////////////////////////
@@ -477,16 +492,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            totalTaxAmount = (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _COIN_GENIE_FEE) / _MAX_BPS;
-            if (
-                !_inSwap && to == _uniswapV2Pair && _isTradingOpen && totalTaxAmount != 0
-                    && contractTokenBalance >= (_totalSupply * _TAX_SWAP_THRESHOLD_PERCENT) / _MAX_BPS
-            ) {
-                _swapTokensForEth(
-                    _min(
-                        amount, _min(contractTokenBalance, (_totalSupply * _MAX_TAX_SWAP_THRESHOLD_PERCENT) / _MAX_BPS)
-                    )
-                );
+            totalTaxAmount =
+                (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS;
+            if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen && contractTokenBalance >= 0) {
+                _swapTokensForEth(_min(amount, contractTokenBalance));
 
                 uint256 contractEthBalance = address(this).balance;
                 if (contractEthBalance >= _ETH_AUTOSWAP_AMOUNT) {
@@ -598,7 +607,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     /// @param amount The total amount of Ether to distribute.
     function _sendEthToFee(uint256 amount) private {
         uint256 tax = _feeAmounts.taxPercent;
-        uint256 feeRecipientShare = (amount * tax) / (tax + _COIN_GENIE_FEE);
+        uint256 feeRecipientShare = (amount * tax) / (tax + _feeAmounts.coinGenieFeePercent);
         uint256 coinGenieShare = amount - feeRecipientShare;
 
         address payable _coinGenie = _feeTakers.coinGenie;

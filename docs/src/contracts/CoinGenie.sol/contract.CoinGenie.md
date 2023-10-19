@@ -1,5 +1,5 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e0a4bc3965fb3bf295a77ef5df6f448c83ec3a3f/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md)
@@ -10,12 +10,30 @@
 
 
 ## State Variables
+### _UNISWAP_V2_ROUTER
+*The address of the Uniswap V2 Router*
+
+
+```solidity
+IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+```
+
+
 ### _MAX_BPS
 *The maximum percent in basis points that can be used as a discount*
 
 
 ```solidity
 uint256 private constant _MAX_BPS = 10_000;
+```
+
+
+### _coinGenieFeePercent
+*The percent in basis points to use as coin genie fee*
+
+
+```solidity
+uint256 private _coinGenieFeePercent = 100;
 ```
 
 
@@ -52,6 +70,15 @@ mapping(PayoutCategory category => Payout payout) private _payouts;
 
 ```solidity
 address[] public launchedTokens;
+```
+
+
+### users
+*The array of users*
+
+
+```solidity
+address[] public users;
 ```
 
 
@@ -112,6 +139,21 @@ function genie() public view returns (address payable);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`address payable`|the address of the $GENIE contract|
+
+
+### coinGenieFeePercent
+
+Gets the percent in basis points to use as coin genie fee
+
+
+```solidity
+function coinGenieFeePercent() public view returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|the percent in basis points to use as coin genie fee|
 
 
 ### discountPercent
@@ -213,6 +255,21 @@ function getLaunchedTokensForAddress(address _address) external view returns (La
 |`tokens`|`LaunchedToken[]`|The array of launched tokens|
 
 
+### setCoinGenieFeePercent
+
+Set the coin genie fee percent for tokens
+
+
+```solidity
+function setCoinGenieFeePercent(uint256 percent) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`percent`|`uint256`|The percent in basis points to use as coin genie fee|
+
+
 ### setDiscountPercent
 
 *Allows the owner to set the percent in basis points to use as a discount*
@@ -241,6 +298,23 @@ function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner;
 |Name|Type|Description|
 |----|----|-----------|
 |`amount`|`uint256`|- the amount of $GENIE a person has to hold to get the discount|
+
+
+### swapGenieForEth
+
+Swaps tokens for Ether.
+
+*Utilizes Uniswap for the token-to-ETH swap.*
+
+
+```solidity
+function swapGenieForEth(uint256 tokenAmount) external nonReentrant onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`tokenAmount`|`uint256`|The amount of tokens to swap for ETH.|
 
 
 ## Events
@@ -307,6 +381,14 @@ Reverts when the discount percent exceeds the max percent
 
 ```solidity
 error ExceedsMaxDiscountPercent(uint256 percent, uint256 maxBps);
+```
+
+### ExceedsMaxFeePercent
+Reverts when the coin genie fee percent exceeds the max percent
+
+
+```solidity
+error ExceedsMaxFeePercent(uint256 percent, uint256 maxBps);
 ```
 
 ## Structs

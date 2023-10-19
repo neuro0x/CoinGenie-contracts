@@ -1,5 +1,5 @@
 # Payments
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/5b48a8a67a4f4ad80dabeeb811ab7bae14c345d0/contracts/abstract/Payments.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e0a4bc3965fb3bf295a77ef5df6f448c83ec3a3f/contracts/abstract/Payments.sol)
 
 **Inherits:**
 Ownable, ReentrancyGuard
@@ -153,6 +153,15 @@ mapping(address affiliate => mapping(address tokenAddress => uint256 amountOwed)
 
 ```solidity
 address[] private _payees;
+```
+
+
+### affiliates
+*The array of affiliates*
+
+
+```solidity
+address[] public affiliates;
 ```
 
 
@@ -311,6 +320,32 @@ function amountPaidToAffiliate(address account) public view returns (uint256);
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`uint256`|the total amount paid to an affiliate|
+
+
+### getAffiliates
+
+
+```solidity
+function getAffiliates() public view returns (address[] memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address[]`|the array of affiliates|
+
+
+### getNumberOfAffiliates
+
+
+```solidity
+function getNumberOfAffiliates() public view returns (uint256);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|the number of affiliates|
 
 
 ### getTokensReferredByAffiliate

@@ -69,11 +69,19 @@ contract CoinGenie is Payments {
         uint256 share;
     }
 
+    /// @dev The address of the Uniswap V2 Router
+    IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
+        IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+
     /// @dev The maximum percent in basis points that can be used as a discount
     uint256 private constant _MAX_BPS = 10_000;
 
+    /// @dev The percent in basis points to use as coin genie fee
+    uint256 private _coinGenieFeePercent = 100;
+
     /// @dev The percent in basis points to use as a discount if paying in $GENIE
     uint256 private _discountPercent = 5000;
+
     /// @dev The amount of $GENIE a person has to pay to get the discount
     uint256 private _discountFeeRequiredAmount = 100_000 ether;
 
@@ -82,6 +90,9 @@ contract CoinGenie is Payments {
 
     /// @dev The array of launched token addresses
     address[] public launchedTokens;
+
+    /// @dev The array of users
+    address[] public users;
 
     /// @dev The array of created claimable airdrop addresses
     address[] public createdClaimableAirdrops;
@@ -134,6 +145,11 @@ contract CoinGenie is Payments {
     /// @param maxBps - the max percent in basis points
     error ExceedsMaxDiscountPercent(uint256 percent, uint256 maxBps);
 
+    /// @notice Reverts when the coin genie fee percent exceeds the max percent
+    /// @param percent - the percent in basis points to use as a fee
+    /// @param maxBps - the max percent in basis points
+    error ExceedsMaxFeePercent(uint256 percent, uint256 maxBps);
+
     /// @notice Construct the CoinGenie contract.
     constructor() payable {
         address[] memory payees = new address[](4);
@@ -171,6 +187,11 @@ contract CoinGenie is Payments {
 
                 if (!_isTokenReferredByAffiliate[affiliate][from]) {
                     _isTokenReferredByAffiliate[affiliate][from] = true;
+
+                    if (_tokensReferredByAffiliate[affiliate].length == 0) {
+                        affiliates.push(affiliate);
+                    }
+
                     _tokensReferredByAffiliate[affiliate].push(from);
                 }
             }
@@ -185,6 +206,12 @@ contract CoinGenie is Payments {
     /// @return the address of the $GENIE contract
     function genie() public view returns (address payable) {
         return payable(launchedTokens[0]);
+    }
+
+    /// @notice Gets the percent in basis points to use as coin genie fee
+    /// @return the percent in basis points to use as coin genie fee
+    function coinGenieFeePercent() public view returns (uint256) {
+        return _coinGenieFeePercent;
     }
 
     /// @notice Gets the discount percent
@@ -241,8 +268,14 @@ contract CoinGenie is Payments {
             _discountPercent
         );
 
+        // Add the user to the array of users
+        if (tokensLaunchedBy[feeRecipient].length == 0) {
+            users.push(feeRecipient);
+        }
+
         // Add the token address to the array of launched token addresses
         launchedTokens.push(address(newToken));
+
         // Create a new LaunchedToken struct
         LaunchedToken memory launchedToken = LaunchedToken({
             index: launchedTokens.length - 1,
@@ -271,6 +304,9 @@ contract CoinGenie is Payments {
         // Set the genie token address
         newToken.setGenie(payable(launchedTokens[0]));
 
+        // Set the coin genie fee percent
+        newToken.setCoinGenieFeePercent(_coinGenieFeePercent);
+
         // Assign ownership to the fee recipient
         Ownable(address(newToken)).transferOwnership(feeRecipient);
 
@@ -290,6 +326,16 @@ contract CoinGenie is Payments {
         return tokensLaunchedBy[_address];
     }
 
+    /// @notice Set the coin genie fee percent for tokens
+    /// @param percent The percent in basis points to use as coin genie fee
+    function setCoinGenieFeePercent(uint256 percent) external onlyOwner {
+        if (percent > _MAX_BPS) {
+            revert ExceedsMaxFeePercent(percent, _MAX_BPS);
+        }
+
+        _coinGenieFeePercent = percent;
+    }
+
     /// @dev Allows the owner to set the percent in basis points to use as a discount
     /// @param percent - the percent in basis points to use as a discount
     function setDiscountPercent(uint256 percent) external onlyOwner {
@@ -306,5 +352,19 @@ contract CoinGenie is Payments {
     function setDiscountFeeRequiredAmount(uint256 amount) external onlyOwner {
         _discountFeeRequiredAmount = amount;
         emit DiscountFeeRequiredAmountSet(amount);
+    }
+
+    /// @notice Swaps tokens for Ether.
+    /// @dev Utilizes Uniswap for the token-to-ETH swap.
+    /// @param tokenAmount The amount of tokens to swap for ETH.
+    function swapGenieForEth(uint256 tokenAmount) external nonReentrant onlyOwner {
+        ICoinGenieERC20 genieToken = ICoinGenieERC20(launchedTokens[0]);
+        address[] memory path = new address[](2);
+        path[0] = address(genieToken);
+        path[1] = _UNISWAP_V2_ROUTER.WETH();
+        genieToken.approve(address(_UNISWAP_V2_ROUTER), tokenAmount);
+        _UNISWAP_V2_ROUTER.swapExactTokensForETHSupportingFeeOnTransferTokens(
+            tokenAmount, 0, path, address(this), block.timestamp
+        );
     }
 }
