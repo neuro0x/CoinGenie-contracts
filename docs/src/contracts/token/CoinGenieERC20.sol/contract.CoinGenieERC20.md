@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/e0a4bc3965fb3bf295a77ef5df6f448c83ec3a3f/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/bb01504e3d629c383b1d91931fcf1abe87915011/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -73,24 +73,6 @@ uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100;
 
 ```solidity
 uint256 private constant _MIN_WALLET_PERCENT = 100;
-```
-
-
-### _TAX_SWAP_THRESHOLD_PERCENT
-*The tax swap threshold percent*
-
-
-```solidity
-uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20;
-```
-
-
-### _MAX_TAX_SWAP_THRESHOLD_PERCENT
-*The max tax swap threshold percent*
-
-
-```solidity
-uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 2000;
 ```
 
 
@@ -539,7 +521,7 @@ function createPairAndAddLiquidity(
 
 
 ```solidity
-function addLiquidity(uint256 amountToLP, bool payInGenie) external payable onlyOwner nonReentrant;
+function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant;
 ```
 
 ### removeLiquidity
@@ -548,7 +530,7 @@ function addLiquidity(uint256 amountToLP, bool payInGenie) external payable only
 
 
 ```solidity
-function removeLiquidity(uint256 amountToRemove) external onlyOwner nonReentrant;
+function removeLiquidity(uint256 amountToRemove) external nonReentrant;
 ```
 
 ### setGenie

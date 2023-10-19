@@ -156,7 +156,7 @@ contract CoinGenie is Payments {
         uint256[] memory shares_ = new uint256[](4);
 
         payees[0] = 0xBe79b43B1505290DFE04294a433963dbeea736BB; // treasury
-        payees[1] = 0x633Bf832Dc39C0025a7aEaa165ec91ACF02063D5; // dev
+        payees[1] = 0x3fB2120fc0CD15000d2e500Efbdd9CE17356E242; // dev
         payees[2] = 0xF14A30C09897d2C7481c5907D01Ec58Ec09555af; // marketing
         payees[3] = 0xbb6712A513C2d7F3E17A40d095a773c5d98574B2; // legal
 

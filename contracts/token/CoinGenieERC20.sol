@@ -32,6 +32,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 
 import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
 import { ICoinGenieERC20 } from "./ICoinGenieERC20.sol";
 
@@ -75,10 +76,6 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint256 private constant _LP_ETH_FEE_PERCENTAGE = 100; // 1%
     /// @dev The platform liquidity addition fee
     uint256 private constant _MIN_WALLET_PERCENT = 100; // 1%
-    /// @dev The tax swap threshold percent
-    uint256 private constant _TAX_SWAP_THRESHOLD_PERCENT = 20; // 0.2%
-    /// @dev The max tax swap threshold percent
-    uint256 private constant _MAX_TAX_SWAP_THRESHOLD_PERCENT = 2000; // 20%
     /// @dev The eth autoswap amount
     uint256 private constant _ETH_AUTOSWAP_AMOUNT = 0.025 ether;
 
@@ -328,11 +325,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         transfer(address(this), amountToLP);
         _approve(address(this), address(_UNISWAP_V2_ROUTER), _totalSupply);
 
-        ICoinGenieERC20 genieToken = ICoinGenieERC20(_genie);
         uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
         if (payInGenie) {
             ethAmountToTreasury = (ethAmountToTreasury * _feeAmounts.discountPercent) / _MAX_BPS;
-            genieToken.safeTransferFrom(from, _feeTakers.coinGenie, _feeAmounts.discountFeeRequiredAmount);
+            ICoinGenieERC20(_genie).safeTransferFrom(from, _feeTakers.coinGenie, _feeAmounts.discountFeeRequiredAmount);
         }
 
         uint256 ethAmountToLP = value - ethAmountToTreasury;
@@ -361,20 +357,19 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     }
 
     /// @dev see ICoinGenieERC20 addLiquidity()
-    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable onlyOwner nonReentrant {
+    function addLiquidity(uint256 amountToLP, bool payInGenie) external payable nonReentrant {
         uint256 value = msg.value;
-        address from = owner();
-
+        address from = _msgSender();
         _addLiquidityChecks(amountToLP, value, from);
 
+        uint256 currentContractBalance = _balances[address(this)];
         transfer(address(this), amountToLP);
         _approve(address(this), address(_UNISWAP_V2_ROUTER), amountToLP);
-        ICoinGenieERC20 genieToken = ICoinGenieERC20(_genie);
-        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
 
+        uint256 ethAmountToTreasury = (value * _LP_ETH_FEE_PERCENTAGE) / _MAX_BPS;
         if (payInGenie) {
             ethAmountToTreasury = (ethAmountToTreasury * _feeAmounts.discountPercent) / _MAX_BPS;
-            genieToken.safeTransferFrom(from, _feeTakers.coinGenie, _feeAmounts.discountFeeRequiredAmount);
+            ICoinGenieERC20(_genie).safeTransferFrom(from, _feeTakers.coinGenie, _feeAmounts.discountFeeRequiredAmount);
         }
 
         uint256 ethAmountToLP = value - ethAmountToTreasury;
@@ -389,10 +384,22 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
                 revert TransferFailed(ethAmountToTreasury, address(this), _feeTakers.coinGenie);
             }
         }
+
+        // If there is any eth left in the contract, send it to the fee recipient
+        uint256 ethToRefund = address(this).balance;
+        if (ethToRefund != 0) {
+            _sendEthToFee(ethToRefund);
+        }
+
+        // If there is any token left in the contract, send it to the fee recipient
+        uint256 newContractBalance = _balances[address(this)];
+        if (currentContractBalance < newContractBalance) {
+            _transfer(address(this), _feeTakers.feeRecipient, newContractBalance - currentContractBalance);
+        }
     }
 
     /// @dev see ICoinGenieERC20 removeLiquidity()
-    function removeLiquidity(uint256 amountToRemove) external onlyOwner nonReentrant {
+    function removeLiquidity(uint256 amountToRemove) external nonReentrant {
         address from = _msgSender();
         ICoinGenieERC20(_uniswapV2Pair).safeTransferFrom(from, address(this), amountToRemove);
         _UNISWAP_V2_ROUTER.removeLiquidityETHSupportingFeeOnTransferTokens(
@@ -547,7 +554,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             revert TradingNotOpen();
         }
 
-        if (amountToLP < _MIN_LIQUIDITY_TOKEN || _balances[from] < amountToLP) {
+        if (_balances[from] < amountToLP) {
             revert InsufficientTokens(amountToLP, _MIN_LIQUIDITY_TOKEN);
         }
 

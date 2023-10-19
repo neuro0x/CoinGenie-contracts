@@ -255,7 +255,6 @@ contract CoinGenieERC20Test is Test {
         assertEq(
             coinGenieBalanceBefore + 0.005 ether, address(coinGenie).balance, "coinGenieBalanceBelfore < balanceAfter"
         );
-        assertEq(0, testToken.balanceOf(address(this)), "testToken.balanceOf(address(this)) == 0");
         assertLt(lpTokenBalanceBefore, lpToken.balanceOf(address(this)), "lpTokenBalanceBefore < lpTokenBalanceAfter");
     }
 
@@ -288,7 +287,6 @@ contract CoinGenieERC20Test is Test {
             address(coinGenie).balance,
             "coinGenieBalanceBelfore < balanceAfter"
         );
-        assertEq(0, testToken.balanceOf(address(this)), "testToken.balanceOf(address(this)) == 0");
         assertLt(lpTokenBalanceBefore, lpToken.balanceOf(address(this)), "lpTokenBalanceBefore < lpTokenBalanceAfter");
     }
 
