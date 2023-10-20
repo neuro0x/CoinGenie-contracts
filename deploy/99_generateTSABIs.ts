@@ -113,6 +113,6 @@ export default generateTsAbis;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags generateTsAbis
-generateTsAbis.tags = ["generateTsAbis"];
+generateTsAbis.tags = ["writeAbis"];
 
 generateTsAbis.runAtTheEnd = true;

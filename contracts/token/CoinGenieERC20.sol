@@ -78,6 +78,10 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     uint256 private constant _MIN_WALLET_PERCENT = 100; // 1%
     /// @dev The eth autoswap amount
     uint256 private constant _ETH_AUTOSWAP_AMOUNT = 0.025 ether;
+    /// @dev The initial tax percentage (antibot)
+    uint256 private constant _INITIAL_TAX_PERCENTAGE = 1000; // 10%
+    /// @dev The number of buys to conduct before the tax is reduced
+    uint256 private constant _REDUCE_TAX_AT = 10;
 
     /// @dev The address of the Uniswap V2 Router
     IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
@@ -118,6 +122,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     string private _symbol;
     /// @dev The total supply of the token
     uint256 private _totalSupply;
+    /// @dev The number of buys conducted
+    uint256 private _buyCount;
 
     /// @dev Prevents a reentrant call when trying to swap fees
     modifier lockTheSwap() {
@@ -496,16 +502,19 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
                 if (_balances[to] + amount > maxWalletAmount) {
                     revert ExceedsMaxAmount(_balances[to] + amount, maxWalletAmount);
                 }
+
+                _buyCount++;
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            totalTaxAmount =
-                (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS;
+            totalTaxAmount = _buyCount > _REDUCE_TAX_AT
+                ? (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS
+                : (amount * _INITIAL_TAX_PERCENTAGE) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS;
             if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen && contractTokenBalance >= 0) {
                 _swapTokensForEth(_min(amount, contractTokenBalance));
 
                 uint256 contractEthBalance = address(this).balance;
-                if (contractEthBalance >= _ETH_AUTOSWAP_AMOUNT) {
+                if (contractEthBalance >= _ETH_AUTOSWAP_AMOUNT && _buyCount > _REDUCE_TAX_AT) {
                     _sendEthToFee(contractEthBalance);
                 }
             }
