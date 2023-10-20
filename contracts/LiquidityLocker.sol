@@ -1,31 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-/*
-            ██████                                                                                  
-           ████████         █████████     ██████████     ███  ████         ███                      
-            ██████        █████████████ ██████████████   ████ ██████      ████                      
-              ██        ████████  ████ ██████    ██████  ████ ███████     ████                      
-              ██       █████          █████        █████ ████ █████████   ████                      
-              ██       █████          ████         █████ ████ ████ ██████ ████                      
-             ████      █████          ████         █████ ████ ████  ██████████                      
-            █████       █████         █████        █████ ████ ████    ████████                      
-           ████████      █████████████ ████████████████  ████ ████     ███████                      
-          ████  ████      █████████████  ████████████    ████ ████       █████                      
-        █████    █████        █████          ████                                                   
-      ██████      ██████                                                                            
-    ██████         ███████                                                                          
-  ████████          ████████           ███████████  █████████████████        ████  ████ ████████████
- ████████           █████████        █████████████  ███████████████████      ████ █████ ████████████
-█████████           ██████████     ███████          █████        ████████    ████ █████ ████        
-██████████         ████████████    █████            █████        █████████   ████ █████ ████        
-██████████████   ██████████████    █████   ████████ ████████████ ████ ██████ ████ █████ ███████████ 
-███████████████████████████████    █████   ████████ ██████████   ████  ██████████ █████ ██████████  
-███████████████████████████████    ██████      ████ █████        ████    ████████ █████ ████        
- █████████████████████████████      ███████████████ ████████████ ████      ██████ █████ ████████████
-  ██████████████████████████          █████████████ █████████████████       █████ █████ ███████████
-*/
-
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -36,9 +11,11 @@ import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2
 import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol";
 
-/// @title LiquidityLocker
-/// @author @neuro_0x
-/// @dev A contract for locking Uniswap V2 liquidity pool tokens for specified periods
+/**
+ * @title LiquidityLocker
+ * @author @neuro_0x
+ * @dev A contract for locking Uniswap V2 liquidity pool tokens for specified periods
+ */
 contract LiquidityLocker is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;

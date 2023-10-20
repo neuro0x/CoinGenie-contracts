@@ -1,12 +1,13 @@
 # CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffca93a03deb524ceb1074b1aeb503d4fe3aafe7/contracts/CoinGenie.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/65dc6cf5f97d3390f866cb15091adfd179cd1ab1/contracts/CoinGenie.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md)
 
-/// @title CoinGenie
-/// @author @neuro_0x
-/// @dev The orchestrator contract for the CoinGenie ecosystem.
+**Author:**
+@neuro_0x
+
+*The orchestrator contract for the CoinGenie ecosystem.*
 
 
 ## State Variables

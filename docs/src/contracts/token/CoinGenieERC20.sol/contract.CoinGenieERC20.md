@@ -1,5 +1,5 @@
 # CoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffca93a03deb524ceb1074b1aeb503d4fe3aafe7/contracts/token/CoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/65dc6cf5f97d3390f866cb15091adfd179cd1ab1/contracts/token/CoinGenieERC20.sol)
 
 **Inherits:**
 [ICoinGenieERC20](/contracts/token/ICoinGenieERC20.sol/interface.ICoinGenieERC20.md), Ownable, ReentrancyGuard
@@ -217,6 +217,15 @@ bool private _inSwap;
 
 ```solidity
 bool private _isSwapEnabled;
+```
+
+
+### _antibot
+*Whether or not to enable antibot*
+
+
+```solidity
+bool private _antibot;
 ```
 
 
@@ -462,6 +471,15 @@ function lpToken() public view returns (address);
 function amountEthReceived(address feeRecipient_) public view returns (uint256);
 ```
 
+### isAntiBot
+
+*see ICoinGenieERC20 isAntiBot()*
+
+
+```solidity
+function isAntiBot() public view returns (bool);
+```
+
 ### balanceOf
 
 *see ICoinGenieERC20 balanceOf()*
@@ -603,6 +621,15 @@ function setFeeRecipient(address payable feeRecipient_) external onlyOwner;
 
 ```solidity
 function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external onlyOwner;
+```
+
+### setAntiBot
+
+*see ICoinGenieERC20 setAntiBot()*
+
+
+```solidity
+function setAntiBot(bool antibot_) external onlyOwner;
 ```
 
 ### _approve

@@ -13,6 +13,10 @@ interface ICoinGenieERC20 is IERC20 {
     //                           Events                            //
     /////////////////////////////////////////////////////////////////
 
+    /// @dev Emits when the anti-bot is set
+    /// @param enabled - true if enabled
+    event AntiBotSet(bool enabled);
+
     /// @dev Emits when Genie is set
     /// @param genie - the address of the $GENIE contract
     event GenieSet(address indexed genie);
@@ -185,6 +189,10 @@ interface ICoinGenieERC20 is IERC20 {
     /// @return the amount of eth received
     function amountEthReceived(address feeRecipient_) external view returns (uint256);
 
+    /// @dev Gets the anit-bot status
+    /// @return true if the anti-bot is enabled
+    function isAntiBot() external view returns (bool);
+
     /// @dev Burns `amount` tokens from the caller
     /// @param amount - the amount of tokens to burn
     function burn(uint256 amount) external;
@@ -251,4 +259,8 @@ interface ICoinGenieERC20 is IERC20 {
     /// @notice Sets the Coin Genie fee percentage.
     /// @param coinGenieFeePercent_ The Coin Genie fee percentage.
     function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external;
+
+    /// @notice Sets the anti-bot features on/off
+    /// @param enabled - true if enabled
+    function setAntiBot(bool enabled) external;
 }

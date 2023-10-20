@@ -1,5 +1,5 @@
 # ICoinGenieERC20
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffca93a03deb524ceb1074b1aeb503d4fe3aafe7/contracts/token/ICoinGenieERC20.sol)
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/65dc6cf5f97d3390f866cb15091adfd179cd1ab1/contracts/token/ICoinGenieERC20.sol)
 
 **Inherits:**
 IERC20
@@ -293,6 +293,21 @@ function amountEthReceived(address feeRecipient_) external view returns (uint256
 |`<none>`|`uint256`|the amount of eth received|
 
 
+### isAntiBot
+
+*Gets the anit-bot status*
+
+
+```solidity
+function isAntiBot() external view returns (bool);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bool`|true if the anti-bot is enabled|
+
+
 ### burn
 
 *Burns `amount` tokens from the caller*
@@ -534,7 +549,30 @@ function setCoinGenieFeePercent(uint256 coinGenieFeePercent_) external;
 |`coinGenieFeePercent_`|`uint256`|The Coin Genie fee percentage.|
 
 
+### setAntiBot
+
+Sets the anti-bot features on/off
+
+
+```solidity
+function setAntiBot(bool enabled) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`enabled`|`bool`|- true if enabled|
+
+
 ## Events
+### AntiBotSet
+*Emits when the anti-bot is set*
+
+
+```solidity
+event AntiBotSet(bool enabled);
+```
+
 ### GenieSet
 *Emits when Genie is set*
 

@@ -115,6 +115,8 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     bool private _inSwap;
     /// @dev The swap status of the contract
     bool private _isSwapEnabled;
+    /// @dev Whether or not to enable antibot
+    bool private _antibot;
 
     /// @dev The name of the token
     string private _name;
@@ -257,6 +259,11 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
     /// @dev see ICoinGenieERC20 balanceOf()
     function amountEthReceived(address feeRecipient_) public view returns (uint256) {
         return _ethReceived[feeRecipient_];
+    }
+
+    /// @dev see ICoinGenieERC20 isAntiBot()
+    function isAntiBot() public view returns (bool) {
+        return _antibot;
     }
 
     /// @dev see ICoinGenieERC20 balanceOf()
@@ -464,6 +471,12 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
         _feeAmounts.coinGenieFeePercent = coinGenieFeePercent_;
     }
 
+    /// @dev see ICoinGenieERC20 setAntiBot()
+    function setAntiBot(bool antibot_) external onlyOwner {
+        _antibot = antibot_;
+        emit AntiBotSet(antibot_);
+    }
+
     /////////////////////////////////////////////////////////////////
     //                     Private/Internal                        //
     /////////////////////////////////////////////////////////////////
@@ -507,7 +520,7 @@ contract CoinGenieERC20 is ICoinGenieERC20, Ownable, ReentrancyGuard {
             }
 
             uint256 contractTokenBalance = _balances[address(this)];
-            totalTaxAmount = _buyCount > _REDUCE_TAX_AT
+            totalTaxAmount = _antibot && _buyCount > _REDUCE_TAX_AT
                 ? (amount * _feeAmounts.taxPercent) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS
                 : (amount * _INITIAL_TAX_PERCENTAGE) / _MAX_BPS + (amount * _feeAmounts.coinGenieFeePercent) / _MAX_BPS;
             if (!_inSwap && to == _uniswapV2Pair && _isTradingOpen && contractTokenBalance >= 0) {
