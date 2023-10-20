@@ -1,5 +1,5 @@
-# CoinGenie
-[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffca93a03deb524ceb1074b1aeb503d4fe3aafe7/contracts/CoinGenie.sol)
+# CoinGenieV2
+[Git Source](https://github.com/neuro0x/CoinGenie-contracts/blob/ffca93a03deb524ceb1074b1aeb503d4fe3aafe7/contracts/CoinGenieV2.sol)
 
 **Inherits:**
 [Payments](/contracts/abstract/Payments.sol/abstract.Payments.md)
@@ -116,7 +116,7 @@ Construct the CoinGenie contract.
 
 
 ```solidity
-constructor() payable;
+constructor(ICoinGenieERC20 genie_) payable;
 ```
 
 ### receive
@@ -124,6 +124,13 @@ constructor() payable;
 
 ```solidity
 receive() external payable override;
+```
+
+### setGenie
+
+
+```solidity
+function setGenie(ICoinGenieERC20 genie_) public onlyOwner;
 ```
 
 ### genie
