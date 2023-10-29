@@ -13,13 +13,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     const { deployer } = await hre.getNamedAccounts();
     const { deploy } = hre.deployments;
 
-    await deploy("AirdropERC20", {
-      from: deployer,
-      args: [],
-      log: true,
-      autoMine: true,
-    });
-
     const coinGenie = await deploy("CoinGenie", {
       from: deployer,
       args: [],
@@ -42,9 +35,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   }
 };
 
-// This is commented out bc this is the V1 deployment script and this save me from specifying tags on each deployment
-// export default deployYourContract;
-export default () => {};
+export default deployYourContract;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourContract

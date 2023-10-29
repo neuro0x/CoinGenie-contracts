@@ -104,7 +104,9 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   }
 };
 
-export default deployYourContract;
+// This is commented out bc this is the V1 deployment script and this save me from specifying tags on each deployment
+// export default deployYourContract;
+export default () => {};
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourContract

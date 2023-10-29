@@ -5,63 +5,66 @@ pragma solidity 0.8.21;
 import "forge-std/Test.sol";
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
-import { CoinGenie } from "../../contracts/CoinGenie.sol";
 
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol";
 
-import { ICoinGenieERC20 } from "../../contracts/token/ICoinGenieERC20.sol";
+import { CoinGenie } from "../../contracts/CoinGenie.sol";
+import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
+
+import { TokenFactory } from "../../contracts/factory/TokenFactory.sol";
+import { LiquidityRaiseFactory } from "../../contracts/factory/LiquidityRaiseFactory.sol";
+
+import { TokenTracker } from "../../contracts/abstract/TokenTracker.sol";
+
+import { ICoinGenieERC20 } from "../../contracts/interfaces/ICoinGenieERC20.sol";
+import { ITokenFactory } from "../../contracts/interfaces/ITokenFactory.sol";
+import { ILiquidityRaiseFactory } from "../../contracts/interfaces/ILiquidityRaiseFactory.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
 contract LiquidityLockerTest is Test {
     uint256 public constant MAX_TOKEN_SUPPLY = 100_000_000_000 ether;
+    uint256 public constant DISCOUNT_PERCENT = 5000;
+    uint256 public constant DISCOUNT_AMOUNT_REQUIRED = 100_000 ether;
+    uint256 public constant MAX_BPS = 10_000;
     IUniswapV2Router02 public constant UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+
     LiquidityLocker public liquidityLocker;
     IERC20 public token;
     IUniswapV2Pair public lpToken;
     CoinGenie public coinGenie;
     ICoinGenieERC20 public coinGenieERC20;
+    ITokenFactory public erc20Factory;
+    ILiquidityRaiseFactory public liquidityRaiseFactory;
     MockERC20 public mockERC20;
 
-    struct LaunchToken {
-        string name;
-        string symbol;
-        uint256 totalSupply;
-        address payable feeRecipient;
-        address payable affiliateFeeRecipient;
-        uint256 taxPercent;
-        uint256 maxBuyPercent;
-        uint256 maxWalletPercent;
-    }
-
-    LaunchToken public coinGenieLaunchToken = LaunchToken({
-        name: "Genie",
-        symbol: "GENIE",
-        totalSupply: MAX_TOKEN_SUPPLY,
-        feeRecipient: payable(address(this)),
-        affiliateFeeRecipient: payable(address(this)),
-        taxPercent: 1000,
-        maxBuyPercent: 500,
-        maxWalletPercent: 500
-    });
+    TokenTracker.TokenDetails public coinGenieLaunchToken;
 
     function setUp() public {
         mockERC20 = new MockERC20("TEST", "TEST", 18);
         mockERC20.mint(address(this), 100_000_000 ether);
-        coinGenie = new CoinGenie();
+        erc20Factory = new TokenFactory();
+        liquidityRaiseFactory = new LiquidityRaiseFactory();
+        coinGenie = new CoinGenie(address(erc20Factory), address(liquidityRaiseFactory));
         liquidityLocker = new LiquidityLocker(0.01 ether, address(coinGenie));
         coinGenieERC20 = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
+            TokenTracker.TokenDetails({
+                name: "Coin Genie",
+                symbol: "COIN",
+                tokenAddress: address(0),
+                feeRecipient: payable(address(this)),
+                affiliateFeeRecipient: payable(address(this)),
+                index: 0,
+                totalSupply: MAX_TOKEN_SUPPLY,
+                taxPercent: 500,
+                maxBuyPercent: MAX_BPS,
+                maxWalletPercent: MAX_BPS
+            }),
+            DISCOUNT_AMOUNT_REQUIRED,
+            DISCOUNT_PERCENT
         );
 
         lpToken = IUniswapV2Pair(

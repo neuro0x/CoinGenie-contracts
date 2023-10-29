@@ -15,9 +15,6 @@
     "genie"
   ],
   "private": true,
-  "installConfig": {
-    "hoistingLimits": "workspaces"
-  },
   "scripts": {
     "json": "hardhat solidity-json",
     "json:copy": "hardhat solidity-json && cp ./artifacts/solidity-json/contracts/token/CoinGenieERC20.sol.json ../app/generated/CoinGenieERC20.sol.json",
@@ -102,5 +99,8 @@
       "yarn lint:sol",
       "forge fmt --check"
     ]
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.8.0"
   }
 }

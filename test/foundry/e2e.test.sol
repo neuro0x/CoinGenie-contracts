@@ -6,13 +6,28 @@ import "forge-std/Test.sol";
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import { AirdropERC20 } from "../../contracts/AirdropERC20.sol";
 import { CoinGenie } from "../../contracts/CoinGenie.sol";
-import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
-import { ICoinGenieERC20 } from "../../contracts/token/ICoinGenieERC20.sol";
+
+import { AirdropERC20 } from "../../contracts/airdrop/AirdropERC20.sol";
+
+import { TokenTracker } from "../../contracts/tokens/TokenTracker.sol";
+import { TokenFactory } from "../../contracts/tokens/TokenFactory.sol";
+import { ITokenTracker } from "../../contracts/tokens/ITokenTracker.sol";
+import { ITokenFactory } from "../../contracts/tokens/ITokenFactory.sol";
+import { CoinGenieERC20 } from "../../contracts/tokens/CoinGenieERC20.sol";
+import { ICoinGenieERC20 } from "../../contracts/tokens/ICoinGenieERC20.sol";
+
+import { LiquidityLocker } from "../../contracts/liquidity/LiquidityLocker.sol";
+import { LiquidityRaiseFactory } from "../../contracts/liquidity/LiquidityRaiseFactory.sol";
+import { ILiquidityRaiseFactory } from "../../contracts/liquidity/ILiquidityRaiseFactory.sol";
+
+import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
 contract E2ETest is Test {
+    uint256 public constant MAX_BPS = 10_000;
     uint256 public constant MAX_TOKEN_SUPPLY = 100_000_000_000 ether;
+    uint256 public constant DISCOUNT_PERCENT = 5000;
+    uint256 public constant DISCOUNT_AMOUNT_REQUIRED = 100_000 ether;
 
     address[] private users = [
         0xBe79b43B1505290DFE04294a433963dbeea736BB,
@@ -36,39 +51,70 @@ contract E2ETest is Test {
         uint256 taxPercent;
         uint256 maxBuyPercent;
         uint256 maxWalletPercent;
+        uint256 discountFeeRequiredAmount;
+        uint256 discountPercent;
     }
 
     AirdropERC20 public airdropERC20;
     CoinGenie public coinGenie;
     LiquidityLocker public liquidityLocker;
+    ICoinGenieERC20 public genieToken;
     ICoinGenieERC20 public coinGenieERC20;
+    ITokenFactory public erc20Factory;
+    ILiquidityRaiseFactory public liquidityRaiseFactory;
     IUniswapV2Pair public genieLpToken;
     IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    CoinGenieLaunchToken public coinGenieLaunchToken = CoinGenieLaunchToken({
-        name: "Genie",
-        symbol: "GENIE",
-        totalSupply: 1_000_000_000 ether,
-        affiliateFeeRecipient: payable(coinGenie),
-        taxPercent: 100,
-        maxBuyPercent: 500,
-        maxWalletPercent: 500
-    });
+    ITokenTracker.TokenDetails public coinGenieLaunchToken;
 
     function setUp() public {
+        genieToken = new CoinGenieERC20(
+            "Genie",
+            "GENIE",
+            MAX_TOKEN_SUPPLY,
+            payable(address(this)),
+            payable(address(0x0123)),
+            payable(address(this)),
+            0,
+            MAX_BPS,
+            MAX_BPS,
+            0,
+            0
+        );
+
         airdropERC20 = new AirdropERC20();
-        coinGenie = new CoinGenie();
+        erc20Factory = new TokenFactory();
+        liquidityRaiseFactory = new LiquidityRaiseFactory();
+        coinGenie = new CoinGenie(address(erc20Factory), address(liquidityRaiseFactory), genieToken);
         liquidityLocker = new LiquidityLocker(0.0075 ether, address(coinGenie));
 
         coinGenieERC20 = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
+            ITokenTracker.LaunchTokenParams({
+                name: "Coin Genie",
+                symbol: "COIN",
+                feeRecipient: address(this),
+                affiliateFeeRecipient: address(coinGenie),
+                totalSupply: MAX_TOKEN_SUPPLY,
+                taxPercent: 0,
+                maxBuyPercent: MAX_BPS,
+                maxWalletPercent: MAX_BPS
+            }),
+            DISCOUNT_AMOUNT_REQUIRED,
+            DISCOUNT_PERCENT
         );
+
+        coinGenieLaunchToken = TokenTracker.TokenDetails({
+            name: coinGenieERC20.name(),
+            symbol: coinGenieERC20.symbol(),
+            tokenAddress: address(coinGenieERC20),
+            feeRecipient: coinGenieERC20.feeRecipient(),
+            affiliateFeeRecipient: coinGenieERC20.affiliateFeeRecipient(),
+            index: 0,
+            totalSupply: coinGenieERC20.totalSupply(),
+            taxPercent: coinGenieERC20.taxPercent(),
+            maxBuyPercent: coinGenieERC20.maxBuyPercent(),
+            maxWalletPercent: coinGenieERC20.maxWalletPercent()
+        });
 
         // _logCoinGenieInfo();
 
@@ -86,18 +132,25 @@ contract E2ETest is Test {
         vm.label(user5, "User 4");
         vm.label(user5, "User 5");
         vm.label(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, "V2 Router");
+        vm.label(address(coinGenie), "Coin Genie");
+        vm.label(address(coinGenieERC20), "Coin Genie ERC20");
+        vm.label(address(liquidityLocker), "Liquidity Locker");
+        vm.label(address(airdropERC20), "Airdrop ERC20");
+        vm.label(address(erc20Factory), "ERC20 Factory");
+        vm.label(address(liquidityRaiseFactory), "Liquidity Raise Factory");
+        vm.label(address(this), "E2E Test");
     }
 
     function test_checkInitialContractAndGenieTokenSettings() public {
         // Check that the Genie token have "genie" set to "GENIE" address
-        assertEq(coinGenieERC20.genie(), address(coinGenieERC20));
+        assertEq(coinGenieERC20.genie(), address(coinGenieERC20), "Genie is not set.");
 
         // Check that the LiquidityLocker and GENIE have the Coin Genie as the fee recipient
-        assertEq(liquidityLocker.feeRecipient(), address(coinGenie));
-        assertEq(coinGenieERC20.feeRecipient(), address(this));
+        assertEq(liquidityLocker.feeRecipient(), address(coinGenie), "LiquidityLocker feeRecipient is not set.");
+        assertEq(coinGenieERC20.feeRecipient(), address(this), "Token feeRecipient is not set.");
 
         // Check that the GENIE token has the Coin Genie as the affiliate fee recipient
-        assertEq(coinGenieERC20.affiliateFeeRecipient(), address(coinGenie));
+        assertEq(coinGenieERC20.affiliateFeeRecipient(), address(coinGenie), "Token affiliateFeeRecipient is not set.");
     }
 
     function test_checkGenieTokenOpenTrading() public {
@@ -112,13 +165,20 @@ contract E2ETest is Test {
         // Launch a new token from a different user
         vm.startPrank(user1);
         ICoinGenieERC20 user1Token = coinGenie.launchToken(
-            "U1's Token",
-            "ONE",
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
+            TokenTracker.TokenDetails({
+                name: "U1's Token",
+                symbol: "U1",
+                tokenAddress: address(0),
+                feeRecipient: payable(user1),
+                affiliateFeeRecipient: payable(user1),
+                index: 0,
+                totalSupply: MAX_TOKEN_SUPPLY,
+                taxPercent: 500,
+                maxBuyPercent: MAX_BPS,
+                maxWalletPercent: MAX_BPS
+            }),
+            DISCOUNT_AMOUNT_REQUIRED,
+            DISCOUNT_PERCENT
         );
         vm.label(address(user1Token), "U1's Token");
 

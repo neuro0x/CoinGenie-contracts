@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import { AirdropERC20 } from "../../contracts/AirdropERC20.sol";
+import { AirdropERC20 } from "../../contracts/airdrop/AirdropERC20.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 

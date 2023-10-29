@@ -8,7 +8,15 @@ import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2
 
 import { CoinGenie } from "../../contracts/CoinGenie.sol";
 
-import { ICoinGenieERC20 } from "../../contracts/token/ICoinGenieERC20.sol";
+import { TokenTracker } from "../../contracts/tokens/TokenTracker.sol";
+import { TokenFactory } from "../../contracts/tokens/TokenFactory.sol";
+import { ITokenTracker } from "../../contracts/tokens/ITokenTracker.sol";
+import { ITokenFactory } from "../../contracts/tokens/ITokenFactory.sol";
+import { CoinGenieERC20 } from "../../contracts/tokens/CoinGenieERC20.sol";
+import { ICoinGenieERC20 } from "../../contracts/tokens/ICoinGenieERC20.sol";
+
+import { LiquidityRaiseFactory } from "../../contracts/liquidity/LiquidityRaiseFactory.sol";
+import { ILiquidityRaiseFactory } from "../../contracts/liquidity/ILiquidityRaiseFactory.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
@@ -21,28 +29,10 @@ contract CoinGenieTest is Test {
     CoinGenie public coinGenie;
     MockERC20 public mockERC20;
     ICoinGenieERC20 public coinGenieERC20;
+    ITokenFactory public erc20Factory;
+    ILiquidityRaiseFactory public liquidityRaiseFactory;
 
-    struct LaunchToken {
-        string name;
-        string symbol;
-        uint256 totalSupply;
-        address payable feeRecipient;
-        address payable affiliateFeeRecipient;
-        uint256 taxPercent;
-        uint256 maxBuyPercent;
-        uint256 maxWalletPercent;
-    }
-
-    LaunchToken public coinGenieLaunchToken = LaunchToken({
-        name: "Genie",
-        symbol: "GENIE",
-        totalSupply: MAX_TOKEN_SUPPLY,
-        feeRecipient: payable(address(this)),
-        affiliateFeeRecipient: payable(address(this)),
-        taxPercent: 1000,
-        maxBuyPercent: 500,
-        maxWalletPercent: 500
-    });
+    ITokenTracker.TokenDetails public coinGenieLaunchToken;
 
     struct CoinGenieClaimableAirdrop {
         address airdropAddress;
@@ -71,56 +61,56 @@ contract CoinGenieTest is Test {
         mockERC20 = new MockERC20("MockERC20", "MOCK", 18);
         mockERC20.mint(address(this), MAX_TOKEN_SUPPLY);
 
-        coinGenie = new CoinGenie();
+        erc20Factory = new TokenFactory();
+        liquidityRaiseFactory = new LiquidityRaiseFactory();
+
+        coinGenie =
+            new CoinGenie(address(erc20Factory), address(liquidityRaiseFactory), ICoinGenieERC20(address(mockERC20)));
         coinGenieERC20 = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
+            ITokenTracker.TokenDetails({
+                name: "Coin Genie",
+                symbol: "COIN",
+                tokenAddress: address(0),
+                feeRecipient: payable(address(this)),
+                affiliateFeeRecipient: payable(address(this)),
+                index: 0,
+                totalSupply: MAX_TOKEN_SUPPLY,
+                taxPercent: 500,
+                maxBuyPercent: MAX_BPS,
+                maxWalletPercent: MAX_BPS
+            })
         );
+
+        coinGenieLaunchToken = ITokenTracker.TokenDetails({
+            name: coinGenieERC20.name(),
+            symbol: coinGenieERC20.symbol(),
+            tokenAddress: address(coinGenieERC20),
+            feeRecipient: coinGenieERC20.feeRecipient(),
+            affiliateFeeRecipient: coinGenieERC20.affiliateFeeRecipient(),
+            index: 0,
+            totalSupply: coinGenieERC20.totalSupply(),
+            taxPercent: coinGenieERC20.taxPercent(),
+            maxBuyPercent: coinGenieERC20.maxBuyPercent(),
+            maxWalletPercent: coinGenieERC20.maxWalletPercent()
+        });
     }
 
     function test_genie() public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(address(token.genie()), address(coinGenieERC20), "Genie address is not correct");
     }
 
     function testFuzz_launchToken_name(string memory name) public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        coinGenieLaunchToken.name = name;
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.name(), name, "Name is not correct");
     }
 
     function testFuzz_launchToken_symbol(string memory symbol) public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        coinGenieLaunchToken.symbol = symbol;
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.symbol(), symbol, "Symbol is not correct");
     }
@@ -128,89 +118,52 @@ contract CoinGenieTest is Test {
     function testFuzz_launchToken_totalSupply(uint256 totalSupply) public {
         vm.assume(totalSupply > 1 ether);
         vm.assume(totalSupply <= MAX_TOKEN_SUPPLY);
+        coinGenieLaunchToken.totalSupply = totalSupply;
 
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.totalSupply(), totalSupply, "Total supply is not correct");
     }
 
     function testFuzz_launchToken_affiliateFeeRecipient(address payable affiliateFeeRecipient) public {
         vm.assume(affiliateFeeRecipient != address(0));
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        coinGenieLaunchToken.affiliateFeeRecipient = affiliateFeeRecipient;
+
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.affiliateFeeRecipient(), affiliateFeeRecipient, "Affiliate fee recipient is not correct");
     }
 
     function test_launchToken_affiliateFeeRecipient_zeroAddress() public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            payable(address(0)),
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        coinGenieLaunchToken.affiliateFeeRecipient = payable(address(0));
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.affiliateFeeRecipient(), address(coinGenie), "Affiliate fee recipient is not correct");
     }
 
     function testFuzz_launchToken_taxPercent(uint256 taxPercent) public {
         vm.assume(taxPercent <= MAX_TAX);
+        coinGenieLaunchToken.taxPercent = taxPercent;
 
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.taxPercent(), taxPercent, "Tax percent is not correct");
     }
 
     function testFuzz_launchToken_maxBuyPercent(uint256 maxBuyPercent) public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        vm.assume(maxBuyPercent <= MAX_TAX);
+        coinGenieLaunchToken.maxBuyPercent = maxBuyPercent;
+
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.maxBuyPercent(), maxBuyPercent, "Max buy percent is not correct");
     }
 
     function testFuzz_launchToken_maxWalletPercent(uint256 maxWalletPercent) public {
-        ICoinGenieERC20 token = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            maxWalletPercent
-        );
+        vm.assume(maxWalletPercent <= MAX_TAX);
+        coinGenieLaunchToken.maxWalletPercent = maxWalletPercent;
+
+        ICoinGenieERC20 token = coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(token.maxWalletPercent(), maxWalletPercent, "Max wallet percent is not correct");
     }
@@ -218,35 +171,19 @@ contract CoinGenieTest is Test {
     function test_getNumberOfLaunchedTokens() public {
         assertEq(coinGenie.getNumberOfLaunchedTokens(), 1, "Number of launched tokens is not correct - 1");
 
-        coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        coinGenie.launchToken(coinGenieLaunchToken);
 
         assertEq(coinGenie.getNumberOfLaunchedTokens(), 2, "Number of launched tokens is not correct - 2");
     }
 
     function test_getLaunchedTokensForAddress() public {
-        ICoinGenieERC20 launchedToken = coinGenie.launchToken(
-            coinGenieLaunchToken.name,
-            coinGenieLaunchToken.symbol,
-            coinGenieLaunchToken.totalSupply,
-            coinGenieLaunchToken.affiliateFeeRecipient,
-            coinGenieLaunchToken.taxPercent,
-            coinGenieLaunchToken.maxBuyPercent,
-            coinGenieLaunchToken.maxWalletPercent
-        );
+        ICoinGenieERC20 tokenDetails = coinGenie.launchToken(coinGenieLaunchToken);
 
-        CoinGenie.LaunchedToken[] memory launchedTokenStruct = coinGenie.getLaunchedTokensForAddress(address(this));
+        CoinGenie.TokenDetails[] memory launchedTokenStruct = coinGenie.getLaunchedTokensForAddress(address(this));
         uint256 launchedTokenStructLength = launchedTokenStruct.length;
-        CoinGenie.LaunchedToken memory launchedTokenStructLast = launchedTokenStruct[launchedTokenStructLength - 1];
+        CoinGenie.TokenDetails memory launchedTokenStructLast = launchedTokenStruct[launchedTokenStructLength - 1];
 
-        assertEq(launchedTokenStructLast.tokenAddress, address(launchedToken), "Token address is not correct");
+        assertEq(launchedTokenStructLast.tokenAddress, address(tokenDetails), "Token address is not correct");
     }
 
     function testFuzz_setDiscountPercent(uint256 discountPercent) public {
@@ -259,13 +196,9 @@ contract CoinGenieTest is Test {
         coinGenie.setDiscountPercent(MAX_BPS + 1);
     }
 
-    function testFuzz_setDiscountFeeRequiredAmount(uint256 discountFeeRequiredAmount) public {
-        coinGenie.setDiscountFeeRequiredAmount(discountFeeRequiredAmount);
-        assertEq(
-            coinGenie.discountFeeRequiredAmount(),
-            discountFeeRequiredAmount,
-            "Discount fee required amount is not correct"
-        );
+    function testFuzz_setDiscountFeeRequiredAmount(uint256 discountAmount) public {
+        coinGenie.setDiscountFeeRequiredAmount(discountAmount);
+        assertEq(coinGenie.discountFeeRequiredAmount(), discountAmount, "Discount fee required amount is not correct");
     }
 
     // TODO: write this test

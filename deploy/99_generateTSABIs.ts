@@ -42,9 +42,10 @@ function getContractNames(path: string) {
 }
 
 const SOURCE_PATH = "./artifacts/contracts";
-const DESTINATION_PATH = "../app/generated/abi";
+const DESTINATION_PATH_APP = "../app/generated/abi";
 const DEPLOYMENTS_DIR = "./deployments";
-const ABI_DIR_ERC20 = "./artifacts/contracts/token/CoinGenieERC20.sol";
+const ABI_DIR_ERC20 = "./artifacts/contracts/CoinGenieERC20.sol";
+const ABI_DIR_LIQ_RAISE = "./artifacts/contracts/LiquidityRaise.sol";
 const ABI_UNISWAP_V2_ROUTER_02 = "./artifacts/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 function getContractDataFromDeployments() {
@@ -68,6 +69,10 @@ function getContractDataFromDeployments() {
     let abi = JSON.parse(fs.readFileSync(`${ABI_DIR_ERC20}/CoinGenieERC20.json`)?.toString());
     contracts["CoinGenieERC20"] = { address: "", abi };
 
+    // push LiquidityRaise since it doesn't get deployed
+    abi = JSON.parse(fs.readFileSync(`${ABI_DIR_LIQ_RAISE}/LiquidityRaise.json`)?.toString());
+    contracts["CoinGenieERC20"] = { address: "", abi };
+
     // push UniswapV2Router02 since it doesn't get deployed
     abi = JSON.parse(fs.readFileSync(`${ABI_UNISWAP_V2_ROUTER_02}/IUniswapV2Router02.json`)?.toString());
     contracts["IUniswapV2Router02"] = { address: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", abi };
@@ -80,6 +85,7 @@ function getContractDataFromDeployments() {
       },
     ];
   }
+
   return output;
 }
 
@@ -105,7 +111,7 @@ const generateTsAbis: DeployFunction = async function () {
     }),
   );
 
-  await copyRecursive(SOURCE_PATH, DESTINATION_PATH);
+  await copyRecursive(SOURCE_PATH, DESTINATION_PATH_APP);
   console.log(`✅ Updated TypeScript contract definition file on ${TARGET_DIR}deployedContracts.ts`);
 };
 

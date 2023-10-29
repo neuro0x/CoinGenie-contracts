@@ -6,6 +6,7 @@ test = 'test/foundry'
 cache_path = 'forge-cache'
 fuzz = { runs = 2_500 }
 gas_reports = ["*"]
+viaIR = true
 
 [profile.ci]
 fuzz = { runs = 2_500 }
