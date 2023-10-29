@@ -98,12 +98,10 @@ contract E2ETest is Test {
                 taxPercent: 0,
                 maxBuyPercent: MAX_BPS,
                 maxWalletPercent: MAX_BPS
-            }),
-            DISCOUNT_AMOUNT_REQUIRED,
-            DISCOUNT_PERCENT
+            })
         );
 
-        coinGenieLaunchToken = TokenTracker.TokenDetails({
+        coinGenieLaunchToken = ITokenTracker.TokenDetails({
             name: coinGenieERC20.name(),
             symbol: coinGenieERC20.symbol(),
             tokenAddress: address(coinGenieERC20),
@@ -165,20 +163,16 @@ contract E2ETest is Test {
         // Launch a new token from a different user
         vm.startPrank(user1);
         ICoinGenieERC20 user1Token = coinGenie.launchToken(
-            TokenTracker.TokenDetails({
+            ITokenTracker.LaunchTokenParams({
                 name: "U1's Token",
                 symbol: "U1",
-                tokenAddress: address(0),
                 feeRecipient: payable(user1),
                 affiliateFeeRecipient: payable(user1),
-                index: 0,
                 totalSupply: MAX_TOKEN_SUPPLY,
                 taxPercent: 500,
                 maxBuyPercent: MAX_BPS,
                 maxWalletPercent: MAX_BPS
-            }),
-            DISCOUNT_AMOUNT_REQUIRED,
-            DISCOUNT_PERCENT
+            })
         );
         vm.label(address(user1Token), "U1's Token");
 

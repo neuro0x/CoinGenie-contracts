@@ -11,16 +11,16 @@ import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/I
 import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Migrator.sol";
 
 import { CoinGenie } from "../../contracts/CoinGenie.sol";
-import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
 
-import { TokenFactory } from "../../contracts/factory/TokenFactory.sol";
-import { LiquidityRaiseFactory } from "../../contracts/factory/LiquidityRaiseFactory.sol";
+import { TokenTracker } from "../../contracts/tokens/TokenTracker.sol";
+import { TokenFactory } from "../../contracts/tokens/TokenFactory.sol";
+import { ITokenTracker } from "../../contracts/tokens/ITokenTracker.sol";
+import { ITokenFactory } from "../../contracts/tokens/ITokenFactory.sol";
+import { ICoinGenieERC20 } from "../../contracts/tokens/ICoinGenieERC20.sol";
 
-import { TokenTracker } from "../../contracts/abstract/TokenTracker.sol";
-
-import { ICoinGenieERC20 } from "../../contracts/interfaces/ICoinGenieERC20.sol";
-import { ITokenFactory } from "../../contracts/interfaces/ITokenFactory.sol";
-import { ILiquidityRaiseFactory } from "../../contracts/interfaces/ILiquidityRaiseFactory.sol";
+import { LiquidityLocker } from "../../contracts/liquidity/LiquidityLocker.sol";
+import { LiquidityRaiseFactory } from "../../contracts/liquidity/LiquidityRaiseFactory.sol";
+import { ILiquidityRaiseFactory } from "../../contracts/liquidity/ILiquidityRaiseFactory.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
@@ -41,30 +41,26 @@ contract LiquidityLockerTest is Test {
     ILiquidityRaiseFactory public liquidityRaiseFactory;
     MockERC20 public mockERC20;
 
-    TokenTracker.TokenDetails public coinGenieLaunchToken;
+    TokenTracker.LaunchTokenParams public launchTokenParams;
 
     function setUp() public {
         mockERC20 = new MockERC20("TEST", "TEST", 18);
         mockERC20.mint(address(this), 100_000_000 ether);
         erc20Factory = new TokenFactory();
         liquidityRaiseFactory = new LiquidityRaiseFactory();
-        coinGenie = new CoinGenie(address(erc20Factory), address(liquidityRaiseFactory));
+        coinGenie = new CoinGenie(address(erc20Factory), address(liquidityRaiseFactory), ICoinGenieERC20(address(0)));
         liquidityLocker = new LiquidityLocker(0.01 ether, address(coinGenie));
         coinGenieERC20 = coinGenie.launchToken(
-            TokenTracker.TokenDetails({
+            ITokenTracker.LaunchTokenParams({
                 name: "Coin Genie",
                 symbol: "COIN",
-                tokenAddress: address(0),
                 feeRecipient: payable(address(this)),
                 affiliateFeeRecipient: payable(address(this)),
-                index: 0,
                 totalSupply: MAX_TOKEN_SUPPLY,
                 taxPercent: 500,
                 maxBuyPercent: MAX_BPS,
                 maxWalletPercent: MAX_BPS
-            }),
-            DISCOUNT_AMOUNT_REQUIRED,
-            DISCOUNT_PERCENT
+            })
         );
 
         lpToken = IUniswapV2Pair(
