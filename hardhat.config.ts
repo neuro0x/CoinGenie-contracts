@@ -5,11 +5,11 @@ import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-ethers/signers";
 import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-solhint";
-import "hardhat-deploy";
 import "solidity-coverage";
 import "hardhat-preprocessor";
 import "hardhat-interface-generator";
 import "@xyrusworx/hardhat-solidity-json";
+import "hardhat-deploy";
 
 dotenv.config();
 
@@ -30,6 +30,7 @@ const config: HardhatUserConfig = {
     },
   },
   defaultNetwork: "localhost",
+  // @ts-ignore
   namedAccounts: {
     deployer: {
       default: 0,

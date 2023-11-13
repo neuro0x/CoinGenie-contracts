@@ -6,7 +6,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import { IPaymentTracker } from "./IPaymentTracker.sol";
+import { IPaymentTracker } from "../interfaces/IPaymentTracker.sol";
 
 abstract contract PaymentTracker is IPaymentTracker, Ownable, ReentrancyGuard {
     uint256 private constant _MAX_BPS = 10_000;

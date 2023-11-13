@@ -9,22 +9,50 @@ import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2
 import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import { ICoinGenieERC20 } from "../tokens/ICoinGenieERC20.sol";
+import { IToken } from "./interfaces/IToken.sol";
 
-import { ILiquidityRaise } from "./ILiquidityRaise.sol";
+contract LiquidityRaise is Ownable, ReentrancyGuard {
+    using SafeERC20 for IToken;
 
-contract LiquidityRaise is ILiquidityRaise, Ownable, ReentrancyGuard {
-    using SafeERC20 for ICoinGenieERC20;
+    event Invested(address indexed investor, uint256 amount);
+    event TokensClaimed(address indexed investor, uint256 amount);
+
+    error Unauthorized();
+    error InvalidEndDate();
+    error InvalidStartDate();
+    error InvalidAllocations();
+    error TradingAlreadyOpen();
+    error InvalidDesiredRaise();
+    error InvalidMinimumInvestment();
+    error InvalidMaximumInvestment();
+    error PresaleEnded(uint256 endDate);
+    error TransferFailed(address token, address from, address to);
+
+    struct Investor {
+        uint256 amountInvested;
+        bool claimed;
+    }
+
+    struct Raise {
+        uint256 desiredRaise;
+        uint256 minimumInvestment;
+        uint256 maximumInvestment;
+        uint256 startDate;
+        uint256 endDate;
+        uint256 raiseAllocation;
+        uint256 lpAllocation;
+        uint256 totalRaised;
+    }
 
     uint256 private constant _MAX_BPS = 10_000; // 100%
     uint256 private constant _COIN_GENIE_FEE = 100; // 1%
     uint256 private immutable _MIN_DESIRED_RAISE = 0.5 ether;
 
-    ICoinGenieERC20 private immutable _coinGenieERC20;
+    IToken private immutable _coinGenieERC20;
     IUniswapV2Router02 private constant _UNISWAP_V2_ROUTER =
         IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    address payable private immutable _coinGenie;
+    address private immutable _coinGenie;
 
     address[] private _investors;
     mapping(address investor => Investor) private _investorDetails;
@@ -64,8 +92,8 @@ contract LiquidityRaise is ILiquidityRaise, Ownable, ReentrancyGuard {
     }
 
     constructor(
-        address payable coinGenie_,
-        ICoinGenieERC20 coinGenieERC20_,
+        address coinGenie_,
+        IToken coinGenieERC20_,
         uint256 desiredRaise_,
         uint256 minimumInvestment_,
         uint256 maximumInvestment_,
@@ -151,7 +179,7 @@ contract LiquidityRaise is ILiquidityRaise, Ownable, ReentrancyGuard {
         return address(_coinGenie);
     }
 
-    function coinGenieERC20() external view returns (ICoinGenieERC20) {
+    function coinGenieERC20() external view returns (IToken) {
         return _coinGenieERC20;
     }
 
@@ -239,7 +267,7 @@ contract LiquidityRaise is ILiquidityRaise, Ownable, ReentrancyGuard {
     }
 
     function _validateAllocations(
-        ICoinGenieERC20 coinGenieERC20_,
+        IToken coinGenieERC20_,
         uint256 raiseAllocation_,
         uint256 lpAllocation_
     )
@@ -264,7 +292,7 @@ contract LiquidityRaise is ILiquidityRaise, Ownable, ReentrancyGuard {
     /// @param startDate_ - the start date of the liquidity raise in seconds since unix epoch
     /// @param endDate_ - the end date of the liquidity raise in seconds since unix epoch
     function _createChecks(
-        ICoinGenieERC20 coinGenieERC20_,
+        IToken coinGenieERC20_,
         uint256 desiredRaise_,
         uint256 minimumInvestment_,
         uint256 maximumInvestment_,

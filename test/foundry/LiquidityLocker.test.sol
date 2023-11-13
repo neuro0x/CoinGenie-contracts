@@ -12,15 +12,13 @@ import { IUniswapV2Migrator } from "@uniswap/v2-periphery/contracts/interfaces/I
 
 import { CoinGenie } from "../../contracts/CoinGenie.sol";
 
-import { TokenTracker } from "../../contracts/tokens/TokenTracker.sol";
-import { TokenFactory } from "../../contracts/tokens/TokenFactory.sol";
-import { ITokenTracker } from "../../contracts/tokens/ITokenTracker.sol";
-import { ITokenFactory } from "../../contracts/tokens/ITokenFactory.sol";
-import { ICoinGenieERC20 } from "../../contracts/tokens/ICoinGenieERC20.sol";
+import { TokenTracker } from "../../contracts/abstract/TokenTracker.sol";
+import { TokenFactory } from "../../contracts/TokenFactory.sol";
+import { ITokenTracker } from "../../contracts/interfaces/ITokenTracker.sol";
+import { ITokenFactory } from "../../contracts/interfaces/ITokenFactory.sol";
+import { ITaxToken } from "../../contracts/interfaces/ITaxToken.sol";
 
-import { LiquidityLocker } from "../../contracts/liquidity/LiquidityLocker.sol";
-import { LiquidityRaiseFactory } from "../../contracts/liquidity/LiquidityRaiseFactory.sol";
-import { ILiquidityRaiseFactory } from "../../contracts/liquidity/ILiquidityRaiseFactory.sol";
+import { LiquidityLocker } from "../../contracts/LiquidityLocker.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
@@ -38,7 +36,6 @@ contract LiquidityLockerTest is Test {
     CoinGenie public coinGenie;
     ICoinGenieERC20 public coinGenieERC20;
     ITokenFactory public erc20Factory;
-    ILiquidityRaiseFactory public liquidityRaiseFactory;
     MockERC20 public mockERC20;
 
     TokenTracker.LaunchTokenParams public launchTokenParams;

@@ -3,15 +3,11 @@ pragma solidity 0.8.21;
 
 import "forge-std/Test.sol";
 
-import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-import { AirdropERC20 } from "../../contracts/airdrop/AirdropERC20.sol";
+import { AirdropERC20 } from "../../contracts/AirdropERC20.sol";
 
 import { MockERC20 } from "./mocks/ERC20.mock.sol";
 
 contract AirdropERC20Test is Test {
-    using SafeMath for uint256;
-
     uint256 public constant MAX_TOKEN_SUPPLY = 100_000_000_000 ether;
 
     mapping(address user => uint256 balance) public balances;
@@ -34,9 +30,9 @@ contract AirdropERC20Test is Test {
         uint256 totalAmount = 0;
         uint256[] memory amounts = new uint256[](recipients.length);
         for (uint256 i = 0; i < recipients.length;) {
-            totalAmount = totalAmount.add(MAX_TOKEN_SUPPLY.div(recipients.length));
-            amounts[i] = MAX_TOKEN_SUPPLY.div(recipients.length);
-            balances[recipients[i]] = balances[recipients[i]].add(amounts[i]);
+            totalAmount = totalAmount + MAX_TOKEN_SUPPLY / recipients.length;
+            amounts[i] = MAX_TOKEN_SUPPLY / recipients.length;
+            balances[recipients[i]] = balances[recipients[i]] + amounts[i];
 
             unchecked {
                 i = i + 1;
